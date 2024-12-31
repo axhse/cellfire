@@ -30,3 +30,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### React app ###
+/frontend/build/
+/frontend/node_modules/
+/frontend/package-lock.json

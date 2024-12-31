@@ -55,9 +55,28 @@
 
 	<build>
 		<plugins>
+			<!-- Плагин для копирования собранных файлов в папку resources/static -->
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<id>copy-react-build</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/classes/static</outputDirectory> <!-- Папка для статических ресурсов -->
+							<resources>
+								<resource>
+									<directory>frontend/build</directory> <!-- Папка с результатами сборки -->
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
