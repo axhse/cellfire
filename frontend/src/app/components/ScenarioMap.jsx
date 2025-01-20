@@ -11,8 +11,11 @@ import Feature from 'ol/Feature';
 import Control from 'ol/control/Control';
 
 import {
+  CELL_WIDTH,
   DATE_SHIFT_STEP,
   DATE_SHIFT_INTERVAL_LIMIT,
+} from '../services/domain';
+import {
   createScenario,
   removeScenario,
   predictScenario,
@@ -136,13 +139,10 @@ export class ScenarioMap extends Component {
       y = coordinates[1];
     const center = this.scenario.startPoint;
 
-    const leftEdgeLon =
-      center[0] + (x - 0.5) / 111.32 / Math.cos((center[1] * Math.PI) / 180);
-    const rightEdgeLon =
-      center[0] + (x + 0.5) / 111.32 / Math.cos((center[1] * Math.PI) / 180);
-
-    const topEdgeLat = center[1] + (y - 0.5) / 110.574;
-    const bottomEdgeLat = center[1] + (y + 0.5) / 110.574;
+    const leftEdgeLon = center[0] + (x - 0.5) * CELL_WIDTH;
+    const rightEdgeLon = center[0] + (x + 0.5) * CELL_WIDTH;
+    const topEdgeLat = center[1] + (y - 0.5) * CELL_WIDTH;
+    const bottomEdgeLat = center[1] + (y + 0.5) * CELL_WIDTH;
 
     return new Polygon([
       [

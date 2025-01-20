@@ -1,18 +1,7 @@
-const Distance = {
-  meters: (n) => n,
-};
-
-const DateInterval = {
-  minutes: (n) => n * 60 * 1000,
-  hours: (n) => n * 60 * 60 * 1000,
-  days: (n) => n * 24 * 60 * 60 * 1000,
-};
-
-export const CELL_WIDTH = Distance.meters(1000);
-export const DATE_SHIFT_STEP = DateInterval.minutes(30);
-export const DATE_SHIFT_INTERVAL_LIMIT = DateInterval.days(3);
+import { DATE_SHIFT_STEP, roundGeoCoordinates } from './domain';
 
 export function createScenario(startPoint, startDate) {
+  startPoint = roundGeoCoordinates(startPoint);
   return {
     id: 'TODO generate id',
     startPoint: startPoint,
