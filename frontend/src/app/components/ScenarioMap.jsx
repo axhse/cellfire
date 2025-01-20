@@ -11,9 +11,9 @@ import Feature from 'ol/Feature';
 import Control from 'ol/control/Control';
 
 import {
-  CELL_WIDTH,
+  CELL_SIZE,
   DATE_SHIFT_STEP,
-  DATE_SHIFT_INTERVAL_LIMIT,
+  MAX_PREDICTION_PERIOD,
 } from '../services/domain';
 import {
   createScenario,
@@ -59,9 +59,7 @@ export class ScenarioMap extends Component {
       })
     );
 
-    map.on('singleclick', (event) => {
-      this.handleMapClick(event);
-    });
+    map.on('singleclick', (event) => this.handleMapClick(event));
 
     return map;
   }
@@ -98,7 +96,7 @@ export class ScenarioMap extends Component {
     return new Control({ element: container });
   }
 
-  handleMapClick(event) {
+  async handleMapClick(event) {
     if (!this.isScenarioPickingMode) {
       return;
     }
@@ -106,7 +104,10 @@ export class ScenarioMap extends Component {
       removeScenario(this.scenario);
     }
     this.setScenarioPickingMode(false);
-    this.scenario = createScenario(toLonLat(event.coordinate), Date.now());
+    this.scenario = await createScenario(
+      toLonLat(event.coordinate),
+      Date.now()
+    );
     this.shiftDate(0);
   }
 
@@ -126,7 +127,7 @@ export class ScenarioMap extends Component {
     const desiredDate = this.scenario.currentDate + steps * DATE_SHIFT_STEP;
     if (
       desiredDate < this.scenario.startDate ||
-      this.scenario.startDate + DATE_SHIFT_INTERVAL_LIMIT < desiredDate
+      this.scenario.startDate + MAX_PREDICTION_PERIOD < desiredDate
     ) {
       return;
     }
@@ -139,10 +140,10 @@ export class ScenarioMap extends Component {
       y = coordinates[1];
     const center = this.scenario.startPoint;
 
-    const leftEdgeLon = center[0] + (x - 0.5) * CELL_WIDTH;
-    const rightEdgeLon = center[0] + (x + 0.5) * CELL_WIDTH;
-    const topEdgeLat = center[1] + (y - 0.5) * CELL_WIDTH;
-    const bottomEdgeLat = center[1] + (y + 0.5) * CELL_WIDTH;
+    const leftEdgeLon = center[0] + (x - 0.5) * CELL_SIZE;
+    const rightEdgeLon = center[0] + (x + 0.5) * CELL_SIZE;
+    const topEdgeLat = center[1] + (y - 0.5) * CELL_SIZE;
+    const bottomEdgeLat = center[1] + (y + 0.5) * CELL_SIZE;
 
     return new Polygon([
       [

@@ -1,6 +1,6 @@
-package com.example.cellfire.model.entity;
+package com.example.cellfire.entity;
 
-public class Cell {
+public final class Cell {
     private final int x;
     private final int y;
     private final FuelCell fuelCell;

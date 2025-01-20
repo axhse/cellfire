@@ -1,14 +1,12 @@
-package com.example.cellfire.model.entity;
+package com.example.cellfire.entity;
 
-public class FuelCell {
+public final class FuelCell {
     private final double flammability;
     private final double combustibility;
-    private final double capacity;
 
-    public FuelCell(double flammability, double combustibility, double capacity) {
+    public FuelCell(double flammability, double combustibility) {
         this.flammability = flammability;
         this.combustibility = combustibility;
-        this.capacity = capacity;
     }
 
     public double getFlammability() {
@@ -17,9 +15,5 @@ public class FuelCell {
 
     public double getCombustibility() {
         return combustibility;
-    }
-
-    public double getCapacity() {
-        return capacity;
     }
 }

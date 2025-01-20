@@ -1,13 +1,28 @@
-import { DATE_SHIFT_STEP, roundGeoCoordinates } from './domain';
+import { DATE_SHIFT_STEP, roundPoint } from './domain';
 
-export function createScenario(startPoint, startDate) {
-  startPoint = roundGeoCoordinates(startPoint);
-  return {
-    id: 'TODO generate id',
-    startPoint: startPoint,
-    startDate: startDate,
-    currentDate: startDate,
-  };
+export async function createScenario(startPoint, startDate) {
+  startPoint = roundPoint(startPoint);
+
+  const response = await fetch('/scenario/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      startPoint,
+      startTs: startDate.valueOf(),
+    }),
+  });
+
+  if (response.ok) {
+    const id = await response.json()['id'];
+    return {
+      id,
+      startPoint,
+      startDate,
+      currentDate: startDate,
+    };
+  }
 }
 
 export function removeScenario() {}
