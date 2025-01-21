@@ -3,7 +3,7 @@ package com.example.cellfire.api.params;
 
 import com.google.maps.model.LatLng;
 
-import java.util.Date;
+import java.time.Instant;
 
 public final class ScenarioCreationParams {
     private final double[] startPoint;
@@ -18,7 +18,7 @@ public final class ScenarioCreationParams {
         return Converter.fromGeoPoint(startPoint);
     }
 
-    public Date getStartDate() {
-        return new Date(startTs);
+    public Instant getStartDate() {
+        return Instant.ofEpochMilli(startTs);
     }
 }

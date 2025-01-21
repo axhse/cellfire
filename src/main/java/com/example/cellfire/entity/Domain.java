@@ -16,6 +16,9 @@ public final class Domain {
      */
     public static final double CELL_SIZE = 0.01;
 
-    public static final Duration DATE_SHIFT_STEP = Duration.ofMinutes(30);
-    public static final Duration MAX_PREDICTION_PERIOD = Duration.ofDays(3);
+    public static final Duration FORECAST_STEP = Duration.ofMinutes(30);
+
+    public static final Duration MAX_FORECAST_PERIOD = Duration.ofDays(3);
+
+    public static final double INITIAL_FIRE_HEAT = 400;
 }

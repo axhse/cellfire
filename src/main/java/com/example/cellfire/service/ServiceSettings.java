@@ -3,5 +3,5 @@ package com.example.cellfire.service;
 import java.time.Duration;
 
 public final class ServiceSettings {
-    private final Duration scenarioLifetime = Duration.ofHours(1);
+    public static final Duration SCENARIO_LIFETIME = Duration.ofHours(1);
 }

@@ -12,13 +12,13 @@ import Control from 'ol/control/Control';
 
 import {
   CELL_SIZE,
-  DATE_SHIFT_STEP,
-  MAX_PREDICTION_PERIOD,
+  FORECAST_STEP,
+  MAX_FORECAST_PERIOD,
 } from '../services/domain';
 import {
   createScenario,
   removeScenario,
-  predictScenario,
+  forecastScenario,
 } from '../services/scenario';
 
 const INITIAL_MAP_CENTER = [37.6173, 55.7558];
@@ -80,17 +80,13 @@ export class ScenarioMap extends Component {
     const dateBackShifter = document.createElement('button');
     dateBackShifter.className = 'scenario-control';
     dateBackShifter.innerHTML = '<';
-    dateBackShifter.addEventListener('click', () => {
-      this.shiftDate(-1);
-    });
+    dateBackShifter.addEventListener('click', () => this.shiftDate(-1));
     container.appendChild(dateBackShifter);
 
     const dateForwardShifter = document.createElement('button');
     dateForwardShifter.className = 'scenario-control';
     dateForwardShifter.innerHTML = '>';
-    dateForwardShifter.addEventListener('click', () => {
-      this.shiftDate(1);
-    });
+    dateForwardShifter.addEventListener('click', () => this.shiftDate(1));
     container.appendChild(dateForwardShifter);
 
     return new Control({ element: container });
@@ -108,7 +104,7 @@ export class ScenarioMap extends Component {
       toLonLat(event.coordinate),
       Date.now()
     );
-    this.shiftDate(0);
+    await this.shiftDate(0);
   }
 
   setScenarioPickingMode(isPickingModeDesired) {
@@ -123,21 +119,19 @@ export class ScenarioMap extends Component {
     }
   }
 
-  shiftDate(steps) {
-    const desiredDate = this.scenario.currentDate + steps * DATE_SHIFT_STEP;
+  async shiftDate(steps) {
+    const desiredDate = this.scenario.actualDate + steps * FORECAST_STEP;
     if (
       desiredDate < this.scenario.startDate ||
-      this.scenario.startDate + MAX_PREDICTION_PERIOD < desiredDate
+      this.scenario.startDate + MAX_FORECAST_PERIOD < desiredDate
     ) {
       return;
     }
-    this.scenario.currentDate = desiredDate;
-    this.displayPrediction(predictScenario(this.scenario));
+    this.scenario.actualDate = desiredDate;
+    this.displayForecast(await forecastScenario(this.scenario));
   }
 
-  createCell(coordinates) {
-    const x = coordinates[0],
-      y = coordinates[1];
+  createCell(x, y) {
     const center = this.scenario.startPoint;
 
     const leftEdgeLon = center[0] + (x - 0.5) * CELL_SIZE;
@@ -156,7 +150,7 @@ export class ScenarioMap extends Component {
     ]);
   }
 
-  displayPrediction(prediction) {
+  displayForecast(forecast) {
     this.scenarioLayerSource.clear();
 
     const startCellStyle = new Style({
@@ -164,18 +158,18 @@ export class ScenarioMap extends Component {
       stroke: new Stroke({ color: 'red', width: 2 }),
     });
     const startCellFeature = new Feature({
-      geometry: this.createCell([0, 0]),
+      geometry: this.createCell(0, 0),
     });
     startCellFeature.setStyle(startCellStyle);
 
     this.scenarioLayerSource.addFeature(startCellFeature);
 
-    for (const cell of prediction.fireCells) {
+    for (const cell of forecast.cells) {
       const style = new Style({
         fill: new Fill({ color: 'rgba(255, 0, 0, 0.5)' }),
       });
       const feature = new Feature({
-        geometry: this.createCell(cell.coordinates),
+        geometry: this.createCell(cell.x, cell.y),
       });
       feature.setStyle(style);
 

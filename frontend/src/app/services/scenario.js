@@ -1,4 +1,4 @@
-import { DATE_SHIFT_STEP, roundPoint } from './domain';
+import { FORECAST_STEP, roundPoint } from './domain';
 
 export async function createScenario(startPoint, startDate) {
   startPoint = roundPoint(startPoint);
@@ -15,32 +15,60 @@ export async function createScenario(startPoint, startDate) {
   });
 
   if (response.ok) {
-    const id = await response.json()['id'];
+    const id = (await response.json()).scenarioId;
     return {
       id,
       startPoint,
       startDate,
-      currentDate: startDate,
+      actualDate: startDate,
     };
   }
 }
 
-export function removeScenario() {}
+export async function removeScenario(scenario) {
+  await fetch('/scenario/remove', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      scenarioId: scenario.id,
+    }),
+  });
+}
 
-export function predictScenario(scenario) {
-  if (scenario.currentDate === scenario.startDate) {
+export async function forecastScenario(scenario) {
+  if (scenario.actualDate === scenario.startDate) {
     // TODO: optimization
   }
 
+  const response = await fetch('/scenario/forecast', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      scenarioId: scenario.id,
+      actualTs: scenario.actualDate.valueOf(),
+    }),
+  });
+  const body = await response.json();
+  if (response.ok) {
+    return body.forecast;
+  }
+}
+
+// TODO: remove
+export function produceDemoForecast(scenario) {
   const demoFireCells = [];
   for (
     let x = 0;
-    x <= (scenario.currentDate - scenario.startDate) / DATE_SHIFT_STEP;
+    x <= (scenario.actualDate - scenario.startDate) / FORECAST_STEP;
     x++
   ) {
     for (
       let y = 0;
-      x + y <= (scenario.currentDate - scenario.startDate) / DATE_SHIFT_STEP;
+      x + y <= (scenario.actualDate - scenario.startDate) / FORECAST_STEP;
       y++
     ) {
       demoFireCells.push({ coordinates: [x, y] });

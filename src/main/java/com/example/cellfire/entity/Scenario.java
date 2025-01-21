@@ -2,22 +2,26 @@ package com.example.cellfire.entity;
 
 import com.google.maps.model.LatLng;
 
-import java.util.Date;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 
 public final class Scenario {
-    private final Date creationDate = new Date();
+    private final Instant creationDate = Instant.now();
     private final String id = UUID.randomUUID().toString();
-    private final FireForecast fireForecast = new FireForecast();
+    private final Forecast forecast = new Forecast();
     private final LatLng startPoint;
-    private final Date startDate;
+    private final Instant startDate;
 
-    public Scenario(LatLng startPoint, Date startDate) {
+    public Scenario(LatLng startPoint, Instant startDate, FireCell initialFire) {
         this.startPoint = startPoint;
         this.startDate = startDate;
+        InstantForecast initialInstantForecast = new InstantForecast();
+        initialInstantForecast.getCells().add(new Cell(0, 0, initialFire, null, null));
+        forecast.getInstantForecasts().add(initialInstantForecast);
     }
 
-    public Date getCreationDate() {
+    public Instant getCreationDate() {
         return creationDate;
     }
 
@@ -25,15 +29,30 @@ public final class Scenario {
         return id;
     }
 
-    public FireForecast getForecast() {
-        return fireForecast;
+    public Forecast getForecast() {
+        return forecast;
     }
 
     public LatLng getStartPoint() {
         return startPoint;
     }
 
-    public Date getStartDate() {
+    public Instant getStartDate() {
         return startDate;
+    }
+
+    public boolean hasInstantForecast(Instant date)
+    {
+        return getInstantForecast(date) != null;
+    }
+
+    public InstantForecast getInstantForecast(Instant date)
+    {
+        Duration forecastPeriod = Duration.between(startDate, date);
+        int instantForecastIndex = (int)forecastPeriod.dividedBy(Domain.FORECAST_STEP);
+        if (instantForecastIndex < forecast.getInstantForecasts().size()) {
+            return forecast.getInstantForecasts().get(instantForecastIndex);
+        }
+        return null;
     }
 }

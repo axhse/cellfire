@@ -1,9 +1,10 @@
 package com.example.cellfire.service;
 
 import com.example.cellfire.entity.Scenario;
-import jakarta.annotation.Nullable;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,11 @@ import java.util.List;
 public final class ScenarioService {
     private final List<Scenario> scenarios = new ArrayList<>();
 
-    @Nullable
+    public boolean hasScenario(String id)
+    {
+        return getScenario(id) != null;
+    }
+
     public Scenario getScenario(String id)
     {
         for (Scenario scenario : scenarios) {
@@ -30,5 +35,10 @@ public final class ScenarioService {
     public void removeScenario(String id)
     {
         scenarios.removeIf(scenario -> scenario.getId().equals(id));
+    }
+
+    public void revise()
+    {
+        scenarios.removeIf(scenario -> Duration.between(scenarios.get(0).getStartDate(), Instant.now()).compareTo(ServiceSettings.SCENARIO_LIFETIME) > 0);
     }
 }
