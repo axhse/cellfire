@@ -27,7 +27,7 @@ button {
   font-weight: bold;
 }
 
-button.scenario-control {
+.control-button {
   display: inline;
 }
 
@@ -52,4 +52,10 @@ button.scenario-control {
   position: absolute;
   bottom: 10px;
   left: 10px;
+}
+
+#layer-control-container {
+  position: absolute;
+  bottom: 30px;
+  right: 10px;
 }

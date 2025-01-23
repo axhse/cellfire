@@ -29,6 +29,8 @@ export class ScenarioMap extends Component {
     super(props);
 
     this.scenario = undefined;
+    this.forecast = undefined;
+    this.layerName = 'fire';
     this.isScenarioPickingMode = false;
 
     this.scenarioLayerSource = new VectorSource();
@@ -51,6 +53,7 @@ export class ScenarioMap extends Component {
     map.addLayer(new TileLayer({ source: new OSM() }));
     map.addLayer(new VectorLayer({ source: this.scenarioLayerSource }));
     map.addControl(this.createScenarioControl());
+    map.addControl(this.createLayerControl());
 
     map.setView(
       new View({
@@ -70,7 +73,7 @@ export class ScenarioMap extends Component {
     container.className = 'ol-unselectable ol-control';
 
     const scenarioPicker = document.createElement('button');
-    scenarioPicker.className = 'scenario-control';
+    scenarioPicker.className = 'control-button';
     scenarioPicker.innerHTML = '🔥';
     scenarioPicker.addEventListener('click', () => {
       this.setScenarioPickingMode(true);
@@ -78,16 +81,40 @@ export class ScenarioMap extends Component {
     container.appendChild(scenarioPicker);
 
     const dateBackShifter = document.createElement('button');
-    dateBackShifter.className = 'scenario-control';
+    dateBackShifter.className = 'control-button';
     dateBackShifter.innerHTML = '<';
     dateBackShifter.addEventListener('click', () => this.shiftDate(-1));
     container.appendChild(dateBackShifter);
 
     const dateForwardShifter = document.createElement('button');
-    dateForwardShifter.className = 'scenario-control';
+    dateForwardShifter.className = 'control-button';
     dateForwardShifter.innerHTML = '>';
     dateForwardShifter.addEventListener('click', () => this.shiftDate(1));
     container.appendChild(dateForwardShifter);
+
+    return new Control({ element: container });
+  }
+
+  createLayerControl() {
+    const container = document.createElement('div');
+    container.id = 'layer-control-container';
+    container.className = 'ol-unselectable ol-control';
+
+    const fireLayerSwitch = document.createElement('button');
+    fireLayerSwitch.className = 'control-button';
+    fireLayerSwitch.innerHTML = '🔥';
+    fireLayerSwitch.addEventListener('click', () => {
+      this.switchLayer('fire');
+    });
+    container.appendChild(fireLayerSwitch);
+
+    const fuelLayerSwitch = document.createElement('button');
+    fuelLayerSwitch.className = 'control-button';
+    fuelLayerSwitch.innerHTML = '⛽';
+    fuelLayerSwitch.addEventListener('click', () => {
+      this.switchLayer('fuel');
+    });
+    container.appendChild(fuelLayerSwitch);
 
     return new Control({ element: container });
   }
@@ -128,7 +155,13 @@ export class ScenarioMap extends Component {
       return;
     }
     this.scenario.actualDate = desiredDate;
-    this.displayForecast(await forecastScenario(this.scenario));
+    this.forecast = await forecastScenario(this.scenario);
+    this.displayForecast();
+  }
+
+  switchLayer(layerName) {
+    this.layerName = layerName;
+    this.displayForecast();
   }
 
   createCell(x, y) {
@@ -150,7 +183,7 @@ export class ScenarioMap extends Component {
     ]);
   }
 
-  displayForecast(forecast) {
+  displayForecast() {
     this.scenarioLayerSource.clear();
 
     const startCellStyle = new Style({
@@ -161,12 +194,27 @@ export class ScenarioMap extends Component {
       geometry: this.createCell(0, 0),
     });
     startCellFeature.setStyle(startCellStyle);
-
     this.scenarioLayerSource.addFeature(startCellFeature);
 
-    for (const cell of forecast.cells) {
+    for (const cell of this.forecast.cells) {
+      let baseColor = '';
+      let opacity = 0;
+      if (this.layerName === 'fire') {
+        baseColor = '255, 0, 0';
+        opacity = (cell.fireCell.heat - 100) / 200;
+      }
+      if (this.layerName === 'fuel') {
+        baseColor = '255, 0, 255';
+        opacity = cell.fuelCell.capacity;
+      }
+      if (opacity < 0) {
+        opacity = 0;
+      }
+      if (opacity > 1) {
+        opacity = 1;
+      }
       const style = new Style({
-        fill: new Fill({ color: 'rgba(255, 0, 0, 0.5)' }),
+        fill: new Fill({ color: `rgba(${baseColor}, ${opacity})` }),
       });
       const feature = new Feature({
         geometry: this.createCell(cell.x, cell.y),

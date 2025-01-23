@@ -1,7 +1,17 @@
 import { FORECAST_STEP, roundPoint } from './domain';
 
+const IS_DEMO_MODE = true;
+
 export async function createScenario(startPoint, startDate) {
   startPoint = roundPoint(startPoint);
+  if (IS_DEMO_MODE) {
+    return {
+      id: 'demo id',
+      startPoint,
+      startDate,
+      actualDate: startDate,
+    };
+  }
 
   const response = await fetch('/scenario/create', {
     method: 'POST',
@@ -38,6 +48,9 @@ export async function removeScenario(scenario) {
 }
 
 export async function forecastScenario(scenario) {
+  if (IS_DEMO_MODE) {
+    return produceDemoForecast(scenario);
+  }
   if (scenario.actualDate === scenario.startDate) {
     // TODO: optimization
   }
@@ -59,8 +72,20 @@ export async function forecastScenario(scenario) {
 }
 
 // TODO: remove
-export function produceDemoForecast(scenario) {
-  const demoFireCells = [];
+function produceDemoCell(x, y) {
+  return {
+    x,
+    y,
+    fireCell: { heat: 100 + (((x + 3) * 5) % 77) + (((y + 7) * 9) % 100) },
+    fuelCell: {
+      capacity: 0 + (((x + 4) * 5) % 77) / 77 + (((y + 3) * 9) % 100) / 44,
+    },
+  };
+}
+
+// TODO: remove
+function produceDemoForecast(scenario) {
+  const demoCells = [];
   for (
     let x = 0;
     x <= (scenario.actualDate - scenario.startDate) / FORECAST_STEP;
@@ -71,17 +96,17 @@ export function produceDemoForecast(scenario) {
       x + y <= (scenario.actualDate - scenario.startDate) / FORECAST_STEP;
       y++
     ) {
-      demoFireCells.push({ coordinates: [x, y] });
+      demoCells.push(produceDemoCell(x, y));
       if (x > 0) {
-        demoFireCells.push({ coordinates: [-x, y] });
+        demoCells.push(produceDemoCell(-x, y));
         if (y > 0) {
-          demoFireCells.push({ coordinates: [-x, -y] });
+          demoCells.push(produceDemoCell(-x, -y));
         }
       }
       if (y > 0) {
-        demoFireCells.push({ coordinates: [x, -y] });
+        demoCells.push(produceDemoCell(x, -y));
       }
     }
   }
-  return { fireCells: demoFireCells };
+  return { cells: demoCells };
 }
