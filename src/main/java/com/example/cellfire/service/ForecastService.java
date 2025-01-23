@@ -1,10 +1,8 @@
 package com.example.cellfire.service;
 
-import com.example.cellfire.entity.Cell;
-import com.example.cellfire.entity.FireCell;
-import com.example.cellfire.entity.InstantForecast;
-import com.example.cellfire.entity.Scenario;
+import com.example.cellfire.entity.*;
 import com.example.cellfire.model.forecast.Algorithm;
+import com.google.maps.model.LatLng;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +22,7 @@ public class ForecastService {
     }
 
     public FireCell createInitialFire() {
+
         return new FireCell(400, 1);
     }
 
@@ -38,7 +37,9 @@ public class ForecastService {
         InstantForecast furtherForecast = new InstantForecast();
         InstantForecast previousForecast = scenario.getForecast().getInstantForecasts().getLast();
         previousForecast.getCells().forEach(cell -> {
-            furtherForecast.getCells().add(new Cell(cell.getX(), cell.getY(), cell.getFireCell(), null ,null));
+            LatLng point = getPoint(cell, scenario);
+            FuelCell fuelCell = new FuelCell(fuelService.getFlammability(point), fuelService.getCombustibility(point));
+            furtherForecast.getCells().add(new Cell(cell.getX(), cell.getY(), cell.getFireCell(), fuelCell,null));
         });
         previousForecast.getCells().forEach(cell -> {
             for (int x = cell.getX() - 1; x <= cell.getX() + 1; x++) {
@@ -48,11 +49,18 @@ public class ForecastService {
                     if (furtherForecast.getCells().stream().anyMatch(c -> c.getX() == newX && c.getY() == newY)) {
                         continue;
                     }
-                    furtherForecast.getCells().add(new Cell(x, y, cell.getFireCell(), null ,null));
+                    LatLng point = getPoint(cell, scenario);
+                    FuelCell fuelCell = new FuelCell(fuelService.getFlammability(point), fuelService.getCombustibility(point));
+                    furtherForecast.getCells().add(new Cell(x, y, cell.getFireCell(), fuelCell ,null));
                 }
             }
         });
 
         scenario.getForecast().getInstantForecasts().add(furtherForecast);
+    }
+
+    private LatLng getPoint(Cell cell, Scenario scenario) {
+        // TODO: Fix
+        return new LatLng(scenario.getStartPoint().lat + cell.getY() * Domain.CELL_SIZE, scenario.getStartPoint().lng + cell.getX() * Domain.CELL_SIZE);
     }
 }

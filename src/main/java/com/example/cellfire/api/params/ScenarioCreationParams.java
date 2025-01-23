@@ -15,7 +15,7 @@ public final class ScenarioCreationParams {
     }
 
     public LatLng getStartPoint() {
-        return Converter.fromGeoPoint(startPoint);
+        return Converter.fromOpenLayerPoint(startPoint);
     }
 
     public Instant getStartDate() {
