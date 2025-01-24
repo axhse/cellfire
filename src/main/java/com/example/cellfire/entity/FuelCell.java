@@ -1,19 +1,19 @@
 package com.example.cellfire.entity;
 
 public final class FuelCell {
+    private final double resource;
     private final double flammability;
-    private final double combustibility;
 
-    public FuelCell(double flammability, double combustibility) {
+    public FuelCell(double resource, double flammability) {
+        this.resource = resource;
         this.flammability = flammability;
-        this.combustibility = combustibility;
+    }
+
+    public double getResource() {
+        return resource;
     }
 
     public double getFlammability() {
         return flammability;
-    }
-
-    public double getCombustibility() {
-        return combustibility;
     }
 }

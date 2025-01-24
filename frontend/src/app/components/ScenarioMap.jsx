@@ -179,7 +179,7 @@ export class ScenarioMap extends Component {
         value = cell.fireCell.heat;
       }
       if (this.layerName === 'fuel') {
-        value = cell.fuelCell.capacity;
+        value = cell.fuelCell.resource;
       }
       const feature = new Feature({
         geometry: createCellFigure(this.scenario.startPoint, cell.x, cell.y),

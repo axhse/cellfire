@@ -1,6 +1,7 @@
 import { FORECAST_STEP, roundPoint } from './domain';
 
-const IS_DEMO_MODE = true;
+let IS_DEMO_MODE = false;
+//IS_DEMO_MODE = true;
 
 export async function createScenario(startPoint, startDate) {
   startPoint = roundPoint(startPoint);
@@ -81,7 +82,7 @@ function produceDemoCell(x, y) {
     y,
     fireCell: { heat: 100 + (((x + 3) * 5) % 77) + (((y + 7) * 9) % 100) },
     fuelCell: {
-      capacity: 0 + (((x + 4) * 5) % 77) / 77 + (((y + 3) * 9) % 100) / 44,
+      resource: 0 + (((x + 4) * 5) % 77) / 77 + (((y + 3) * 9) % 100) / 44,
     },
   };
 }

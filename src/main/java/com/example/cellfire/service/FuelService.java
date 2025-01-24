@@ -11,48 +11,43 @@ import java.util.Random;
 public class FuelService {
     private final Random random = new Random();
     private final byte[][] data = loadData();
+    private final int SECTOR_LAT = 36;
+    private final int SECTOR_LNG = 48;
+
+
+    public double getResource(LatLng point) {
+        if (point.lat < SECTOR_LAT || SECTOR_LAT + 3 <= point.lat) {
+            return 0;
+        }
+        if (point.lng < SECTOR_LNG || SECTOR_LNG + 3 <= point.lng) {
+            return 0;
+        }
+        int y = (int)Math.round((point.lat - SECTOR_LAT) * 100);
+        int x = (int)Math.round((point.lng - SECTOR_LNG) * 100);
+
+        return data[x][y] / 40.0;
+        // return random.nextDouble(0.3, 0.7);
+    }
 
     public double getFlammability(LatLng point) {
-        if (point.lat < 54 || 54 + 3 <= point.lat) {
-            return 0;
-        }
-        if (point.lng < 36 || 36 + 3 <= point.lng) {
-            return 0;
-        }
-        int y = (int)Math.round((point.lat - 54) * 100);
-        int x = (int)Math.round((point.lng - 36) * 100);
-
-        double combustibility = data[x][y];
-        if (combustibility == 0) {
+        if (getResource(point) == 0) {
             return Domain.INFINITE_FLAMMABILITY;
         }
         return random.nextDouble(200, 300);
     }
 
-    public double getCombustibility(LatLng point) {
-        if (point.lat < 54 || 54 + 3 <= point.lat) {
-            return 0;
-        }
-        if (point.lng < 36 || 36 + 3 <= point.lng) {
-            return 0;
-        }
-        int y = (int)Math.round((point.lat - 54) * 100);
-        int x = (int)Math.round((point.lng - 36) * 100);
-
-        return data[x][y];
-        // return random.nextDouble(0.3, 0.7);
-    }
-
     private byte[][] loadData() {
         byte[][] loadedData = new byte[300][300];
-        try (InputStream inputStream = FuelService.class.getClassLoader().getResourceAsStream("fuel_map.bin")) {
+        String resourceName = "fuel_resource_map/N%dE0%d.bin".formatted(SECTOR_LAT, SECTOR_LNG);
+        try (InputStream inputStream = FuelService.class.getClassLoader().getResourceAsStream(resourceName)) {
             if (inputStream == null) {
                 return loadedData;
             }
             byte[] bytes = inputStream.readAllBytes();
-            for (int y = 0; y < 300; y++) {
-                for (int x = 0; x < 300; x++) {
-                    loadedData[x][y] = bytes[300 * y + x];
+            for (int x = 0; x < 300; x++) {
+                for (int y = 0; y < 300; y++) {
+                    // FIXME: Why [y][300 - 1 - x], not [x][y]??
+                    loadedData[y][300 - 1 - x] = bytes[300 * x + y];
                 }
             }
         }

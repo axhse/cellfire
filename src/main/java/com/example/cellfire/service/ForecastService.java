@@ -10,20 +10,19 @@ import java.time.Instant;
 
 @Service
 public class ForecastService {
-    private final Algorithm algorithm = new Algorithm();
-
+    private final Algorithm algorithm;
     private final FuelService fuelService;
     private final WeatherService weatherService;
 
     @Autowired
-    public ForecastService(FuelService fuelService, WeatherService weatherService) {
+    public ForecastService(Algorithm algorithm, FuelService fuelService, WeatherService weatherService) {
+        this.algorithm = algorithm;
         this.fuelService = fuelService;
         this.weatherService = weatherService;
     }
 
     public FireCell createInitialFire() {
-
-        return new FireCell(400, 1);
+        return new FireCell(1000);
     }
 
     public InstantForecast forecast(Scenario scenario, Instant date) {
@@ -37,11 +36,6 @@ public class ForecastService {
         InstantForecast furtherForecast = new InstantForecast();
         InstantForecast previousForecast = scenario.getForecast().getInstantForecasts().getLast();
         previousForecast.getCells().forEach(cell -> {
-            LatLng point = getPoint(cell, scenario);
-            FuelCell fuelCell = new FuelCell(fuelService.getFlammability(point), fuelService.getCombustibility(point));
-            furtherForecast.getCells().add(new Cell(cell.getX(), cell.getY(), cell.getFireCell(), fuelCell,null));
-        });
-        previousForecast.getCells().forEach(cell -> {
             for (int x = cell.getX() - 1; x <= cell.getX() + 1; x++) {
                 for (int y = cell.getY() - 1; y <= cell.getY() + 1; y++) {
                     int newX = x;
@@ -50,7 +44,7 @@ public class ForecastService {
                         continue;
                     }
                     LatLng point = getPoint(cell, scenario);
-                    FuelCell fuelCell = new FuelCell(fuelService.getFlammability(point), fuelService.getCombustibility(point));
+                    FuelCell fuelCell = new FuelCell(fuelService.getResource(point), fuelService.getFlammability(point));
                     furtherForecast.getCells().add(new Cell(x, y, cell.getFireCell(), fuelCell ,null));
                 }
             }
