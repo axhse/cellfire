@@ -14,7 +14,6 @@ public class FuelService {
     private final int SECTOR_LAT = 36;
     private final int SECTOR_LNG = 48;
 
-
     public double getResource(LatLng point) {
         if (point.lat < SECTOR_LAT || SECTOR_LAT + 3 <= point.lat) {
             return 0;

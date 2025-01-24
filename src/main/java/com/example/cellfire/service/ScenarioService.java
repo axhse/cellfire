@@ -39,6 +39,6 @@ public final class ScenarioService {
 
     public void revise()
     {
-        scenarios.removeIf(scenario -> Duration.between(scenarios.get(0).getStartDate(), Instant.now()).compareTo(ServiceSettings.SCENARIO_LIFETIME) > 0);
+        scenarios.removeIf(scenario -> Duration.between(scenarios.get(0).getCreationDate(), Instant.now()).compareTo(ServiceSettings.SCENARIO_LIFETIME) > 0);
     }
 }

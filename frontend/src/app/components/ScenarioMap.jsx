@@ -17,7 +17,8 @@ import {
   forecastScenario,
 } from '../services/scenario';
 
-const INITIAL_MAP_CENTER = [37.6173, 55.7558];
+// const INITIAL_MAP_CENTER = [37.6173, 55.7558];
+const INITIAL_MAP_CENTER = [49, 37.5];
 const INITIAL_MAP_ZOOM = 12;
 
 export class ScenarioMap extends Component {
@@ -164,14 +165,14 @@ export class ScenarioMap extends Component {
   displayForecast() {
     this.scenarioLayerSource.clear();
 
-    const startCellFeature = new Feature({
-      geometry: createCellFigure(this.scenario.startPoint, 0, 0),
-    });
-    const startCellStyle = new Style({
-      stroke: new Stroke({ color: 'red', width: 2 }),
-    });
-    startCellFeature.setStyle(startCellStyle);
-    this.scenarioLayerSource.addFeature(startCellFeature);
+    //     const startCellFeature = new Feature({
+    //       geometry: createCellFigure(this.scenario.startPoint, 0, 0),
+    //     });
+    //     const startCellStyle = new Style({
+    //       stroke: new Stroke({ color: 'red', width: 2 }),
+    //     });
+    //     startCellFeature.setStyle(startCellStyle);
+    //     this.scenarioLayerSource.addFeature(startCellFeature);
 
     for (const cell of this.forecast.cells) {
       let value = 0;

@@ -18,7 +18,6 @@ import java.util.Map;
 
 @RestController
 public class ScenarioController {
-
     private final ScenarioService scenarioService;
     private final ForecastService forecastService;
 
@@ -30,7 +29,11 @@ public class ScenarioController {
 
     @PostMapping("/scenario/create")
     public Map<String, Object> create(@RequestBody ScenarioCreationParams params) {
-        Scenario scenario = new Scenario(params.getStartPoint(), params.getStartDate(), forecastService.createInitialFire());
+        Scenario scenario = new Scenario(
+                params.getStartPoint(),
+                params.getStartDate(),
+                forecastService.createInitialCell(params.getStartPoint())
+        );
         scenarioService.addScenario(scenario);
 
         Map<String, Object> response = new HashMap<>();

@@ -13,11 +13,11 @@ public final class Scenario {
     private final LatLng startPoint;
     private final Instant startDate;
 
-    public Scenario(LatLng startPoint, Instant startDate, FireCell initialFire) {
+    public Scenario(LatLng startPoint, Instant startDate, Cell initialCell) {
         this.startPoint = startPoint;
         this.startDate = startDate;
         InstantForecast initialInstantForecast = new InstantForecast();
-        initialInstantForecast.getCells().add(new Cell(0, 0, initialFire, null, null));
+        initialInstantForecast.getCells().add(initialCell);
         forecast.getInstantForecasts().add(initialInstantForecast);
     }
 

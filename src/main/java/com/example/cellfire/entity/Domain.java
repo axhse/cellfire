@@ -22,5 +22,6 @@ public final class Domain {
 
     public static final Duration MAX_FORECAST_PERIOD = Duration.ofDays(3);
 
-    public static final double INITIAL_FIRE_HEAT = 400;
+    public static final double IGNITION_HEAT_DELTA = 20;
+    public static final double INITIAL_FIRE_HEAT = 1000;
 }
