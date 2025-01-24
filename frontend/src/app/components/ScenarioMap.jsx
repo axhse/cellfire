@@ -3,18 +3,14 @@ import { Map, View } from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import { fromLonLat, toLonLat } from 'ol/proj';
-import { Style, Fill, Stroke } from 'ol/style';
-import Polygon from 'ol/geom/Polygon';
+import { Style, Stroke } from 'ol/style';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature';
 import Control from 'ol/control/Control';
 
-import {
-  CELL_SIZE,
-  FORECAST_STEP,
-  MAX_FORECAST_PERIOD,
-} from '../services/domain';
+import { FORECAST_STEP, MAX_FORECAST_PERIOD } from '../services/domain';
+import { createCellFigure, createCellFill } from '../services/layer';
 import {
   createScenario,
   removeScenario,
@@ -73,7 +69,7 @@ export class ScenarioMap extends Component {
     container.className = 'ol-unselectable ol-control';
 
     const scenarioPicker = document.createElement('button');
-    scenarioPicker.className = 'control-button';
+    scenarioPicker.className = 'control-inline-button';
     scenarioPicker.innerHTML = '🔥';
     scenarioPicker.addEventListener('click', () => {
       this.setScenarioPickingMode(true);
@@ -81,13 +77,13 @@ export class ScenarioMap extends Component {
     container.appendChild(scenarioPicker);
 
     const dateBackShifter = document.createElement('button');
-    dateBackShifter.className = 'control-button';
+    dateBackShifter.className = 'control-inline-button';
     dateBackShifter.innerHTML = '<';
     dateBackShifter.addEventListener('click', () => this.shiftDate(-1));
     container.appendChild(dateBackShifter);
 
     const dateForwardShifter = document.createElement('button');
-    dateForwardShifter.className = 'control-button';
+    dateForwardShifter.className = 'control-inline-button';
     dateForwardShifter.innerHTML = '>';
     dateForwardShifter.addEventListener('click', () => this.shiftDate(1));
     container.appendChild(dateForwardShifter);
@@ -101,7 +97,6 @@ export class ScenarioMap extends Component {
     container.className = 'ol-unselectable ol-control';
 
     const fireLayerSwitch = document.createElement('button');
-    fireLayerSwitch.className = 'control-button';
     fireLayerSwitch.innerHTML = '🔥';
     fireLayerSwitch.addEventListener('click', () => {
       this.switchLayer('fire');
@@ -109,7 +104,6 @@ export class ScenarioMap extends Component {
     container.appendChild(fireLayerSwitch);
 
     const fuelLayerSwitch = document.createElement('button');
-    fuelLayerSwitch.className = 'control-button';
     fuelLayerSwitch.innerHTML = '⛽';
     fuelLayerSwitch.addEventListener('click', () => {
       this.switchLayer('fuel');
@@ -160,64 +154,38 @@ export class ScenarioMap extends Component {
   }
 
   switchLayer(layerName) {
+    if (this.scenario === undefined) {
+      return;
+    }
     this.layerName = layerName;
     this.displayForecast();
-  }
-
-  createCell(x, y) {
-    const center = this.scenario.startPoint;
-
-    const leftEdgeLon = center[0] + (x - 0.5) * CELL_SIZE;
-    const rightEdgeLon = center[0] + (x + 0.5) * CELL_SIZE;
-    const topEdgeLat = center[1] + (y - 0.5) * CELL_SIZE;
-    const bottomEdgeLat = center[1] + (y + 0.5) * CELL_SIZE;
-
-    return new Polygon([
-      [
-        fromLonLat([leftEdgeLon, topEdgeLat]),
-        fromLonLat([rightEdgeLon, topEdgeLat]),
-        fromLonLat([rightEdgeLon, bottomEdgeLat]),
-        fromLonLat([leftEdgeLon, bottomEdgeLat]),
-        fromLonLat([leftEdgeLon, topEdgeLat]),
-      ],
-    ]);
   }
 
   displayForecast() {
     this.scenarioLayerSource.clear();
 
-    const startCellStyle = new Style({
-      fill: new Fill({ color: 'rgba(255, 0, 0, 0)' }),
-      stroke: new Stroke({ color: 'red', width: 2 }),
-    });
     const startCellFeature = new Feature({
-      geometry: this.createCell(0, 0),
+      geometry: createCellFigure(this.scenario.startPoint, 0, 0),
+    });
+    const startCellStyle = new Style({
+      stroke: new Stroke({ color: 'red', width: 2 }),
     });
     startCellFeature.setStyle(startCellStyle);
     this.scenarioLayerSource.addFeature(startCellFeature);
 
     for (const cell of this.forecast.cells) {
-      let baseColor = '';
-      let opacity = 0;
+      let value = 0;
       if (this.layerName === 'fire') {
-        baseColor = '255, 0, 0';
-        opacity = (cell.fireCell.heat - 100) / 200;
+        value = cell.fireCell.heat;
       }
       if (this.layerName === 'fuel') {
-        baseColor = '255, 0, 255';
-        opacity = cell.fuelCell.capacity;
+        value = cell.fuelCell.capacity;
       }
-      if (opacity < 0) {
-        opacity = 0;
-      }
-      if (opacity > 1) {
-        opacity = 1;
-      }
-      const style = new Style({
-        fill: new Fill({ color: `rgba(${baseColor}, ${opacity})` }),
-      });
       const feature = new Feature({
-        geometry: this.createCell(cell.x, cell.y),
+        geometry: createCellFigure(this.scenario.startPoint, cell.x, cell.y),
+      });
+      const style = new Style({
+        fill: createCellFill(value, this.layerName),
       });
       feature.setStyle(style);
 

@@ -27,7 +27,7 @@ button {
   font-weight: bold;
 }
 
-.control-button {
+button.control-inline-button {
   display: inline;
 }
 

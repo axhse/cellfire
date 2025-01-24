@@ -36,6 +36,9 @@ export async function createScenario(startPoint, startDate) {
 }
 
 export async function removeScenario(scenario) {
+  if (IS_DEMO_MODE) {
+    return;
+  }
   await fetch('/scenario/remove', {
     method: 'POST',
     headers: {
