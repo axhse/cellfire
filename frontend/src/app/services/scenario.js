@@ -1,7 +1,7 @@
 import { FORECAST_STEP, roundPoint } from './domain';
 
 let IS_DEMO_MODE = false;
-//IS_DEMO_MODE = true;
+IS_DEMO_MODE = true;
 
 export async function createScenario(startPoint, startDate) {
   startPoint = roundPoint(startPoint);

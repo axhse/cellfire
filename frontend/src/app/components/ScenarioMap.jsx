@@ -77,6 +77,12 @@ export class ScenarioMap extends Component {
     });
     container.appendChild(scenarioPicker);
 
+    const dateBackFastShifter = document.createElement('button');
+    dateBackFastShifter.className = 'control-inline-button';
+    dateBackFastShifter.innerHTML = '<<';
+    dateBackFastShifter.addEventListener('click', () => this.shiftDate(-10));
+    container.appendChild(dateBackFastShifter);
+
     const dateBackShifter = document.createElement('button');
     dateBackShifter.className = 'control-inline-button';
     dateBackShifter.innerHTML = '<';
@@ -88,6 +94,12 @@ export class ScenarioMap extends Component {
     dateForwardShifter.innerHTML = '>';
     dateForwardShifter.addEventListener('click', () => this.shiftDate(1));
     container.appendChild(dateForwardShifter);
+
+    const dateForwardFastShifter = document.createElement('button');
+    dateForwardFastShifter.className = 'control-inline-button';
+    dateForwardFastShifter.innerHTML = '>>';
+    dateForwardFastShifter.addEventListener('click', () => this.shiftDate(10));
+    container.appendChild(dateForwardFastShifter);
 
     return new Control({ element: container });
   }
@@ -114,6 +126,18 @@ export class ScenarioMap extends Component {
     return new Control({ element: container });
   }
 
+  setScenarioPickingMode(isPickingModeDesired) {
+    if (isPickingModeDesired === this.isScenarioPickingMode) {
+      return;
+    }
+    this.isScenarioPickingMode = isPickingModeDesired;
+    if (isPickingModeDesired) {
+      this.mapContainerRef.current.classList.add('scenario-picking-mode');
+    } else {
+      this.mapContainerRef.current.classList.remove('scenario-picking-mode');
+    }
+  }
+
   async handleMapClick(event) {
     if (!this.isScenarioPickingMode) {
       return;
@@ -129,25 +153,12 @@ export class ScenarioMap extends Component {
     await this.shiftDate(0);
   }
 
-  setScenarioPickingMode(isPickingModeDesired) {
-    if (isPickingModeDesired === this.isScenarioPickingMode) {
-      return;
-    }
-    this.isScenarioPickingMode = isPickingModeDesired;
-    if (isPickingModeDesired) {
-      this.mapContainerRef.current.classList.add('scenario-picking-mode');
-    } else {
-      this.mapContainerRef.current.classList.remove('scenario-picking-mode');
-    }
-  }
-
   async shiftDate(steps) {
-    const desiredDate = this.scenario.actualDate + steps * FORECAST_STEP;
-    if (
-      desiredDate < this.scenario.startDate ||
-      this.scenario.startDate + MAX_FORECAST_PERIOD < desiredDate
-    ) {
-      return;
+    let desiredDate = this.scenario.actualDate + steps * FORECAST_STEP;
+    if (desiredDate < this.scenario.startDate) {
+      desiredDate = this.scenario.startDate;
+    } else if (this.scenario.startDate + MAX_FORECAST_PERIOD < desiredDate) {
+      desiredDate = this.scenario.startDate + MAX_FORECAST_PERIOD;
     }
     this.scenario.actualDate = desiredDate;
     this.forecast = await forecastScenario(this.scenario);
