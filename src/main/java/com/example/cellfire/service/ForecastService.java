@@ -16,6 +16,8 @@ public class ForecastService {
     private final FuelService fuelService;
     private final WeatherService weatherService;
 
+    private final Environment demoEnvironment = new Environment(250, 20, 10, new double[]{ 1, 1 });
+
     @Autowired
     public ForecastService(Algorithm algorithm, FuelService fuelService, WeatherService weatherService) {
         this.algorithm = algorithm;
@@ -75,9 +77,9 @@ public class ForecastService {
 
             Fire flame = algorithm.flame(cell, neighbours, scenario.getStartPoint());
             // FIXME: Do not remove cells, so wasted resource is not forgiven.
-            if (flame.getHeat() < cell.getEnvironment().getWeatherTemperature() + Domain.IGNITION_HEAT_DELTA) {
-                return;
-            }
+//            if (flame.getHeat() < cell.getEnvironment().getWeatherTemperature() + Domain.IGNITION_HEAT_DELTA) {
+//                return;
+//            }
             furtherForecast.getCells().add(new Cell(cell.getX(), cell.getY(), flame, cell.getEnvironment()));
         });
 
@@ -90,12 +92,13 @@ public class ForecastService {
     }
 
     private Environment createEnvironment(LatLng point, Instant date) {
-        return new Environment(
-                fuelService.getIgnitionTemperature(point),
-                weatherService.getTemperature(point, date),
-                weatherService.getHumidity(point, date),
-                weatherService.getWind(point, date)
-        );
+        return demoEnvironment;
+//        return new Environment(
+//                fuelService.getIgnitionTemperature(point),
+//                weatherService.getTemperature(point, date),
+//                weatherService.getHumidity(point, date),
+//                weatherService.getWind(point, date)
+//        );
     }
 
     private LatLng getPoint(Cell cell, Scenario scenario) {
