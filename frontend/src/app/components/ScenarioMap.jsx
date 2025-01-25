@@ -27,7 +27,7 @@ export class ScenarioMap extends Component {
 
     this.scenario = undefined;
     this.forecast = undefined;
-    this.layerName = 'fire';
+    this.layerName = 'heat';
     this.isScenarioPickingMode = false;
 
     this.scenarioLayerSource = new VectorSource();
@@ -109,19 +109,19 @@ export class ScenarioMap extends Component {
     container.id = 'layer-control-container';
     container.className = 'ol-unselectable ol-control';
 
-    const fireLayerSwitch = document.createElement('button');
-    fireLayerSwitch.innerHTML = '🔥';
-    fireLayerSwitch.addEventListener('click', () => {
-      this.switchLayer('fire');
+    const heatLayerSwitch = document.createElement('button');
+    heatLayerSwitch.innerHTML = '🔥';
+    heatLayerSwitch.addEventListener('click', () => {
+      this.switchLayer('heat');
     });
-    container.appendChild(fireLayerSwitch);
+    container.appendChild(heatLayerSwitch);
 
-    const fuelLayerSwitch = document.createElement('button');
-    fuelLayerSwitch.innerHTML = '⛽';
-    fuelLayerSwitch.addEventListener('click', () => {
-      this.switchLayer('fuel');
+    const resourceLayerSwitch = document.createElement('button');
+    resourceLayerSwitch.innerHTML = '⛽';
+    resourceLayerSwitch.addEventListener('click', () => {
+      this.switchLayer('resource');
     });
-    container.appendChild(fuelLayerSwitch);
+    container.appendChild(resourceLayerSwitch);
 
     return new Control({ element: container });
   }
@@ -187,11 +187,11 @@ export class ScenarioMap extends Component {
 
     for (const cell of this.forecast.cells) {
       let value = 0;
-      if (this.layerName === 'fire') {
-        value = cell.fireCell.heat;
+      if (this.layerName === 'heat') {
+        value = cell.fire.heat;
       }
-      if (this.layerName === 'fuel') {
-        value = cell.fuelCell.resource;
+      if (this.layerName === 'resource') {
+        value = cell.fire.resource;
       }
       const feature = new Feature({
         geometry: createCellFigure(this.scenario.startPoint, cell.x, cell.y),

@@ -2,7 +2,6 @@ package com.example.cellfire.service;
 
 import com.example.cellfire.entity.*;
 import com.example.cellfire.model.forecast.Algorithm;
-import com.example.cellfire.model.forecast.FlameOutcome;
 import com.google.maps.model.LatLng;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,12 +37,12 @@ public class ForecastService {
 
         List<Cell> conditions = new ArrayList<>();
         previousForecast.getCells().forEach(cell -> {
-            WeatherCell weatherCell = createWeatherCell(getPoint(cell, scenario), date);
-            conditions.add(new Cell(cell.getX(), cell.getY(), cell.getFireCell(), cell.getFuelCell(), weatherCell));
+            Environment environment = createEnvironment(getPoint(cell, scenario), date);
+            conditions.add(new Cell(cell.getX(), cell.getY(), cell.getFire(), environment));
         });
 
         previousForecast.getCells().forEach(cell -> {
-            if (cell.getFireCell().getHeat() <= cell.getFuelCell().getFlammability()) {
+            if (cell.getFire().getHeat() <= cell.getEnvironment().getIgnitionTemperature()) {
                 return;
             }
             for (int x = cell.getX() - 1; x <= cell.getX() + 1; x++) {
@@ -54,9 +53,9 @@ public class ForecastService {
                         continue;
                     }
                     LatLng point = getPoint(cell, scenario);
-                    FuelCell fuelCell = createFuelCell(point);
-                    WeatherCell weatherCell = createWeatherCell(point, date);
-                    conditions.add(new Cell(x, y, new FireCell(0), fuelCell ,weatherCell));
+                    Fire fire = new Fire(0, fuelService.getResource(point));
+                    Environment environment = createEnvironment(point, date);
+                    conditions.add(new Cell(x, y, fire, environment));
                 }
             }
         });
@@ -74,29 +73,25 @@ public class ForecastService {
                             && Math.abs(cell.getY() - otherCell.getY()) <= 1
                             && !otherCell.equals(cell)).toList();
 
-            FlameOutcome outcome = algorithm.flame(cell, neighbours, scenario.getStartPoint());
-            if (outcome.getFireCell().getHeat() < cell.getWeatherCell().getTemperature() + Domain.IGNITION_HEAT_DELTA) {
+            Fire flame = algorithm.flame(cell, neighbours, scenario.getStartPoint());
+            // FIXME: Do not remove cells, so wasted resource is not forgiven.
+            if (flame.getHeat() < cell.getEnvironment().getWeatherTemperature() + Domain.IGNITION_HEAT_DELTA) {
                 return;
             }
-            furtherForecast.getCells().add(new Cell(cell.getX(), cell.getY(), outcome.getFireCell(), outcome.getFuelCell(), cell.getWeatherCell()));
+            furtherForecast.getCells().add(new Cell(cell.getX(), cell.getY(), flame, cell.getEnvironment()));
         });
 
         scenario.getForecast().getInstantForecasts().add(furtherForecast);
     }
 
-    public Cell createInitialCell(LatLng point) {
-        return new Cell(0, 0, new FireCell(Domain.INITIAL_FIRE_HEAT), createFuelCell(point), null);
+    public Cell createInitialCell(LatLng point, Instant date) {
+        Fire fire = new Fire(Domain.INITIAL_FIRE_HEAT, fuelService.getResource(point));
+        return new Cell(0, 0, fire, createEnvironment(point, date));
     }
 
-    private FuelCell createFuelCell(LatLng point) {
-        return new FuelCell(
-                fuelService.getResource(point),
-                fuelService.getFlammability(point)
-        );
-    }
-
-    private WeatherCell createWeatherCell(LatLng point, Instant date) {
-        return new WeatherCell(
+    private Environment createEnvironment(LatLng point, Instant date) {
+        return new Environment(
+                fuelService.getIgnitionTemperature(point),
                 weatherService.getTemperature(point, date),
                 weatherService.getHumidity(point, date),
                 weatherService.getWind(point, date)

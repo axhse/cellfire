@@ -6,13 +6,13 @@ import { CELL_SIZE } from '../services/domain';
 
 const LAYER_OPACITY = 0.5;
 const LAYER_PARAMS = {
-  fire: {
+  heat: {
     minValue: 0,
     maxValue: 200,
     minColor: [255, 255, 0],
     maxColor: [255, 0, 0],
   },
-  fuel: {
+  resource: {
     minValue: 0,
     maxValue: 1,
     minColor: [127, 127, 127],

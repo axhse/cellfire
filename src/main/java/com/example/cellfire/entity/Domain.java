@@ -16,7 +16,7 @@ public final class Domain {
      */
     public static final double CELL_SIZE = 0.01;
 
-    public static double INFINITE_FLAMMABILITY = 1_000_000;
+    public static double INFINITE_IGNITION_TEMPERATURE = 1_000_000;
 
     public static final Duration FORECAST_STEP = Duration.ofMinutes(30);
 

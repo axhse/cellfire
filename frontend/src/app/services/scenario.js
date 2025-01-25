@@ -1,7 +1,7 @@
 import { FORECAST_STEP, roundPoint } from './domain';
 
 let IS_DEMO_MODE = false;
-IS_DEMO_MODE = true;
+//IS_DEMO_MODE = true;
 
 export async function createScenario(startPoint, startDate) {
   startPoint = roundPoint(startPoint);
@@ -76,18 +76,6 @@ export async function forecastScenario(scenario) {
 }
 
 // TODO: remove
-function produceDemoCell(x, y) {
-  return {
-    x,
-    y,
-    fireCell: { heat: 100 + (((x + 3) * 5) % 77) + (((y + 7) * 9) % 100) },
-    fuelCell: {
-      resource: 0 + (((x + 4) * 5) % 77) / 77 + (((y + 3) * 9) % 100) / 44,
-    },
-  };
-}
-
-// TODO: remove
 function produceDemoForecast(scenario) {
   const demoCells = [];
   for (
@@ -113,4 +101,16 @@ function produceDemoForecast(scenario) {
     }
   }
   return { cells: demoCells };
+}
+
+// TODO: remove
+function produceDemoCell(x, y) {
+  return {
+    x,
+    y,
+    fire: {
+      heat: 100 + (((x + 3) * 5) % 77) + (((y + 7) * 9) % 100),
+      resource: 0 + (((x + 4) * 5) % 77) / 77 + (((y + 3) * 9) % 100) / 44,
+    },
+  };
 }

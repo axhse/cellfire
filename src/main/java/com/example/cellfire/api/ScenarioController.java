@@ -32,7 +32,7 @@ public class ScenarioController {
         Scenario scenario = new Scenario(
                 params.getStartPoint(),
                 params.getStartDate(),
-                forecastService.createInitialCell(params.getStartPoint())
+                forecastService.createInitialCell(params.getStartPoint(), params.getStartDate())
         );
         scenarioService.addScenario(scenario);
 

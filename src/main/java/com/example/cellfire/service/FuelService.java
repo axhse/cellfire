@@ -28,9 +28,9 @@ public class FuelService {
         // return random.nextDouble(0.3, 0.7);
     }
 
-    public double getFlammability(LatLng point) {
+    public double getIgnitionTemperature(LatLng point) {
         if (getResource(point) == 0) {
-            return Domain.INFINITE_FLAMMABILITY;
+            return Domain.INFINITE_IGNITION_TEMPERATURE;
         }
         return random.nextDouble(200, 300);
     }
