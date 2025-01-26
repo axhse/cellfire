@@ -2,90 +2,117 @@ package com.example.cellfire.services;
 
 import com.example.cellfire.DomainSettings;
 import com.example.cellfire.models.*;
-import com.example.cellfire.forecast.Algorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class ForecastService {
-    private final Algorithm algorithm;
+    private final ForecastAlgorithm forecastAlgorithm;
     private final FuelService fuelService;
     private final WeatherService weatherService;
 
-    private final Environment demoEnvironment = new Environment(250, 20, 10, new double[]{ 1, 1 });
+    private final Environment demoEnvironment = new Environment(200, 20, 10, new double[]{2, 2});
 
     @Autowired
-    public ForecastService(Algorithm algorithm, FuelService fuelService, WeatherService weatherService) {
-        this.algorithm = algorithm;
+    public ForecastService(ForecastAlgorithm forecastAlgorithm, FuelService fuelService, WeatherService weatherService) {
+        this.forecastAlgorithm = forecastAlgorithm;
         this.fuelService = fuelService;
         this.weatherService = weatherService;
     }
 
-    public InstantForecast forecast(Scenario scenario, Instant date) {
-        while (!scenario.hasInstantForecast(date)) {
-            forecastFurther(scenario);
+    public void initiate(Scenario scenario, CellCoordinates startCoordinates) {
+        Forecast initialForecast = new Forecast();
+        scenario.getForecastLog().getForecasts().add(initialForecast);
+        double resource = fuelService.getResource(startCoordinates);
+        if (resource == 0) {
+            return;
         }
-        return scenario.getInstantForecast(date);
+        Fire fire = new Fire(DomainSettings.INITIAL_FIRE_HEAT, resource);
+        Cell initialCell = new Cell(startCoordinates, createEnvironment(startCoordinates, scenario.getStartDate()), fire);
+        initialForecast.getCells().add(initialCell);
     }
 
-    private List<Cell> determineFurtherForecastConditions(Scenario scenario) {
-        InstantForecast previousForecast = scenario.getForecast().getInstantForecasts().getLast();
-        int furtherStepNumber = scenario.getForecast().getInstantForecasts().size();
-        Instant date  = scenario.getStartDate().plus(DomainSettings.FORECAST_STEP.multipliedBy(furtherStepNumber));
+    public Forecast forecast(Scenario scenario, Instant date) {
+        while (!scenario.hasForecast(date)) {
+            forecastFurther(scenario);
+        }
+        return scenario.getForecast(date);
+    }
 
-        List<Cell> conditions = new ArrayList<>();
-        previousForecast.getCells().forEach(cell -> {
+    private void forecastFurther(Scenario scenario) {
+        Forecast futherForecast = new Forecast();
+        Forecast lastForecast = scenario.getForecastLog().getForecasts().getLast();
+        int furtherStepNumber = scenario.getForecastLog().getForecasts().size();
+        Instant date = scenario.getStartDate().plus(DomainSettings.FORECAST_STEP.multipliedBy(furtherStepNumber));
+
+        lastForecast.getCells().forEach(cell -> {
             Environment environment = createEnvironment(cell.getCoordinates(), date);
-            conditions.add(new Cell(cell.getCoordinates(), cell.getFire(), environment));
+            Cell draftCell = new Cell(cell.getCoordinates(), environment, cell.getFire());
+            draftCell.setTwin(cell);
+            cell.setTwin(draftCell);
+            futherForecast.getCells().add(draftCell);
         });
 
-        previousForecast.getCells().forEach(cell -> {
+        lastForecast.getCells().forEach(cell -> {
+            for (int offsetX = -1; offsetX <= 1; offsetX++) {
+                for (int offsetY = -1; offsetY <= 1; offsetY++) {
+                    if (offsetX == 0 && offsetY == 0) {
+                        continue;
+                    }
+                    Cell neighbor = cell.getNeighbor(offsetX, offsetY);
+                    if (neighbor == null) {
+                        continue;
+                    }
+                    cell.getTwin().setNeighbor(offsetX, offsetY, cell.getNeighbor(offsetX, offsetY).getTwin());
+                }
+            }
+        });
+
+        futherForecast.getCells().forEach(cell -> {
+            cell.setTwin(null);
+        });
+
+        lastForecast.getCells().forEach(lastForecastCell -> {
+            Cell cell = lastForecastCell.getTwin();
             if (cell.getFire().getHeat() <= cell.getEnvironment().getIgnitionTemperature()) {
                 return;
             }
             for (int offsetX = -1; offsetX <= 1; offsetX++) {
                 for (int offsetY = -1; offsetY <= 1; offsetY++) {
-                    CellCoordinates newCoordinates = cell.getCoordinates().getRelative(offsetX, offsetY);
-                    if (conditions.stream().anyMatch(previousCell -> newCoordinates.equals(previousCell.getCoordinates()))) {
+                    if (offsetX == 0 && offsetY == 0 || cell.getNeighbor(offsetX, offsetY) != null) {
                         continue;
                     }
-                    Fire fire = new Fire(0, fuelService.getResource(cell.getCoordinates()));
-                    Environment environment = createEnvironment(cell.getCoordinates(), date);
-                    conditions.add(new Cell(newCoordinates, fire, environment));
+                    CellCoordinates neighborCoordinates = cell.getCoordinates().shift(offsetX, offsetY);
+                    double resource = fuelService.getResource(neighborCoordinates);
+                    if (resource == 0) {
+                        continue;
+                    }
+                    Environment environment = createEnvironment(neighborCoordinates, date);
+                    Fire fire = new Fire(environment.getWeatherTemperature(), resource);
+                    Cell neighbor = new Cell(neighborCoordinates, environment, fire);
+
+//                    neighbor.setNeighbor(-offsetX, -offsetY, cell);
+//                    cell.setNeighbor(offsetX, offsetY, neighbor);
+                    // FIXME: optimize
+                    futherForecast.getCells().forEach(otherCell -> {
+                        int distanceX = otherCell.getCoordinates().getX() - neighbor.getCoordinates().getX();
+                        int distanceY = otherCell.getCoordinates().getY() - neighbor.getCoordinates().getY();
+                        if (Math.abs(distanceX) <= 1 && Math.abs(distanceY) <= 1) {
+                            neighbor.setNeighbor(distanceX, distanceY, otherCell);
+                            otherCell.setNeighbor(-distanceX, -distanceY, neighbor);
+                        }
+                    });
+
+                    futherForecast.getCells().add(neighbor);
                 }
             }
         });
 
-        return conditions;
-    }
+        forecastAlgorithm.refine(futherForecast);
 
-    private void forecastFurther(Scenario scenario) {
-        InstantForecast furtherForecast = new InstantForecast();
-        List<Cell> conditions = determineFurtherForecastConditions(scenario);
-
-        conditions.forEach(cell -> {
-            List<Cell> neighbours = conditions.stream().filter(
-                    otherCell -> Math.abs(cell.getCoordinates().getX() - otherCell.getCoordinates().getX()) <= 1
-                            && Math.abs(cell.getCoordinates().getY() - otherCell.getCoordinates().getY()) <= 1
-                            && !otherCell.equals(cell)).toList();
-
-            Fire flame = algorithm.flame(cell, neighbours);
-//            if (flame.getHeat() < cell.getEnvironment().getWeatherTemperature() + DomainSettings.IGNITION_HEAT_DELTA) {
-//                return;
-//            }
-            furtherForecast.getCells().add(new Cell(cell.getCoordinates(), flame, cell.getEnvironment()));
-        });
-
-        scenario.getForecast().getInstantForecasts().add(furtherForecast);
-    }
-
-    public Cell createInitialCell(CellCoordinates coordinates, Instant date) {
-        Fire fire = new Fire(DomainSettings.INITIAL_FIRE_HEAT, fuelService.getResource(coordinates));
-        return new Cell(coordinates, fire, createEnvironment(coordinates, date));
+        scenario.getForecastLog().getForecasts().add(futherForecast);
     }
 
     private Environment createEnvironment(CellCoordinates coordinates, Instant date) {

@@ -7,7 +7,7 @@ public final class Environment {
     private final double[] wind;
 
     public Environment(double ignitionTemperature, double weatherTemperature, double humidity, double[] wind) {
-        this.ignitionTemperature = weatherTemperature;
+        this.ignitionTemperature = ignitionTemperature;
         this.weatherTemperature = weatherTemperature;
         this.humidity = humidity;
         this.wind = wind;

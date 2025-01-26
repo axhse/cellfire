@@ -9,14 +9,11 @@ import java.util.UUID;
 public final class Scenario {
     private final Instant creationDate = Instant.now();
     private final String id = UUID.randomUUID().toString();
-    private final Forecast forecast = new Forecast();
+    private final ForecastLog forecastLog = new ForecastLog();
     private final Instant startDate;
 
-    public Scenario(Instant startDate, Cell initialCell) {
+    public Scenario(Instant startDate) {
         this.startDate = startDate;
-        InstantForecast initialInstantForecast = new InstantForecast();
-        initialInstantForecast.getCells().add(initialCell);
-        forecast.getInstantForecasts().add(initialInstantForecast);
     }
 
     public Instant getCreationDate() {
@@ -27,25 +24,25 @@ public final class Scenario {
         return id;
     }
 
-    public Forecast getForecast() {
-        return forecast;
+    public ForecastLog getForecastLog() {
+        return forecastLog;
     }
 
     public Instant getStartDate() {
         return startDate;
     }
 
-    public boolean hasInstantForecast(Instant date)
+    public boolean hasForecast(Instant date)
     {
-        return getInstantForecast(date) != null;
+        return getForecast(date) != null;
     }
 
-    public InstantForecast getInstantForecast(Instant date)
+    public Forecast getForecast(Instant date)
     {
         Duration forecastPeriod = Duration.between(startDate, date);
-        int instantForecastIndex = (int)forecastPeriod.dividedBy(DomainSettings.FORECAST_STEP);
-        if (instantForecastIndex < forecast.getInstantForecasts().size()) {
-            return forecast.getInstantForecasts().get(instantForecastIndex);
+        int forecastIndex = (int)forecastPeriod.dividedBy(DomainSettings.FORECAST_STEP);
+        if (forecastIndex < forecastLog.getForecasts().size()) {
+            return forecastLog.getForecasts().get(forecastIndex);
         }
         return null;
     }

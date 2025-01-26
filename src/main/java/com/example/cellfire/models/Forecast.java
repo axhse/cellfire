@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Forecast {
-    private final List<InstantForecast> instantForecasts = new ArrayList<>();
+    private final List<Cell> cells = new ArrayList<>();
 
-    public List<InstantForecast> getInstantForecasts() {
-        return instantForecasts;
+    public List<Cell> getCells() {
+        return cells;
     }
 }

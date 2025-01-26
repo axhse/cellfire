@@ -3,7 +3,7 @@ package com.example.cellfire.api;
 import com.example.cellfire.api.params.ScenarioCreationParams;
 import com.example.cellfire.api.params.ScenarioForecastParams;
 import com.example.cellfire.api.params.ScenarioIdParams;
-import com.example.cellfire.models.InstantForecast;
+import com.example.cellfire.models.Forecast;
 import com.example.cellfire.models.Scenario;
 import com.example.cellfire.services.ForecastService;
 import com.example.cellfire.services.ScenarioService;
@@ -29,10 +29,8 @@ public class ScenarioController {
 
     @PostMapping("/scenario/create")
     public Map<String, Object> create(@RequestBody ScenarioCreationParams params) {
-        Scenario scenario = new Scenario(
-                params.getStartDate(),
-                forecastService.createInitialCell(params.getStartCoordinates(), params.getStartDate())
-        );
+        Scenario scenario = new Scenario(params.getStartDate());
+        forecastService.initiate(scenario, params.getStartCoordinates());
         scenarioService.addScenario(scenario);
 
         Map<String, Object> response = new HashMap<>();
@@ -54,7 +52,7 @@ public class ScenarioController {
             // TODO: return 4xx
             return response;
         }
-        InstantForecast forecast = forecastService.forecast(scenario, params.getActualDate());
+        Forecast forecast = forecastService.forecast(scenario, params.getActualDate());
         response.put("forecast", forecast);
         return response;
     }

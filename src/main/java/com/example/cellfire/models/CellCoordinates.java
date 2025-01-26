@@ -49,7 +49,7 @@ public final class CellCoordinates {
         );
     }
 
-    public CellCoordinates getRelative(int offsetX, int offsetY) {
+    public CellCoordinates shift(int offsetX, int offsetY) {
         int x = this.x + offsetX;
         int y = this.y + offsetY;
         if (y < -DomainSettings.AXES_SCALE / 4) {

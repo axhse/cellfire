@@ -25,4 +25,5 @@ public final class DomainSettings {
 
     public static final double IGNITION_HEAT_DELTA = 20;
     public static final double INITIAL_FIRE_HEAT = 1000;
+    public static final double SIGNIFICANT_RESOURCE = 0.01;
 }

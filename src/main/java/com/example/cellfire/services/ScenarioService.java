@@ -14,11 +14,6 @@ import java.util.List;
 public final class ScenarioService {
     private final List<Scenario> scenarios = new ArrayList<>();
 
-    public boolean hasScenario(String id)
-    {
-        return getScenario(id) != null;
-    }
-
     public Scenario getScenario(String id)
     {
         for (Scenario scenario : scenarios) {
