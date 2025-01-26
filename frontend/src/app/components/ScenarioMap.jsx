@@ -1,25 +1,41 @@
 import React, { Component } from 'react';
 import { Map, View } from 'ol';
+import Polygon from 'ol/geom/Polygon';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import { fromLonLat, toLonLat } from 'ol/proj';
-import { Style, Stroke } from 'ol/style';
+import { Fill, Style, Stroke } from 'ol/style';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature';
 import Control from 'ol/control/Control';
 
-import { FORECAST_STEP, MAX_FORECAST_PERIOD } from '../services/domain';
-import { createCellFigure, createCellFill } from '../services/layer';
 import {
-  createScenario,
-  removeScenario,
-  forecastScenario,
-} from '../services/scenario';
+  CELL_SIZE,
+  FORECAST_STEP,
+  MAX_FORECAST_PERIOD,
+} from '../domain/definitions';
+import { scenarioService } from '../services/registry';
 
 // const INITIAL_MAP_CENTER = [37.6173, 55.7558];
 const INITIAL_MAP_CENTER = [49, 37.5];
 const INITIAL_MAP_ZOOM = 12;
+
+const LAYER_OPACITY = 0.5;
+const LAYER_PARAMS = {
+  heat: {
+    minValue: 0,
+    maxValue: 200,
+    minColor: [255, 255, 0],
+    maxColor: [255, 0, 0],
+  },
+  resource: {
+    minValue: 0,
+    maxValue: 1,
+    minColor: [127, 127, 127],
+    maxColor: [255, 0, 255],
+  },
+};
 
 export class ScenarioMap extends Component {
   constructor(props) {
@@ -143,10 +159,10 @@ export class ScenarioMap extends Component {
       return;
     }
     if (this.scenario !== undefined) {
-      removeScenario(this.scenario);
+      scenarioService.removeScenario(this.scenario);
     }
     this.setScenarioPickingMode(false);
-    this.scenario = await createScenario(
+    this.scenario = await scenarioService.createScenario(
       toLonLat(event.coordinate),
       Date.now()
     );
@@ -154,6 +170,9 @@ export class ScenarioMap extends Component {
   }
 
   async shiftDate(steps) {
+    if (this.scenario === undefined) {
+      return;
+    }
     let desiredDate = this.scenario.actualDate + steps * FORECAST_STEP;
     if (desiredDate < this.scenario.startDate) {
       desiredDate = this.scenario.startDate;
@@ -161,7 +180,7 @@ export class ScenarioMap extends Component {
       desiredDate = this.scenario.startDate + MAX_FORECAST_PERIOD;
     }
     this.scenario.actualDate = desiredDate;
-    this.forecast = await forecastScenario(this.scenario);
+    this.forecast = await scenarioService.forecastScenario(this.scenario);
     this.displayForecast();
   }
 
@@ -204,4 +223,48 @@ export class ScenarioMap extends Component {
       this.scenarioLayerSource.addFeature(feature);
     }
   }
+}
+
+function createCellFigure(center, x, y) {
+  const leftEdgeLon = center[0] + (x - 0.5) * CELL_SIZE;
+  const rightEdgeLon = center[0] + (x + 0.5) * CELL_SIZE;
+  const topEdgeLat = center[1] + (y - 0.5) * CELL_SIZE;
+  const bottomEdgeLat = center[1] + (y + 0.5) * CELL_SIZE;
+
+  return new Polygon([
+    [
+      fromLonLat([leftEdgeLon, topEdgeLat]),
+      fromLonLat([rightEdgeLon, topEdgeLat]),
+      fromLonLat([rightEdgeLon, bottomEdgeLat]),
+      fromLonLat([leftEdgeLon, bottomEdgeLat]),
+      fromLonLat([leftEdgeLon, topEdgeLat]),
+    ],
+  ]);
+}
+
+function createCellFill(value, layerName) {
+  const params = LAYER_PARAMS[layerName];
+  const gradient = calculateLinearGradient(
+    value,
+    params.minValue,
+    params.maxValue
+  );
+  const color = [0, 1, 2].map(
+    (index) =>
+      params.minColor[index] +
+      Math.round((params.maxColor[index] - params.minColor[index]) * gradient)
+  );
+
+  return new Fill({ color: `rgba(${color},${LAYER_OPACITY})` });
+}
+
+function calculateLinearGradient(value, minValue, maxValue) {
+  let gradient = (value - minValue) / (maxValue - minValue);
+  if (gradient < 0) {
+    gradient = 0;
+  }
+  if (gradient > 1) {
+    gradient = 1;
+  }
+  return gradient;
 }
