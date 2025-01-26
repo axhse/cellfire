@@ -1,10 +1,10 @@
-package com.example.cellfire.entity;
+package com.example.cellfire;
 
 import java.time.Duration;
 
-public final class Domain {
+public final class DomainSettings {
     /**
-     * 1/100° for both latitude and longitude.
+     * Cell size is 1/100° for both latitude and longitude.
      * <br/>
      * Height ≈1.1 km.
      * <br/>
@@ -14,7 +14,8 @@ public final class Domain {
      * <br/>
      * Earth Polar circumference: 39 930  km.
      */
-    public static final double CELL_SIZE = 0.01;
+    public static final int SCALE_FACTOR = 100;
+    public static final int AXES_SCALE = 360 * SCALE_FACTOR;
 
     public static double INFINITE_IGNITION_TEMPERATURE = 1_000_000;
 

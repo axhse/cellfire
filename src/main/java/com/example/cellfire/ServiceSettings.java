@@ -1,4 +1,4 @@
-package com.example.cellfire.service;
+package com.example.cellfire;
 
 import java.time.Duration;
 

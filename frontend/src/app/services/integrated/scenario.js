@@ -1,26 +1,23 @@
-import { roundPoint } from '../../domain/logic';
-
 export class ScenarioService {
-  async createScenario(startPoint, startDate) {
-    startPoint = roundPoint(startPoint);
-
+  async createScenario(startCoordinates, startDate) {
     const response = await fetch('/scenario/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        startPoint,
+        startCoordinates,
         startTs: startDate.valueOf(),
       }),
     });
 
     if (response.ok) {
-      const id = (await response.json()).scenarioId;
+      const body = await response.json();
       return {
-        id,
-        startPoint,
+        id: body.scenarioId,
+        startCoordinates,
         startDate,
         actualDate: startDate,
       };
+      // TODO: What if response is not ok?
     }
   }
 
@@ -47,9 +44,11 @@ export class ScenarioService {
         actualTs: scenario.actualDate.valueOf(),
       }),
     });
-    const body = await response.json();
+
     if (response.ok) {
+      const body = await response.json();
       return body.forecast;
     }
+    // TODO: What if response is not ok?
   }
 }

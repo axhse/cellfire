@@ -1,7 +1,7 @@
-package com.example.cellfire.service;
+package com.example.cellfire.services;
 
-import com.example.cellfire.entity.Domain;
-import com.google.maps.model.LatLng;
+import com.example.cellfire.DomainSettings;
+import com.example.cellfire.models.CellCoordinates;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -11,26 +11,28 @@ import java.util.Random;
 public class FuelService {
     private final Random random = new Random();
     private final byte[][] data = loadData();
-    private final int SECTOR_LAT = 36;
     private final int SECTOR_LNG = 48;
+    private final int SECTOR_LAT = 36;
 
-    public double getResource(LatLng point) {
-        if (point.lat < SECTOR_LAT || SECTOR_LAT + 3 <= point.lat) {
+    public double getResource(CellCoordinates coordinates) {
+        if (coordinates.getX() < SECTOR_LNG * DomainSettings.SCALE_FACTOR
+                || (SECTOR_LNG + 3) * DomainSettings.SCALE_FACTOR <= coordinates.getX()) {
             return 0;
         }
-        if (point.lng < SECTOR_LNG || SECTOR_LNG + 3 <= point.lng) {
+        if (coordinates.getY() < SECTOR_LAT * DomainSettings.SCALE_FACTOR
+                || (SECTOR_LAT + 3) * DomainSettings.SCALE_FACTOR <= coordinates.getY()) {
             return 0;
         }
-        int y = (int)Math.round((point.lat - SECTOR_LAT) * 100);
-        int x = (int)Math.round((point.lng - SECTOR_LNG) * 100);
+        int x = coordinates.getX() - SECTOR_LNG * DomainSettings.SCALE_FACTOR;
+        int y = coordinates.getY() - SECTOR_LAT * DomainSettings.SCALE_FACTOR;
 
         return data[x][y] / 40.0;
         // return random.nextDouble(0.3, 0.7);
     }
 
-    public double getIgnitionTemperature(LatLng point) {
-        if (getResource(point) == 0) {
-            return Domain.INFINITE_IGNITION_TEMPERATURE;
+    public double getIgnitionTemperature(CellCoordinates coordinates) {
+        if (getResource(coordinates) == 0) {
+            return DomainSettings.INFINITE_IGNITION_TEMPERATURE;
         }
         return random.nextDouble(200, 300);
     }

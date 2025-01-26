@@ -1,21 +1,21 @@
 package com.example.cellfire.api.params;
 
 
-import com.google.maps.model.LatLng;
+import com.example.cellfire.models.CellCoordinates;
 
 import java.time.Instant;
 
 public final class ScenarioCreationParams {
-    private final double[] startPoint;
+    private final CellCoordinates startCoordinates;
     private final long startTs;
 
-    public ScenarioCreationParams(double[] startPoint, long startTs){
-        this.startPoint = startPoint;
+    public ScenarioCreationParams(CellCoordinates startCoordinates, long startTs){
+        this.startCoordinates = startCoordinates;
         this.startTs = startTs;
     }
 
-    public LatLng getStartPoint() {
-        return Converter.fromOpenLayerPoint(startPoint);
+    public CellCoordinates getStartCoordinates() {
+        return startCoordinates;
     }
 
     public Instant getStartDate() {

@@ -4,6 +4,6 @@ const TimePeriod = {
   days: (n) => n * 24 * 60 * 60 * 1000,
 };
 
-export const CELL_SIZE = 0.01;
+export const SCALE_FACTOR = 100;
 export const FORECAST_STEP = TimePeriod.minutes(30);
 export const MAX_FORECAST_PERIOD = TimePeriod.days(3);

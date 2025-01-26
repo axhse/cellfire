@@ -1,6 +1,6 @@
-package com.example.cellfire.entity;
+package com.example.cellfire.models;
 
-import com.google.maps.model.LatLng;
+import com.example.cellfire.DomainSettings;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -10,11 +10,9 @@ public final class Scenario {
     private final Instant creationDate = Instant.now();
     private final String id = UUID.randomUUID().toString();
     private final Forecast forecast = new Forecast();
-    private final LatLng startPoint;
     private final Instant startDate;
 
-    public Scenario(LatLng startPoint, Instant startDate, Cell initialCell) {
-        this.startPoint = startPoint;
+    public Scenario(Instant startDate, Cell initialCell) {
         this.startDate = startDate;
         InstantForecast initialInstantForecast = new InstantForecast();
         initialInstantForecast.getCells().add(initialCell);
@@ -33,10 +31,6 @@ public final class Scenario {
         return forecast;
     }
 
-    public LatLng getStartPoint() {
-        return startPoint;
-    }
-
     public Instant getStartDate() {
         return startDate;
     }
@@ -49,7 +43,7 @@ public final class Scenario {
     public InstantForecast getInstantForecast(Instant date)
     {
         Duration forecastPeriod = Duration.between(startDate, date);
-        int instantForecastIndex = (int)forecastPeriod.dividedBy(Domain.FORECAST_STEP);
+        int instantForecastIndex = (int)forecastPeriod.dividedBy(DomainSettings.FORECAST_STEP);
         if (instantForecastIndex < forecast.getInstantForecasts().size()) {
             return forecast.getInstantForecasts().get(instantForecastIndex);
         }

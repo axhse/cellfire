@@ -1,4 +1,4 @@
-package com.example.cellfire.entity;
+package com.example.cellfire.models;
 
 public final class Fire {
     private final double heat;

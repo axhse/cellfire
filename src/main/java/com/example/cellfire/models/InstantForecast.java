@@ -1,4 +1,4 @@
-package com.example.cellfire.entity;
+package com.example.cellfire.models;
 
 import java.util.ArrayList;
 import java.util.List;

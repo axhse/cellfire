@@ -1,9 +1,8 @@
-package com.example.cellfire.model.forecast;
+package com.example.cellfire.forecast;
 
-import com.example.cellfire.entity.Cell;
-import com.example.cellfire.entity.Domain;
-import com.example.cellfire.entity.Fire;
-import com.google.maps.model.LatLng;
+import com.example.cellfire.DomainSettings;
+import com.example.cellfire.models.Cell;
+import com.example.cellfire.models.Fire;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public final class Algorithm {
     }
 
     private double calculateBurnEnergy(Cell cell) {
-        long duration = Domain.FORECAST_STEP.toSeconds();
+        long duration = DomainSettings.FORECAST_STEP.toSeconds();
         double burnedPart = calculateBurnRate(cell) * duration;
         if (burnedPart > 1) {
             burnedPart = 1;
@@ -34,20 +33,20 @@ public final class Algorithm {
         return energy;
     }
 
-    public Fire flame(Cell cell, List<Cell> neighbours, LatLng startPoint) {
+    public Fire flame(Cell cell, List<Cell> neighbours) {
         // FIXME: Do not ignore weather
         double heat = cell.getFire().getHeat();
         double resource = cell.getFire().getResource();
         heat += 0.2 * calculateBurnEnergy(cell);
         for (Cell neighbour : neighbours) {
             double distance = 1;
-            if (neighbour.getX() != cell.getX() && neighbour.getY() != cell.getY()) {
+            if (neighbour.getCoordinates().getX() != cell.getCoordinates().getX() && neighbour.getCoordinates().getY() != cell.getCoordinates().getY()) {
                 distance = Math.sqrt(2);
             }
             heat += 0.05 * calculateBurnEnergy(neighbour) / Math.pow(distance, 3);
         }
         heat += (cell.getEnvironment().getWeatherTemperature() - heat) * 0.5;
-        long duration = Domain.FORECAST_STEP.toSeconds();
+        long duration = DomainSettings.FORECAST_STEP.toSeconds();
         var x = duration * calculateBurnRate(cell);
         if (x > 1) {
             x = 1;

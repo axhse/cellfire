@@ -1,6 +1,7 @@
-package com.example.cellfire.service;
+package com.example.cellfire.services;
 
-import com.example.cellfire.entity.Scenario;
+import com.example.cellfire.ServiceSettings;
+import com.example.cellfire.models.Scenario;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;

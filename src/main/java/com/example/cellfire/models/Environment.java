@@ -1,4 +1,4 @@
-package com.example.cellfire.entity;
+package com.example.cellfire.models;
 
 public final class Environment {
     private final double ignitionTemperature;

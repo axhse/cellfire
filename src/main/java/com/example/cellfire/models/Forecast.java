@@ -1,8 +1,5 @@
-package com.example.cellfire.entity;
+package com.example.cellfire.models;
 
-import jakarta.annotation.Nullable;
-
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 

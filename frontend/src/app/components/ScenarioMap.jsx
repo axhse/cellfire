@@ -4,17 +4,19 @@ import Polygon from 'ol/geom/Polygon';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import { fromLonLat, toLonLat } from 'ol/proj';
-import { Fill, Style, Stroke } from 'ol/style';
+import { Fill, Style } from 'ol/style';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature';
 import Control from 'ol/control/Control';
 
 import {
-  CELL_SIZE,
+  SCALE_FACTOR,
   FORECAST_STEP,
   MAX_FORECAST_PERIOD,
 } from '../domain/definitions';
+
+import { toCellCoordinates } from '../domain/logic';
 import { scenarioService } from '../services/registry';
 
 // const INITIAL_MAP_CENTER = [37.6173, 55.7558];
@@ -162,8 +164,9 @@ export class ScenarioMap extends Component {
       scenarioService.removeScenario(this.scenario);
     }
     this.setScenarioPickingMode(false);
+    const startCoordinates = toCellCoordinates(toLonLat(event.coordinate));
     this.scenario = await scenarioService.createScenario(
-      toLonLat(event.coordinate),
+      startCoordinates,
       Date.now()
     );
     await this.shiftDate(0);
@@ -196,7 +199,7 @@ export class ScenarioMap extends Component {
     this.scenarioLayerSource.clear();
 
     //     const startCellFeature = new Feature({
-    //       geometry: createCellFigure(this.scenario.startPoint, 0, 0),
+    //       geometry: createCellFigure(this.scenario.startCellCoordinates, 0, 0),
     //     });
     //     const startCellStyle = new Style({
     //       stroke: new Stroke({ color: 'red', width: 2 }),
@@ -213,11 +216,9 @@ export class ScenarioMap extends Component {
         value = cell.fire.resource;
       }
       const feature = new Feature({
-        geometry: createCellFigure(this.scenario.startPoint, cell.x, cell.y),
+        geometry: createCellFigure(cell.coordinates),
       });
-      const style = new Style({
-        fill: createCellFill(value, this.layerName),
-      });
+      const style = new Style({ fill: createCellFill(value, this.layerName) });
       feature.setStyle(style);
 
       this.scenarioLayerSource.addFeature(feature);
@@ -225,11 +226,11 @@ export class ScenarioMap extends Component {
   }
 }
 
-function createCellFigure(center, x, y) {
-  const leftEdgeLon = center[0] + (x - 0.5) * CELL_SIZE;
-  const rightEdgeLon = center[0] + (x + 0.5) * CELL_SIZE;
-  const topEdgeLat = center[1] + (y - 0.5) * CELL_SIZE;
-  const bottomEdgeLat = center[1] + (y + 0.5) * CELL_SIZE;
+function createCellFigure(coordinates) {
+  const leftEdgeLon = coordinates.x / SCALE_FACTOR;
+  const rightEdgeLon = (coordinates.x + 1) / SCALE_FACTOR;
+  const bottomEdgeLat = coordinates.y / SCALE_FACTOR;
+  const topEdgeLat = (coordinates.y + 1) / SCALE_FACTOR;
 
   return new Polygon([
     [

@@ -1,13 +1,10 @@
 import { FORECAST_STEP } from '../../domain/definitions';
-import { roundPoint } from '../../domain/logic';
 
 export class ScenarioService {
-  async createScenario(startPoint, startDate) {
-    startPoint = roundPoint(startPoint);
-
+  async createScenario(startCoordinates, startDate) {
     return {
-      id: 'demo id',
-      startPoint,
+      id: 'DEMO-ID',
+      startCoordinates,
       startDate,
       actualDate: startDate,
     };
@@ -34,28 +31,31 @@ function produceDemoForecast(scenario) {
       x + y <= (scenario.actualDate - scenario.startDate) / FORECAST_STEP;
       y++
     ) {
-      demoCells.push(produceDemoCell(x, y));
+      demoCells.push(produceDemoCell(scenario.startCoordinates, x, y));
       if (x > 0) {
-        demoCells.push(produceDemoCell(-x, y));
+        demoCells.push(produceDemoCell(scenario.startCoordinates, -x, y));
         if (y > 0) {
-          demoCells.push(produceDemoCell(-x, -y));
+          demoCells.push(produceDemoCell(scenario.startCoordinates, -x, -y));
         }
       }
       if (y > 0) {
-        demoCells.push(produceDemoCell(x, -y));
+        demoCells.push(produceDemoCell(scenario.startCoordinates, x, -y));
       }
     }
   }
   return { cells: demoCells };
 }
 
-function produceDemoCell(x, y) {
+function produceDemoCell(startCoordinates, offsetX, offsetY) {
   return {
-    x,
-    y,
+    coordinates: {
+      x: startCoordinates.x + offsetX,
+      y: startCoordinates.y + offsetY,
+    },
     fire: {
-      heat: 100 + (((x + 3) * 5) % 77) + (((y + 7) * 9) % 100),
-      resource: 0 + (((x + 4) * 5) % 77) / 77 + (((y + 3) * 9) % 100) / 44,
+      heat: 100 + (((offsetX + 3) * 5) % 77) + (((offsetY + 7) * 9) % 100),
+      resource:
+        0 + (((offsetX + 4) * 5) % 77) / 77 + (((offsetY + 3) * 9) % 100) / 44,
     },
   };
 }
