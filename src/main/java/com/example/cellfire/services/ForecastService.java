@@ -42,17 +42,19 @@ public class ForecastService {
     }
 
     private void forecastFurther(Scenario scenario) {
-        Forecast futherForecast = new Forecast();
+        Forecast draftForecast = new Forecast();
         Forecast lastForecast = scenario.getForecastLog().getForecasts().getLast();
         int furtherStepNumber = scenario.getForecastLog().getForecasts().size();
         Instant date = scenario.getStartDate().plus(DomainSettings.FORECAST_STEP.multipliedBy(furtherStepNumber));
 
         lastForecast.getCells().forEach(cell -> {
             Environment environment = createEnvironment(cell.getCoordinates(), date);
-            Cell draftCell = new Cell(cell.getCoordinates(), environment, cell.getFire());
+            Fire lastFire = cell.getFire();
+            Fire fire = new Fire(lastFire.getHeat(), lastFire.getInitialResource(), lastFire.getResource());
+            Cell draftCell = new Cell(cell.getCoordinates(), environment, fire);
             draftCell.setTwin(cell);
             cell.setTwin(draftCell);
-            futherForecast.getCells().add(draftCell);
+            draftForecast.getCells().add(draftCell);
         });
 
         lastForecast.getCells().forEach(cell -> {
@@ -70,7 +72,7 @@ public class ForecastService {
             }
         });
 
-        futherForecast.getCells().forEach(cell -> {
+        draftForecast.getCells().forEach(cell -> {
             cell.setTwin(null);
         });
 
@@ -96,7 +98,7 @@ public class ForecastService {
 //                    neighbor.setNeighbor(-offsetX, -offsetY, cell);
 //                    cell.setNeighbor(offsetX, offsetY, neighbor);
                     // FIXME: optimize
-                    futherForecast.getCells().forEach(otherCell -> {
+                    draftForecast.getCells().forEach(otherCell -> {
                         int distanceX = otherCell.getCoordinates().getX() - neighbor.getCoordinates().getX();
                         int distanceY = otherCell.getCoordinates().getY() - neighbor.getCoordinates().getY();
                         if (Math.abs(distanceX) <= 1 && Math.abs(distanceY) <= 1) {
@@ -105,14 +107,14 @@ public class ForecastService {
                         }
                     });
 
-                    futherForecast.getCells().add(neighbor);
+                    draftForecast.getCells().add(neighbor);
                 }
             }
         });
 
-        forecastAlgorithm.refine(futherForecast);
+        forecastAlgorithm.refine(draftForecast);
 
-        scenario.getForecastLog().getForecasts().add(futherForecast);
+        scenario.getForecastLog().getForecasts().add(draftForecast);
     }
 
     private Environment createEnvironment(CellCoordinates coordinates, Instant date) {

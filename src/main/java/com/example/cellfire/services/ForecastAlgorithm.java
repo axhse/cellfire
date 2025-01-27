@@ -8,14 +8,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public final class ForecastAlgorithm {
-    private final double PROPAGATION_RATE = 0.3;
-    private final double RATE_LINEAR_FACTOR = Math.pow(10, 9) / 50000 / 20;
-    private final double RATE_EXPONENTIAL_FACTOR = 200 * 1000 / 8.3;
-    private final double ENERGY_EMISSION_FACTOR = 150000;
+    private static final int PHASE_QUANTITY = 1;
+    private static final double PROPAGATION_RATE = 0.3;
+    private static final double RATE_LINEAR_FACTOR = Math.pow(10, 9) / 50000 / 20;
+    private static final double RATE_EXPONENTIAL_FACTOR = 200 * 1000 / 8.3;
+    private static final double ENERGY_EMISSION_FACTOR = 150000;
 
     public void refine(Forecast draftForecast) {
-        draftForecast.getCells().forEach(this::combust);
-        draftForecast.getCells().forEach(this::regulate);
+        for (int i = 0; i < PHASE_QUANTITY; i++) {
+            draftForecast.getCells().forEach(this::combust);
+            draftForecast.getCells().forEach(this::regulate);
+        }
     }
 
     private void combust(Cell cell) {
@@ -25,7 +28,7 @@ public final class ForecastAlgorithm {
         double resource = cell.getFire().getResource() * (1 - burnedFraction);
 
         setGeneratedEnergy(energy, cell);
-        cell.setFire(new Fire(cell.getFire().getHeat(), resource));
+        cell.getFire().setResource(resource);
     }
 
     public void regulate(Cell cell) {
@@ -34,13 +37,16 @@ public final class ForecastAlgorithm {
         heat += getGeneratedEnergy(cell) * 0.2;
 
         for (Cell neighbour : cell.iterateNeighbors()) {
+            if (neighbour.getCoordinates() == null ) {
+                var x = 0;
+            }
             double distance = cell.getCoordinates().calculatePhysicalDistanceTo(neighbour.getCoordinates());
             heat += getGeneratedEnergy(neighbour) * 0.05 / Math.pow(distance, 3);
         }
 
         heat += (cell.getEnvironment().getWeatherTemperature() - heat) * 0.2;
 
-        cell.setFire(new Fire(heat, cell.getFire().getResource()));
+        cell.getFire().setHeat(heat);
     }
 
     private double calculateCombustionEnergy(Cell cell, double burnedFraction) {
@@ -48,7 +54,7 @@ public final class ForecastAlgorithm {
     }
 
     private double calculateBurnedFraction(Cell cell) {
-        return Math.min(1, calculateCombustionRate(cell) * DomainSettings.FORECAST_STEP.toSeconds());
+        return Math.min(1, calculateCombustionRate(cell) * DomainSettings.FORECAST_STEP.toSeconds() / PHASE_QUANTITY);
     }
 
     private double calculateCombustionRate(Cell cell) {

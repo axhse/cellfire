@@ -25,17 +25,19 @@ const INITIAL_MAP_ZOOM = 12;
 
 const LAYER_OPACITY = 0.5;
 const LAYER_PARAMS = {
-  heat: {
-    minValue: 0,
-    maxValue: 200,
-    minColor: [255, 255, 0],
-    maxColor: [255, 0, 0],
+  fire: {
+    zeroTemperature: 0,
+    plantColor: [0, 255, 0, LAYER_OPACITY],
+    coalColor: [50, 50, 50, LAYER_OPACITY],
+    ignitionColor: [255, 255, 0, LAYER_OPACITY],
+    flameTemperature: 1000,
+    flameColor: [255, 0, 0, LAYER_OPACITY],
   },
-  resource: {
-    minValue: 0,
-    maxValue: 1,
-    minColor: [127, 127, 127],
-    maxColor: [255, 0, 255],
+  fuel: {
+    minAmount: 0,
+    maxAmount: 1,
+    minColor: [127, 127, 127, LAYER_OPACITY],
+    maxColor: [255, 0, 255, LAYER_OPACITY],
   },
 };
 
@@ -45,7 +47,7 @@ export class ScenarioMap extends Component {
 
     this.scenario = undefined;
     this.forecast = undefined;
-    this.layerName = 'heat';
+    this.layerName = 'fire';
     this.isScenarioPickingMode = false;
 
     this.scenarioLayerSource = new VectorSource();
@@ -127,19 +129,19 @@ export class ScenarioMap extends Component {
     container.id = 'layer-control-container';
     container.className = 'ol-unselectable ol-control';
 
-    const heatLayerSwitch = document.createElement('button');
-    heatLayerSwitch.innerHTML = '🔥';
-    heatLayerSwitch.addEventListener('click', () => {
-      this.switchLayer('heat');
+    const fireLayerSwitch = document.createElement('button');
+    fireLayerSwitch.innerHTML = '🔥';
+    fireLayerSwitch.addEventListener('click', () => {
+      this.switchLayer('fire');
     });
-    container.appendChild(heatLayerSwitch);
+    container.appendChild(fireLayerSwitch);
 
-    const resourceLayerSwitch = document.createElement('button');
-    resourceLayerSwitch.innerHTML = '⛽';
-    resourceLayerSwitch.addEventListener('click', () => {
-      this.switchLayer('resource');
+    const fuelLayerSwitch = document.createElement('button');
+    fuelLayerSwitch.innerHTML = '⛽';
+    fuelLayerSwitch.addEventListener('click', () => {
+      this.switchLayer('fuel');
     });
-    container.appendChild(resourceLayerSwitch);
+    container.appendChild(fuelLayerSwitch);
 
     return new Control({ element: container });
   }
@@ -208,21 +210,60 @@ export class ScenarioMap extends Component {
     //     this.scenarioLayerSource.addFeature(startCellFeature);
 
     for (const cell of this.forecast.cells) {
-      let value = 0;
-      if (this.layerName === 'heat') {
-        value = cell.fire.heat;
-      }
-      if (this.layerName === 'resource') {
-        value = cell.fire.resource;
-      }
       const feature = new Feature({
         geometry: createCellFigure(cell.coordinates),
       });
-      const style = new Style({ fill: createCellFill(value, this.layerName) });
+      const style = new Style({ fill: this.createCellFill(cell) });
       feature.setStyle(style);
 
       this.scenarioLayerSource.addFeature(feature);
     }
+  }
+
+  createCellFill(cell) {
+    let value;
+    let bottomBoundary;
+    let bottomColor;
+    let topBoundary;
+    let topColor;
+    if (this.layerName === 'fire') {
+      value = cell.fire.heat;
+      if (value > cell.environment.ignitionTemperature) {
+        bottomBoundary = cell.environment.ignitionTemperature;
+        bottomColor = LAYER_PARAMS.fire.ignitionColor;
+        topBoundary = LAYER_PARAMS.fire.flameTemperature;
+        topColor = LAYER_PARAMS.fire.flameColor;
+      } else {
+        bottomBoundary = LAYER_PARAMS.fire.zeroTemperature;
+        topBoundary = cell.environment.ignitionTemperature;
+        topColor = LAYER_PARAMS.fire.ignitionColor;
+
+        if (cell.fire.resource < cell.fire.initialResource) {
+          bottomColor = LAYER_PARAMS.fire.coalColor;
+        } else {
+          bottomColor = LAYER_PARAMS.fire.plantColor;
+        }
+      }
+    }
+    if (this.layerName === 'fuel') {
+      value = cell.fire.resource;
+      bottomBoundary = LAYER_PARAMS.fuel.minAmount;
+      bottomColor = LAYER_PARAMS.fuel.minColor;
+      topBoundary = LAYER_PARAMS.fuel.maxAmount;
+      topColor = LAYER_PARAMS.fuel.maxColor;
+    }
+
+    const gradient = calculateGradient(value, bottomBoundary, topBoundary);
+    const colorGradient = [0, 1, 2, 3].map(
+      (index) =>
+        bottomColor[index] + (topColor[index] - bottomColor[index]) * gradient
+    );
+    const color = [
+      ...colorGradient.slice(0, 3).map(Math.round),
+      colorGradient[3],
+    ];
+
+    return new Fill({ color: `rgba(${color})` });
   }
 }
 
@@ -243,24 +284,8 @@ function createCellFigure(coordinates) {
   ]);
 }
 
-function createCellFill(value, layerName) {
-  const params = LAYER_PARAMS[layerName];
-  const gradient = calculateLinearGradient(
-    value,
-    params.minValue,
-    params.maxValue
-  );
-  const color = [0, 1, 2].map(
-    (index) =>
-      params.minColor[index] +
-      Math.round((params.maxColor[index] - params.minColor[index]) * gradient)
-  );
-
-  return new Fill({ color: `rgba(${color},${LAYER_OPACITY})` });
-}
-
-function calculateLinearGradient(value, minValue, maxValue) {
-  let gradient = (value - minValue) / (maxValue - minValue);
+function calculateGradient(value, bottomBoundary, topBoundary) {
+  let gradient = (value - bottomBoundary) / (topBoundary - bottomBoundary);
   if (gradient < 0) {
     gradient = 0;
   }

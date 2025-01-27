@@ -11,7 +11,7 @@ public final class Cell {
     private final Cell[] vicinity = new Cell[9];
     private final CellCoordinates coordinates;
     private final Environment environment;
-    private Fire fire;
+    private final Fire fire;
 
     public Cell(CellCoordinates coordinates, Environment environment, Fire fire) {
         this.coordinates = coordinates;
@@ -29,10 +29,6 @@ public final class Cell {
 
     public Fire getFire() {
         return fire;
-    }
-
-    public void setFire(Fire fire) {
-        this.fire = fire;
     }
 
     @JsonIgnore

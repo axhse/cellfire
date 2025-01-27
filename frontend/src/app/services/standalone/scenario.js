@@ -47,15 +47,19 @@ function produceDemoForecast(scenario) {
 }
 
 function produceDemoCell(startCoordinates, offsetX, offsetY) {
+  const heat =
+    100 + (((offsetX + 3) * 5) % 77) * 10 + (((offsetY + 7) * 9) % 100) * 4;
+  const resource =
+    0 + (((offsetX + 4) * 5) % 77) / 77 + (((offsetY + 3) * 9) % 100) / 44;
+  const initialResource =
+    (offsetX * 2 + offsetY * 5) % 20 < 10 ? resource : resource + 1;
+
   return {
     coordinates: {
       x: startCoordinates.x + offsetX,
       y: startCoordinates.y + offsetY,
     },
-    fire: {
-      heat: 100 + (((offsetX + 3) * 5) % 77) + (((offsetY + 7) * 9) % 100),
-      resource:
-        0 + (((offsetX + 4) * 5) % 77) / 77 + (((offsetY + 3) * 9) % 100) / 44,
-    },
+    fire: { heat, resource, initialResource },
+    environment: { ignitionTemperature: 200 },
   };
 }
