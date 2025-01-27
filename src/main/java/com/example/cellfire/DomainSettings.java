@@ -21,7 +21,7 @@ public final class DomainSettings {
     public static final Duration MAX_FORECAST_PERIOD = Duration.ofDays(3);
 
     public static float INFINITE_IGNITION_TEMPERATURE = 1_000_000;
-    public static final float IGNITION_HEAT_DELTA = 20;
     public static final float INITIAL_FIRE_HEAT = 1000;
+    public static final float SIGNIFICANT_OVERHEAT = 20;
     public static final float SIGNIFICANT_RESOURCE = 0.01F;
 }

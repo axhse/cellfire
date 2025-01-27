@@ -12,11 +12,25 @@ public final class Cell {
     private final CellCoordinates coordinates;
     private final Environment environment;
     private final Fire fire;
+    public boolean isArtificial = false;
 
     public Cell(CellCoordinates coordinates, Environment environment, Fire fire) {
+        if (coordinates == null) {
+            var x = 0;
+        }
         this.coordinates = coordinates;
         this.environment = environment;
         this.fire = fire;
+    }
+
+    public Cell(CellCoordinates coordinates, Environment environment, Fire fire, boolean isArtificial) {
+        if (coordinates == null) {
+            var x = 0;
+        }
+        this.coordinates = coordinates;
+        this.environment = environment;
+        this.fire = fire;
+        this.isArtificial = isArtificial;
     }
 
     public CellCoordinates getCoordinates() {

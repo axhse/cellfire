@@ -114,6 +114,19 @@ public class ForecastService {
 
         forecastAlgorithm.refine(draftForecast);
 
+        draftForecast.getCells().stream().filter(this::isUnaffected).forEach(
+                cell -> {
+                    for (Cell neighbor : cell.iterateNeighbors()) {
+                        neighbor.setNeighbor(
+                                cell.getCoordinates().getX() - neighbor.getCoordinates().getX(),
+                                cell.getCoordinates().getY() - neighbor.getCoordinates().getY(),
+                                null
+                        );
+                    }
+                }
+        );
+        draftForecast.getCells().removeIf(this::isUnaffected);
+
         scenario.getForecastLog().getForecasts().add(draftForecast);
     }
 
@@ -125,5 +138,10 @@ public class ForecastService {
 //                weatherService.getHumidity(coordinates, date),
 //                weatherService.getWind(coordinates, date)
 //        );
+    }
+
+    private boolean isUnaffected(Cell cell) {
+        return cell.getFire().getResource() == cell.getFire().getInitialResource()
+                && cell.getFire().getHeat() - cell.getEnvironment().getWeatherTemperature() < DomainSettings.SIGNIFICANT_OVERHEAT;
     }
 }

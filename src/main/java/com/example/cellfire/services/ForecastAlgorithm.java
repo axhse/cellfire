@@ -26,6 +26,9 @@ public final class ForecastAlgorithm {
         float burnedFraction = (float)calculateBurnedFraction(cell);
         float energy = (float)calculateCombustionEnergy(cell, burnedFraction);
         float resource = cell.getFire().getResource() * (1 - burnedFraction);
+        if (resource < DomainSettings.SIGNIFICANT_RESOURCE) {
+            resource = 0;
+        }
 
         setGeneratedEnergy(energy, cell);
         cell.getFire().setResource(resource);
@@ -37,6 +40,9 @@ public final class ForecastAlgorithm {
         heat += getGeneratedEnergy(cell) * 0.2;
 
         for (Cell neighbour : cell.iterateNeighbors()) {
+            if (neighbour.getCoordinates() == null) {
+                var x = 0;
+            }
             double distance = cell.getCoordinates().calculatePhysicalDistanceTo(neighbour.getCoordinates());
             heat += getGeneratedEnergy(neighbour) * 0.05 / Math.pow(distance, 3);
         }
@@ -55,14 +61,14 @@ public final class ForecastAlgorithm {
     }
 
     private double calculateCombustionRate(Cell cell) {
-        if (cell.getFire().getHeat() <= cell.getEnvironment().getIgnitionTemperature()) {
+        if (cell.getFire().getResource() == 0 || cell.getFire().getHeat() <= cell.getEnvironment().getIgnitionTemperature()) {
             return 0;
         }
         return RATE_LINEAR_FACTOR * Math.exp(-RATE_EXPONENTIAL_FACTOR / (273 + cell.getFire().getHeat()));
     }
 
     private void setGeneratedEnergy(float energy, Cell cell) {
-        cell.setTwin(new Cell(null, null, new Fire(energy, 0)));
+        cell.setTwin(new Cell(null, null, new Fire(energy, 0), true));
     }
 
     private float getGeneratedEnergy(Cell cell) {
