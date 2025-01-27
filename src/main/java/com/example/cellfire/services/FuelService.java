@@ -10,7 +10,7 @@ import java.util.Random;
 @Service
 public class FuelService {
     private final Random random = new Random();
-    private final byte[][] data = loadData();
+    private final byte[][] canopyHeight = loadData();
     private final int SECTOR_LNG = 48;
     private final int SECTOR_LAT = 36;
 
@@ -26,20 +26,21 @@ public class FuelService {
         int x = coordinates.getX() - SECTOR_LNG * DomainSettings.SCALE_FACTOR;
         int y = coordinates.getY() - SECTOR_LAT * DomainSettings.SCALE_FACTOR;
 
-        return data[x][y] / 40.0f;
-        // return random.nextDouble(0.3, 0.7);
+        float resource = calculateResource(canopyHeight[x][y]);
+        return resource < DomainSettings.SIGNIFICANT_RESOURCE ? 0 : resource;
     }
 
     public float getIgnitionTemperature(CellCoordinates coordinates) {
-        if (getResource(coordinates) == 0) {
-            return DomainSettings.INFINITE_IGNITION_TEMPERATURE;
-        }
         return random.nextFloat(200, 300);
+    }
+
+    private float calculateResource(float canopyHeight) {
+        return (1 * canopyHeight * canopyHeight + 5 * canopyHeight) / 500;
     }
 
     private byte[][] loadData() {
         byte[][] loadedData = new byte[300][300];
-        String resourceName = "fuel_resource_map/N%dE0%d.bin".formatted(SECTOR_LAT, SECTOR_LNG);
+        String resourceName = "canopy_height_map/N%dE0%d.bin".formatted(SECTOR_LAT, SECTOR_LNG);
         try (InputStream inputStream = FuelService.class.getClassLoader().getResourceAsStream(resourceName)) {
             if (inputStream == null) {
                 return loadedData;
