@@ -25,8 +25,8 @@ public final class CellCoordinates {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CellCoordinates cellCoordinates = (CellCoordinates) o;
-        return x == cellCoordinates.x && y == cellCoordinates.y;
+        CellCoordinates otherCoordinates = (CellCoordinates) o;
+        return x == otherCoordinates.x && y == otherCoordinates.y;
     }
 
     @Override
@@ -69,8 +69,11 @@ public final class CellCoordinates {
         return new CellCoordinates((short) x, (short) y);
     }
 
-    public double calculatePhysicalDistanceTo(CellCoordinates cellCoordinates) {
-        // TODO
+    public double calculatePhysicalDistanceTo(CellCoordinates otherCoordinates) {
+        // FIXME
+        if (x != otherCoordinates.getX() && y != otherCoordinates.getY()) {
+            return Math.sqrt(2);
+        }
         return 1;
     }
 }
