@@ -13,7 +13,7 @@ public class ForecastService {
     private final FuelService fuelService;
     private final WeatherService weatherService;
 
-    private final Environment demoEnvironment = new Environment(200, 20, 10, new double[]{2, 2});
+    private final Environment demoEnvironment = new Environment(200, 20, 10, new float[]{2, 2});
 
     @Autowired
     public ForecastService(ForecastAlgorithm forecastAlgorithm, FuelService fuelService, WeatherService weatherService) {
@@ -25,7 +25,7 @@ public class ForecastService {
     public void initiate(Scenario scenario, CellCoordinates startCoordinates) {
         Forecast initialForecast = new Forecast();
         scenario.getForecastLog().getForecasts().add(initialForecast);
-        double resource = fuelService.getResource(startCoordinates);
+        float resource = fuelService.getResource(startCoordinates);
         if (resource == 0) {
             return;
         }
@@ -87,7 +87,7 @@ public class ForecastService {
                         continue;
                     }
                     CellCoordinates neighborCoordinates = cell.getCoordinates().shift(offsetX, offsetY);
-                    double resource = fuelService.getResource(neighborCoordinates);
+                    float resource = fuelService.getResource(neighborCoordinates);
                     if (resource == 0) {
                         continue;
                     }

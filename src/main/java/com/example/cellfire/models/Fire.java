@@ -1,37 +1,37 @@
 package com.example.cellfire.models;
 
 public final class Fire {
-    private final double initialResource;
-    private double resource;
-    private double heat;
+    private final float initialResource;
+    private float resource;
+    private float heat;
 
-    public Fire(double heat, double initialResource, double resource) {
+    public Fire(float heat, float initialResource, float resource) {
         this.initialResource = initialResource;
         this.resource = resource;
         this.heat = heat;
     }
 
-    public Fire(double heat, double initialResource) {
+    public Fire(float heat, float initialResource) {
         this(heat, initialResource, initialResource);
     }
 
-    public double getInitialResource() {
+    public float getInitialResource() {
         return initialResource;
     }
 
-    public double getResource() {
+    public float getResource() {
         return resource;
     }
 
-    public void setResource(double resource) {
+    public void setResource(float resource) {
         this.resource = resource;
     }
 
-    public double getHeat() {
+    public float getHeat() {
         return heat;
     }
 
-    public void setHeat(double heat) {
+    public void setHeat(float heat) {
         this.heat = heat;
     }
 }

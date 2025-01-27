@@ -16,14 +16,12 @@ public final class DomainSettings {
      */
     public static final int SCALE_FACTOR = 100;
     public static final int AXES_SCALE = 360 * SCALE_FACTOR;
-
-    public static double INFINITE_IGNITION_TEMPERATURE = 1_000_000;
-
+    
     public static final Duration FORECAST_STEP = Duration.ofMinutes(30);
-
     public static final Duration MAX_FORECAST_PERIOD = Duration.ofDays(3);
 
-    public static final double IGNITION_HEAT_DELTA = 20;
-    public static final double INITIAL_FIRE_HEAT = 1000;
-    public static final double SIGNIFICANT_RESOURCE = 0.01;
+    public static float INFINITE_IGNITION_TEMPERATURE = 1_000_000;
+    public static final float IGNITION_HEAT_DELTA = 20;
+    public static final float INITIAL_FIRE_HEAT = 1000;
+    public static final float SIGNIFICANT_RESOURCE = 0.01F;
 }
