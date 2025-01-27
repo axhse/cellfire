@@ -34,7 +34,7 @@ public class ForecastService {
         initialForecast.getCells().add(initialCell);
     }
 
-    public Forecast forecast(Scenario scenario, Instant date) {
+    public synchronized Forecast forecast(Scenario scenario, Instant date) {
         while (!scenario.hasForecast(date)) {
             forecastFurther(scenario);
         }

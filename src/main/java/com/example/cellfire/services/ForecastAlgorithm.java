@@ -40,9 +40,6 @@ public final class ForecastAlgorithm {
         heat += getGeneratedEnergy(cell) * 0.2;
 
         for (Cell neighbour : cell.iterateNeighbors()) {
-            if (neighbour.getCoordinates() == null) {
-                var x = 0;
-            }
             double distance = cell.getCoordinates().calculatePhysicalDistanceTo(neighbour.getCoordinates());
             heat += getGeneratedEnergy(neighbour) * 0.05 / Math.pow(distance, 3);
         }
@@ -68,7 +65,7 @@ public final class ForecastAlgorithm {
     }
 
     private void setGeneratedEnergy(float energy, Cell cell) {
-        cell.setTwin(new Cell(null, null, new Fire(energy, 0), true));
+        cell.setTwin(new Cell(null, null, new Fire(energy, 0)));
     }
 
     private float getGeneratedEnergy(Cell cell) {
