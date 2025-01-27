@@ -13,6 +13,9 @@ public final class ForecastAlgorithm {
     private static final double RATE_LINEAR_FACTOR = Math.pow(10, 9) / 50000 / 20;
     private static final double RATE_EXPONENTIAL_FACTOR = 200 * 1000 / 8.3;
     private static final double ENERGY_EMISSION_FACTOR = 150000;
+    private static final double WEATHER_HEAT_REGULATION_FACTOR = 1 / 10000f;
+
+    private static final double PHASE_DURATION = (double)DomainSettings.FORECAST_STEP.toSeconds() / PHASE_QUANTITY;
 
     public void refine(Forecast draftForecast) {
         for (int i = 0; i < PHASE_QUANTITY; i++) {
@@ -44,7 +47,7 @@ public final class ForecastAlgorithm {
             heat += getGeneratedEnergy(neighbour) * 0.05 / Math.pow(distance, 3);
         }
 
-        heat += (cell.getEnvironment().getWeatherTemperature() - heat) * 0.2;
+        heat += (cell.getEnvironment().getWeatherTemperature() - heat) * Math.min(1, WEATHER_HEAT_REGULATION_FACTOR * PHASE_DURATION);
 
         cell.getFire().setHeat((float)heat);
     }
@@ -54,7 +57,7 @@ public final class ForecastAlgorithm {
     }
 
     private double calculateBurnedFraction(Cell cell) {
-        return Math.min(1, calculateCombustionRate(cell) * DomainSettings.FORECAST_STEP.toSeconds() / PHASE_QUANTITY);
+        return Math.min(1, calculateCombustionRate(cell) * PHASE_DURATION);
     }
 
     private double calculateCombustionRate(Cell cell) {
