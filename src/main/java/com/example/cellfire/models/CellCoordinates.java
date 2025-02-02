@@ -6,18 +6,18 @@ import com.google.maps.model.LatLng;
 import java.util.Objects;
 
 public final class CellCoordinates {
-    private final short x;
-    private final short y;
+    private final int x;
+    private final int y;
 
-    public CellCoordinates(short x, short y) {
+    public CellCoordinates(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
     public static CellCoordinates fromGeoPoint(LatLng geoPoint) {
         return new CellCoordinates(
-                (short)Math.round(geoPoint.lng * DomainSettings.SCALE_FACTOR - 0.5),
-                (short)Math.max(-90 * DomainSettings.SCALE_FACTOR, Math.round(geoPoint.lat * DomainSettings.SCALE_FACTOR - 0.5))
+                (int)Math.round(geoPoint.lng * DomainSettings.SCALE_FACTOR - 0.5),
+                (int)Math.max(-90 * DomainSettings.SCALE_FACTOR, Math.round(geoPoint.lat * DomainSettings.SCALE_FACTOR - 0.5))
         );
     }
 
@@ -34,11 +34,11 @@ public final class CellCoordinates {
         return Objects.hash(x, y);
     }
 
-    public short getX() {
+    public int getX() {
         return x;
     }
 
-    public short getY() {
+    public int getY() {
         return y;
     }
 
@@ -66,7 +66,7 @@ public final class CellCoordinates {
         if (DomainSettings.AXES_SCALE / 2 < x) {
             x -= DomainSettings.AXES_SCALE;
         }
-        return new CellCoordinates((short) x, (short) y);
+        return new CellCoordinates(x, y);
     }
 
     public double calculatePhysicalDistanceTo(CellCoordinates otherCoordinates) {

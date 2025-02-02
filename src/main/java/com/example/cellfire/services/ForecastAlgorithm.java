@@ -51,7 +51,7 @@ public final class ForecastAlgorithm {
             heat += getGeneratedEnergy(neighbour) * 0.05 / Math.pow(distance, 3);
         }
 
-        heat += (cell.getEnvironment().getWeatherTemperature() - heat) * Math.min(1, WEATHER_HEAT_REGULATION_FACTOR * PHASE_DURATION);
+        heat += (cell.getEnvironment().getAirTemperature() - heat) * Math.min(1, WEATHER_HEAT_REGULATION_FACTOR * PHASE_DURATION);
 
         cell.getFire().setHeat((float)heat);
     }

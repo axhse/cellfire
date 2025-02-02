@@ -14,7 +14,7 @@ public final class DomainSettings {
      * <br/>
      * Earth Polar circumference: 39 930  km.
      */
-    public static final int SCALE_FACTOR = 100;
+    public static final int SCALE_FACTOR = 200;
     public static final int AXES_SCALE = 360 * SCALE_FACTOR;
     
     public static final Duration FORECAST_STEP = Duration.ofMinutes(30);

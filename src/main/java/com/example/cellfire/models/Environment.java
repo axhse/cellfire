@@ -2,14 +2,14 @@ package com.example.cellfire.models;
 
 public final class Environment {
     private final float ignitionTemperature;
-    private final float weatherTemperature;
-    private final float humidity;
+    private final float airTemperature;
+    private final float airHumidity;
     private final float[] wind;
 
-    public Environment(float ignitionTemperature, float weatherTemperature, float humidity, float[] wind) {
+    public Environment(float ignitionTemperature, float airTemperature, float airHumidity, float[] wind) {
         this.ignitionTemperature = ignitionTemperature;
-        this.weatherTemperature = weatherTemperature;
-        this.humidity = humidity;
+        this.airTemperature = airTemperature;
+        this.airHumidity = airHumidity;
         this.wind = wind;
     }
 
@@ -17,12 +17,12 @@ public final class Environment {
         return ignitionTemperature;
     }
 
-    public float getWeatherTemperature() {
-        return weatherTemperature;
+    public float getAirTemperature() {
+        return airTemperature;
     }
 
-    public float getHumidity() {
-        return humidity;
+    public float getAirHumidity() {
+        return airHumidity;
     }
 
     public float[] getWind() {

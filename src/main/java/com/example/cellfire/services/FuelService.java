@@ -26,7 +26,7 @@ public class FuelService {
         int x = coordinates.getX() - SECTOR_LNG * DomainSettings.SCALE_FACTOR;
         int y = coordinates.getY() - SECTOR_LAT * DomainSettings.SCALE_FACTOR;
 
-        float resource = calculateResource(canopyHeight[x][y]);
+        float resource = calculateResource(canopyHeight[x / 2][y / 2]);
         return resource < DomainSettings.SIGNIFICANT_RESOURCE ? 0 : resource;
     }
 

@@ -92,7 +92,7 @@ public class ForecastService {
                         continue;
                     }
                     Environment environment = createEnvironment(neighborCoordinates, date);
-                    Fire fire = new Fire(environment.getWeatherTemperature(), resource);
+                    Fire fire = new Fire(environment.getAirTemperature(), resource);
                     Cell neighbor = new Cell(neighborCoordinates, environment, fire);
 
 //                    neighbor.setNeighbor(-offsetX, -offsetY, cell);
@@ -142,6 +142,6 @@ public class ForecastService {
 
     private boolean isUnaffected(Cell cell) {
         return cell.getFire().getResource() == cell.getFire().getInitialResource()
-                && cell.getFire().getHeat() - cell.getEnvironment().getWeatherTemperature() < DomainSettings.SIGNIFICANT_OVERHEAT;
+                && cell.getFire().getHeat() - cell.getEnvironment().getAirTemperature() < DomainSettings.SIGNIFICANT_OVERHEAT;
     }
 }
