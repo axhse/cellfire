@@ -10,15 +10,19 @@ import org.springframework.stereotype.Service;
 public final class ForecastAlgorithm {
     private static final int PHASE_QUANTITY = 1;
     private static final double PROPAGATION_RATE = 0.3;
-    private static final double RATE_LINEAR_FACTOR = Math.pow(10, 9) / 50000 / 20;
+    private static final double RATE_LINEAR_FACTOR = Math.pow(10, 9) / 50000 / 2;
     /**
      * Varies from 150k to 250k
      */
     private static final double ACTIVATION_ENERGY = 200 * 1000;
-    private static final double ENERGY_EMISSION_FACTOR = 150000;
-    private static final double WEATHER_HEAT_REGULATION_FACTOR = 1 / 10000f;
+    private static final double ENERGY_EMISSION_FACTOR = 50000;
+    private static final double WEATHER_HEAT_REGULATION_FACTOR = 1.0 / 1800 / 2;
 
     private static final double RATE_EXPONENTIAL_FACTOR = ACTIVATION_ENERGY / 8.3;
+
+    /**
+     * FORECAST_STEP = 30 min ; PHASE_QUANTITY = 1 : PHASE_DURATION = 1800
+     */
     private static final double PHASE_DURATION = (double)DomainSettings.FORECAST_STEP.toSeconds() / PHASE_QUANTITY;
 
     public void refine(Forecast draftForecast) {
