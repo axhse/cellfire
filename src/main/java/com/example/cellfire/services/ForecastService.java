@@ -13,7 +13,7 @@ public class ForecastService {
     private final FuelService fuelService;
     private final WeatherService weatherService;
 
-    private final Environment demoEnvironment = new Environment(200, 20, 10, new float[]{2, 2});
+    private final Factors demoFactors = new Factors(200, 20, 10, new float[]{2, 2});
 
     @Autowired
     public ForecastService(ForecastAlgorithm forecastAlgorithm, FuelService fuelService, WeatherService weatherService) {
@@ -25,12 +25,12 @@ public class ForecastService {
     public void initiate(Scenario scenario, CellCoordinates startCoordinates) {
         Forecast initialForecast = new Forecast();
         scenario.getForecastLog().getForecasts().add(initialForecast);
-        float resource = fuelService.getResource(startCoordinates);
-        if (resource == 0) {
+        float fuel = fuelService.getFuel(startCoordinates);
+        if (fuel == 0) {
             return;
         }
-        Fire fire = new Fire(DomainSettings.INITIAL_FIRE_HEAT, resource);
-        Cell initialCell = new Cell(startCoordinates, createEnvironment(startCoordinates, scenario.getStartDate()), fire);
+        Fire fire = new Fire(DomainSettings.INITIAL_FIRE_HEAT, fuel);
+        Cell initialCell = new Cell(startCoordinates, getFactors(startCoordinates, scenario.getStartDate()), fire);
         initialForecast.getCells().add(initialCell);
     }
 
@@ -48,10 +48,10 @@ public class ForecastService {
         Instant date = scenario.getStartDate().plus(DomainSettings.FORECAST_STEP.multipliedBy(furtherStepNumber));
 
         lastForecast.getCells().forEach(cell -> {
-            Environment environment = createEnvironment(cell.getCoordinates(), date);
+            Factors factors = getFactors(cell.getCoordinates(), date);
             Fire lastFire = cell.getFire();
-            Fire fire = new Fire(lastFire.getHeat(), lastFire.getInitialResource(), lastFire.getResource());
-            Cell draftCell = new Cell(cell.getCoordinates(), environment, fire);
+            Fire draftFire = new Fire(lastFire.getHeat(), lastFire.getInitialFuel(), lastFire.getFuel());
+            Cell draftCell = new Cell(cell.getCoordinates(), factors, draftFire);
             draftCell.setTwin(cell);
             cell.setTwin(draftCell);
             draftForecast.getCells().add(draftCell);
@@ -78,7 +78,7 @@ public class ForecastService {
 
         lastForecast.getCells().forEach(lastForecastCell -> {
             Cell cell = lastForecastCell.getTwin();
-            if (cell.getFire().getHeat() <= cell.getEnvironment().getIgnitionTemperature()) {
+            if (cell.getFire().getHeat() <= cell.getFactors().getIgnitionTemperature()) {
                 return;
             }
             for (int offsetX = -1; offsetX <= 1; offsetX++) {
@@ -87,13 +87,13 @@ public class ForecastService {
                         continue;
                     }
                     CellCoordinates neighborCoordinates = cell.getCoordinates().shift(offsetX, offsetY);
-                    float resource = fuelService.getResource(neighborCoordinates);
-                    if (resource == 0) {
+                    float fuel = fuelService.getFuel(neighborCoordinates);
+                    if (fuel == 0) {
                         continue;
                     }
-                    Environment environment = createEnvironment(neighborCoordinates, date);
-                    Fire fire = new Fire(environment.getAirTemperature(), resource);
-                    Cell neighbor = new Cell(neighborCoordinates, environment, fire);
+                    Factors factors = getFactors(neighborCoordinates, date);
+                    Fire fire = new Fire(factors.getAirTemperature(), fuel);
+                    Cell neighbor = new Cell(neighborCoordinates, factors, fire);
 
 //                    neighbor.setNeighbor(-offsetX, -offsetY, cell);
 //                    cell.setNeighbor(offsetX, offsetY, neighbor);
@@ -130,9 +130,9 @@ public class ForecastService {
         scenario.getForecastLog().getForecasts().add(draftForecast);
     }
 
-    private Environment createEnvironment(CellCoordinates coordinates, Instant date) {
-        return demoEnvironment;
-//        return new Environment(
+    private Factors getFactors(CellCoordinates coordinates, Instant date) {
+        return demoFactors;
+//        return new Factors(
 //                fuelService.getIgnitionTemperature(coordinates),
 //                weatherService.getTemperature(coordinates, date),
 //                weatherService.getHumidity(coordinates, date),
@@ -141,7 +141,7 @@ public class ForecastService {
     }
 
     private boolean isUnaffected(Cell cell) {
-        return cell.getFire().getResource() == cell.getFire().getInitialResource()
-                && cell.getFire().getHeat() - cell.getEnvironment().getAirTemperature() < DomainSettings.SIGNIFICANT_OVERHEAT;
+        return cell.getFire().getFuel() == cell.getFire().getInitialFuel()
+                && cell.getFire().getHeat() - cell.getFactors().getAirTemperature() < DomainSettings.SIGNIFICANT_OVERHEAT;
     }
 }

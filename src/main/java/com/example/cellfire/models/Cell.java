@@ -2,20 +2,18 @@ package com.example.cellfire.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 public final class Cell {
     @JsonIgnore
     private final Cell[] vicinity = new Cell[9];
     private final CellCoordinates coordinates;
-    private final Environment environment;
+    private final Factors factors;
     private final Fire fire;
 
-    public Cell(CellCoordinates coordinates, Environment environment, Fire fire) {
+    public Cell(CellCoordinates coordinates, Factors factors, Fire fire) {
         this.coordinates = coordinates;
-        this.environment = environment;
+        this.factors = factors;
         this.fire = fire;
     }
 
@@ -23,8 +21,8 @@ public final class Cell {
         return coordinates;
     }
 
-    public Environment getEnvironment() {
-        return environment;
+    public Factors getFactors() {
+        return factors;
     }
 
     public Fire getFire() {

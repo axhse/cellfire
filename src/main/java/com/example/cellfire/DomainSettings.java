@@ -22,5 +22,5 @@ public final class DomainSettings {
 
     public static final float INITIAL_FIRE_HEAT = 1000;
     public static final float SIGNIFICANT_OVERHEAT = 20;
-    public static final float SIGNIFICANT_RESOURCE = 0.01F;
+    public static final float SIGNIFICANT_FUEL = 0.01F;
 }

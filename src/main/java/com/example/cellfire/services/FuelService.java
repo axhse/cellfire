@@ -14,7 +14,7 @@ public class FuelService {
     private final int SECTOR_LNG = 48;
     private final int SECTOR_LAT = 36;
 
-    public float getResource(CellCoordinates coordinates) {
+    public float getFuel(CellCoordinates coordinates) {
         if (coordinates.getX() < SECTOR_LNG * DomainSettings.SCALE_FACTOR
                 || (SECTOR_LNG + 3) * DomainSettings.SCALE_FACTOR <= coordinates.getX()) {
             return 0;
@@ -26,15 +26,15 @@ public class FuelService {
         int x = coordinates.getX() - SECTOR_LNG * DomainSettings.SCALE_FACTOR;
         int y = coordinates.getY() - SECTOR_LAT * DomainSettings.SCALE_FACTOR;
 
-        float resource = calculateResource(canopyHeight[x / 2][y / 2]);
-        return resource < DomainSettings.SIGNIFICANT_RESOURCE ? 0 : resource;
+        float fuel = calculateFuel(canopyHeight[x / 2][y / 2]);
+        return fuel < DomainSettings.SIGNIFICANT_FUEL ? 0 : fuel;
     }
 
     public float getIgnitionTemperature(CellCoordinates coordinates) {
         return random.nextFloat(200, 300);
     }
 
-    private float calculateResource(float canopyHeight) {
+    private float calculateFuel(float canopyHeight) {
         return (1 * canopyHeight * canopyHeight + 5 * canopyHeight) / 500;
     }
 

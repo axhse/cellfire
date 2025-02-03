@@ -36,13 +36,13 @@ public final class ForecastAlgorithm {
         // FIXME: Do not ignore weather
         float burnedFraction = (float)calculateBurnedFraction(cell);
         float energy = (float)calculateCombustionEnergy(cell, burnedFraction);
-        float resource = cell.getFire().getResource() * (1 - burnedFraction);
-        if (resource < DomainSettings.SIGNIFICANT_RESOURCE) {
-            resource = 0;
+        float fuel = cell.getFire().getFuel() * (1 - burnedFraction);
+        if (fuel < DomainSettings.SIGNIFICANT_FUEL) {
+            fuel = 0;
         }
 
         setGeneratedEnergy(energy, cell);
-        cell.getFire().setResource(resource);
+        cell.getFire().setFuel(fuel);
     }
 
     public void regulate(Cell cell) {
@@ -55,13 +55,13 @@ public final class ForecastAlgorithm {
             heat += getGeneratedEnergy(neighbour) * 0.05 / Math.pow(distance, 3);
         }
 
-        heat += (cell.getEnvironment().getAirTemperature() - heat) * Math.min(1, WEATHER_HEAT_REGULATION_FACTOR * PHASE_DURATION);
+        heat += (cell.getFactors().getAirTemperature() - heat) * Math.min(1, WEATHER_HEAT_REGULATION_FACTOR * PHASE_DURATION);
 
         cell.getFire().setHeat((float)heat);
     }
 
     private double calculateCombustionEnergy(Cell cell, double burnedFraction) {
-        return ENERGY_EMISSION_FACTOR * cell.getFire().getResource() * burnedFraction;
+        return ENERGY_EMISSION_FACTOR * cell.getFire().getFuel() * burnedFraction;
     }
 
     private double calculateBurnedFraction(Cell cell) {
@@ -69,7 +69,7 @@ public final class ForecastAlgorithm {
     }
 
     private double calculateCombustionRate(Cell cell) {
-        if (cell.getFire().getResource() == 0 || cell.getFire().getHeat() <= cell.getEnvironment().getIgnitionTemperature()) {
+        if (cell.getFire().getFuel() == 0 || cell.getFire().getHeat() <= cell.getFactors().getIgnitionTemperature()) {
             return 0;
         }
         return RATE_LINEAR_FACTOR * Math.exp(-RATE_EXPONENTIAL_FACTOR / (273 + cell.getFire().getHeat()));

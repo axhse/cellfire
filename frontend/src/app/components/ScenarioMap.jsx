@@ -228,17 +228,17 @@ export class ScenarioMap extends Component {
     let topColor;
     if (this.layerName === 'fire') {
       value = cell.fire.heat;
-      if (value > cell.environment.ignitionTemperature) {
-        bottomBoundary = cell.environment.ignitionTemperature;
+      if (value > cell.factors.ignitionTemperature) {
+        bottomBoundary = cell.factors.ignitionTemperature;
         bottomColor = LAYER_PARAMS.fire.ignitionColor;
         topBoundary = LAYER_PARAMS.fire.flameTemperature;
         topColor = LAYER_PARAMS.fire.flameColor;
       } else {
         bottomBoundary = LAYER_PARAMS.fire.zeroTemperature;
-        topBoundary = cell.environment.ignitionTemperature;
+        topBoundary = cell.factors.ignitionTemperature;
         topColor = LAYER_PARAMS.fire.ignitionColor;
 
-        if (cell.fire.resource < cell.fire.initialResource) {
+        if (cell.fire.fuel < cell.fire.initialFuel) {
           bottomColor = LAYER_PARAMS.fire.coalColor;
         } else {
           bottomColor = LAYER_PARAMS.fire.plantColor;
@@ -246,7 +246,7 @@ export class ScenarioMap extends Component {
       }
     }
     if (this.layerName === 'fuel') {
-      value = cell.fire.resource;
+      value = cell.fire.fuel;
       bottomBoundary = LAYER_PARAMS.fuel.minAmount;
       bottomColor = LAYER_PARAMS.fuel.minColor;
       topBoundary = LAYER_PARAMS.fuel.maxAmount;
