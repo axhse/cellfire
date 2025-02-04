@@ -1,6 +1,6 @@
 package com.example.cellfire.services;
 
-import com.example.cellfire.DomainSettings;
+import com.example.cellfire.models.Domain;
 import com.example.cellfire.models.CellCoordinates;
 import org.springframework.stereotype.Service;
 
@@ -15,19 +15,19 @@ public class FuelService {
     private final int SECTOR_LAT = 36;
 
     public float getFuel(CellCoordinates coordinates) {
-        if (coordinates.getX() < SECTOR_LNG * DomainSettings.SCALE_FACTOR
-                || (SECTOR_LNG + 3) * DomainSettings.SCALE_FACTOR <= coordinates.getX()) {
+        if (coordinates.getX() < SECTOR_LNG * Domain.Settings.GRID_SCALE_FACTOR
+                || (SECTOR_LNG + 3) * Domain.Settings.GRID_SCALE_FACTOR <= coordinates.getX()) {
             return 0;
         }
-        if (coordinates.getY() < SECTOR_LAT * DomainSettings.SCALE_FACTOR
-                || (SECTOR_LAT + 3) * DomainSettings.SCALE_FACTOR <= coordinates.getY()) {
+        if (coordinates.getY() < SECTOR_LAT * Domain.Settings.GRID_SCALE_FACTOR
+                || (SECTOR_LAT + 3) * Domain.Settings.GRID_SCALE_FACTOR <= coordinates.getY()) {
             return 0;
         }
-        int x = coordinates.getX() - SECTOR_LNG * DomainSettings.SCALE_FACTOR;
-        int y = coordinates.getY() - SECTOR_LAT * DomainSettings.SCALE_FACTOR;
+        int x = coordinates.getX() - SECTOR_LNG * Domain.Settings.GRID_SCALE_FACTOR;
+        int y = coordinates.getY() - SECTOR_LAT * Domain.Settings.GRID_SCALE_FACTOR;
 
         float fuel = calculateFuel(canopyHeight[x / 2][y / 2]);
-        return fuel < DomainSettings.SIGNIFICANT_FUEL ? 0 : fuel;
+        return fuel < Domain.Settings.SIGNIFICANT_FUEL ? 0 : fuel;
     }
 
     public float getIgnitionTemperature(CellCoordinates coordinates) {

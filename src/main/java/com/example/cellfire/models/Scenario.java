@@ -1,7 +1,5 @@
 package com.example.cellfire.models;
 
-import com.example.cellfire.DomainSettings;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
@@ -40,7 +38,7 @@ public final class Scenario {
     public Forecast getForecast(Instant date)
     {
         Duration forecastPeriod = Duration.between(startDate, date);
-        int forecastIndex = (int)forecastPeriod.dividedBy(DomainSettings.FORECAST_STEP);
+        int forecastIndex = (int)forecastPeriod.dividedBy(Domain.Settings.FORECAST_STEP);
         if (forecastIndex < forecastLog.getForecasts().size()) {
             return forecastLog.getForecasts().get(forecastIndex);
         }

@@ -1,6 +1,5 @@
 package com.example.cellfire.services;
 
-import com.example.cellfire.ServiceSettings;
 import com.example.cellfire.models.Scenario;
 import org.springframework.stereotype.Service;
 

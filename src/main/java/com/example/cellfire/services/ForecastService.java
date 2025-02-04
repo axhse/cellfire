@@ -1,6 +1,6 @@
 package com.example.cellfire.services;
 
-import com.example.cellfire.DomainSettings;
+import com.example.cellfire.models.Domain;
 import com.example.cellfire.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class ForecastService {
         if (fuel == 0) {
             return;
         }
-        Fire fire = new Fire(DomainSettings.INITIAL_FIRE_HEAT, fuel);
+        Fire fire = new Fire(Domain.Settings.INITIAL_FIRE_HEAT, fuel);
         Cell initialCell = new Cell(startCoordinates, getFactors(startCoordinates, scenario.getStartDate()), fire);
         initialForecast.getCells().add(initialCell);
     }
@@ -45,7 +45,7 @@ public class ForecastService {
         Forecast draftForecast = new Forecast();
         Forecast lastForecast = scenario.getForecastLog().getForecasts().getLast();
         int furtherStepNumber = scenario.getForecastLog().getForecasts().size();
-        Instant date = scenario.getStartDate().plus(DomainSettings.FORECAST_STEP.multipliedBy(furtherStepNumber));
+        Instant date = scenario.getStartDate().plus(Domain.Settings.FORECAST_STEP.multipliedBy(furtherStepNumber));
 
         lastForecast.getCells().forEach(cell -> {
             Factors factors = getFactors(cell.getCoordinates(), date);
@@ -142,6 +142,6 @@ public class ForecastService {
 
     private boolean isUnaffected(Cell cell) {
         return cell.getFire().getFuel() == cell.getFire().getInitialFuel()
-                && cell.getFire().getHeat() - cell.getFactors().getAirTemperature() < DomainSettings.SIGNIFICANT_OVERHEAT;
+                && cell.getFire().getHeat() - cell.getFactors().getAirTemperature() < Domain.Settings.SIGNIFICANT_OVERHEAT;
     }
 }
