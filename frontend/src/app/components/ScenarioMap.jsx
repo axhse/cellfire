@@ -238,7 +238,7 @@ export class ScenarioMap extends Component {
         topBoundary = cell.factors.ignitionTemperature;
         topColor = LAYER_PARAMS.fire.ignitionColor;
 
-        if (cell.fire.fuel < cell.fire.initialFuel) {
+        if (cell.fire.isDamaged) {
           bottomColor = LAYER_PARAMS.fire.coalColor;
         } else {
           bottomColor = LAYER_PARAMS.fire.plantColor;

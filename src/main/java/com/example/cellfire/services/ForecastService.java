@@ -50,7 +50,8 @@ public class ForecastService {
         lastForecast.getCells().forEach(cell -> {
             Factors factors = getFactors(cell.getCoordinates(), date);
             Fire lastFire = cell.getFire();
-            Fire draftFire = new Fire(lastFire.getHeat(), lastFire.getInitialFuel(), lastFire.getFuel());
+            boolean isDamaged = lastFire.getIsDamaged() || factors.getIgnitionTemperature() < lastFire.getHeat();
+            Fire draftFire = new Fire(lastFire.getHeat(), lastFire.getFuel(), isDamaged);
             Cell draftCell = new Cell(cell.getCoordinates(), factors, draftFire);
             draftCell.setTwin(cell);
             cell.setTwin(draftCell);
@@ -141,7 +142,7 @@ public class ForecastService {
     }
 
     private boolean isUnaffected(Cell cell) {
-        return cell.getFire().getFuel() == cell.getFire().getInitialFuel()
+        return !cell.getFire().getIsDamaged()
                 && cell.getFire().getHeat() - cell.getFactors().getAirTemperature() < Domain.Settings.SIGNIFICANT_OVERHEAT;
     }
 }

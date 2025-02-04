@@ -10,14 +10,15 @@
     "react-scripts": "5.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "start:standalone": "cross-env REACT_APP_BUILD_NAME=standalone react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "build": "react-scripts build",
+    "pack": "eslint . --fix && prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\" && react-scripts build",
+    "start": "react-scripts start",
+    "start:standalone": "cross-env REACT_APP_BUILD_NAME=standalone react-scripts start",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
