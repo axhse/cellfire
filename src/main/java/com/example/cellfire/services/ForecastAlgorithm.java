@@ -4,20 +4,18 @@ import com.example.cellfire.models.*;
 import com.google.maps.model.LatLng;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Arrays;
 
 @Service
 public final class ForecastAlgorithm {
-    // -- Algorithm --
-    private static final int PHASE_QUANTITY = 1;
-
     // -- Combustion --
     /**
      * Varies from 150k to 250k.
      */
-    private static final double ACTIVATION_ENERGY = 200 * 1000.0;
-    private static final double COMBUSTION_FREQUENCY = Math.pow(10, 9) / 50000 / 2;
-    private static final double ENERGY_EMISSION = 10000.0 * 3;
+    private static final double ACTIVATION_ENERGY = 200 * Math.pow(10, 3);
+    private static final double COMBUSTION_FREQUENCY = Math.pow(10, 9) / 5000;
+    private static final double ENERGY_EMISSION = 10000.0 * 1;
 
     // -- Wind --
     private static final double WIND_FORCE = 100.0;
@@ -27,24 +25,20 @@ public final class ForecastAlgorithm {
     private static final double WIND_EFFECT = 1.7;
 
     // -- Heat exchange --
-    private static final double HEAT_EXCHANGE_RATE = 0.5 / 1800;
+    private static final double CONVENTION_RATE = 0.3 / Duration.ofMinutes(30).toSeconds();
+    private static final double RADIATION_RATE = 2 * Math.pow(10, -11);
 
     // -- Derived --
-    private static final double PHASE_DURATION = (double)Domain.Settings.FORECAST_STEP.toSeconds() / PHASE_QUANTITY;
+    private static final double PHASE_DURATION = (double)Domain.Settings.FORECAST_STEP.toSeconds();
     private static final double ACTIVATION_ENERGY_TERM = -ACTIVATION_ENERGY / 8.3;
-    /**
-     * FORECAST_STEP = 30 min ; PHASE_QUANTITY = 1 : PHASE_DURATION = 1800.
-     */
-    private static final double HEAT_EXCHANGE_PROGRESS = Math.min(1, HEAT_EXCHANGE_RATE * PHASE_DURATION);
+    private static final double CONVENTION_PROGRESS = Math.min(1, CONVENTION_RATE * PHASE_DURATION);
 
     public void refine(Forecast draftForecast, ScenarioConditions conditions) {
-        for (int i = 0; i < PHASE_QUANTITY; i++) {
-            draftForecast.getCells().forEach((cell) -> {
-                burnFuel(cell, conditions);
-            });
-            draftForecast.getCells().forEach(this::transferEnergy);
-            draftForecast.getCells().forEach(this::wasteHeat);
-        }
+        draftForecast.getCells().forEach((cell) -> {
+            burnFuel(cell, conditions);
+        });
+        draftForecast.getCells().forEach(this::transferEnergy);
+        draftForecast.getCells().forEach(this::wasteHeat);
     }
 
     private void burnFuel(Cell cell, ScenarioConditions conditions) {
@@ -89,7 +83,13 @@ public final class ForecastAlgorithm {
 
     public void wasteHeat(Cell cell) {
         double heat = cell.getFire().getHeat();
-        heat += HEAT_EXCHANGE_PROGRESS * (cell.getFactors().getAirTemperature() - heat);
+        double absoluteTemperature = toAbsoluteTemperature(heat);
+        double optimum = Math.pow((1 - CONVENTION_PROGRESS) / 4 / RADIATION_RATE, 1.0 / 3);
+        if (absoluteTemperature > optimum) {
+            heat -= absoluteTemperature - optimum;
+        }
+        heat -= CONVENTION_PROGRESS * (heat - cell.getFactors().getAirTemperature())
+                + RADIATION_RATE * Math.pow(toAbsoluteTemperature(heat), 4);
         cell.getFire().setHeat((float)heat);
     }
 
@@ -105,7 +105,8 @@ public final class ForecastAlgorithm {
         if (cell.getFire().getFuel() == 0 || cell.getFire().getHeat() <= conditions.getIgnitionTemperature()) {
             return 0;
         }
-        return COMBUSTION_FREQUENCY * Math.exp(ACTIVATION_ENERGY_TERM / (273 + cell.getFire().getHeat()));
+        var exp = Math.exp(ACTIVATION_ENERGY_TERM / (toAbsoluteTemperature(cell.getFire().getHeat())));
+        return COMBUSTION_FREQUENCY * Math.exp(ACTIVATION_ENERGY_TERM / (toAbsoluteTemperature(cell.getFire().getHeat())));
     }
 
     private LatLng evaluateFireAnchor(Cell cell) {
@@ -159,6 +160,10 @@ public final class ForecastAlgorithm {
     private double evaluateDistance(double diffLat, double diffLng, double basicLng) {
         double distanceLat = diffLat * Math.cos(Math.toRadians(basicLng));
         return Math.sqrt(distanceLat * distanceLat + diffLng * diffLng);
+    }
+
+    private double toAbsoluteTemperature(double celsiusTemperature) {
+        return 273 + celsiusTemperature;
     }
 
     private void setEmittedEnergy(float energy, Cell cell) {

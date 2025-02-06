@@ -13,7 +13,7 @@ public class ForecastService {
     private final TerrainService terrainService;
     private final WeatherService weatherService;
 
-    private final ScenarioConditions DEMO_CONDITIONS = new ScenarioConditions(200);
+    private final ScenarioConditions DEMO_CONDITIONS = new ScenarioConditions(300);
     private final FireFactors DEMO_FACTORS = new FireFactors(new float[]{0, 0}, 20, 10, new float[]{1, 3});
 
     @Autowired
