@@ -8,12 +8,12 @@ public final class Cell {
     @JsonIgnore
     private final Cell[] vicinity = new Cell[9];
     private final CellCoordinates coordinates;
-    private final Factors factors;
+    private final FireFactors factors;
     private final Fire fire;
 
-    public Cell(CellCoordinates coordinates, Factors factors, Fire fire) {
+    public Cell(CellCoordinates coordinates, FireFactors fireFactors, Fire fire) {
         this.coordinates = coordinates;
-        this.factors = factors;
+        this.factors = fireFactors;
         this.fire = fire;
     }
 
@@ -21,7 +21,7 @@ public final class Cell {
         return coordinates;
     }
 
-    public Factors getFactors() {
+    public FireFactors getFactors() {
         return factors;
     }
 

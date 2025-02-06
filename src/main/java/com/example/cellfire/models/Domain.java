@@ -23,7 +23,7 @@ public final class Domain {
          */
         public static final int GRID_SCALE_FACTOR = 200;
         /**
-         * Earth circumference grid sections.
+         * The number of sections per Earth circumference.
          */
         public static final int GRID_SCALE = 360 * GRID_SCALE_FACTOR;
         public static final Duration FORECAST_STEP = Duration.ofMinutes(30);

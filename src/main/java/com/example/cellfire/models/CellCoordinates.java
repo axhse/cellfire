@@ -13,13 +13,6 @@ public final class CellCoordinates {
         this.y = y;
     }
 
-    public static CellCoordinates fromGeoPoint(LatLng geoPoint) {
-        return new CellCoordinates(
-                (int) Math.round(geoPoint.lng * Domain.Settings.GRID_SCALE_FACTOR - 0.5),
-                (int) Math.max(-90 * Domain.Settings.GRID_SCALE_FACTOR, Math.round(geoPoint.lat * Domain.Settings.GRID_SCALE_FACTOR - 0.5))
-        );
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -48,7 +41,7 @@ public final class CellCoordinates {
         );
     }
 
-    public CellCoordinates shift(int offsetX, int offsetY) {
+    public CellCoordinates createRelative(int offsetX, int offsetY) {
         int x = this.x + offsetX;
         int y = this.y + offsetY;
         if (y < -Domain.Settings.GRID_SCALE / 4) {

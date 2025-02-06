@@ -7,6 +7,7 @@ export class ScenarioService {
       startCoordinates,
       startDate,
       actualDate: startDate,
+      conditions: { ignitionTemperature: 200 },
     };
   }
 
@@ -59,6 +60,5 @@ function produceDemoCell(startCoordinates, offsetX, offsetY) {
       y: startCoordinates.y + offsetY,
     },
     fire: { heat, fuel, isDamaged },
-    factors: { ignitionTemperature: 200 },
   };
 }

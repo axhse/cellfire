@@ -5,11 +5,9 @@ import com.example.cellfire.models.CellCoordinates;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.util.Random;
 
 @Service
-public class FuelService {
-    private final Random random = new Random();
+public class TerrainService {
     private final byte[][] canopyHeight = loadData();
     private final int SECTOR_LNG = 48;
     private final int SECTOR_LAT = 36;
@@ -31,7 +29,7 @@ public class FuelService {
     }
 
     public float getIgnitionTemperature(CellCoordinates coordinates) {
-        return random.nextFloat(200, 300);
+        return 200;
     }
 
     private float calculateFuel(float canopyHeight) {
@@ -41,7 +39,7 @@ public class FuelService {
     private byte[][] loadData() {
         byte[][] loadedData = new byte[300][300];
         String resourceName = "canopy_height_map/N%dE0%d.bin".formatted(SECTOR_LAT, SECTOR_LNG);
-        try (InputStream inputStream = FuelService.class.getClassLoader().getResourceAsStream(resourceName)) {
+        try (InputStream inputStream = TerrainService.class.getClassLoader().getResourceAsStream(resourceName)) {
             if (inputStream == null) {
                 return loadedData;
             }

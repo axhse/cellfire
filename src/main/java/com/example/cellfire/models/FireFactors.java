@@ -1,20 +1,16 @@
 package com.example.cellfire.models;
 
-public final class Factors {
-    private final float ignitionTemperature;
+public final class FireFactors {
+    private final float[] slope;
     private final float airTemperature;
     private final float airHumidity;
     private final float[] wind;
 
-    public Factors(float ignitionTemperature, float airTemperature, float airHumidity, float[] wind) {
-        this.ignitionTemperature = ignitionTemperature;
+    public FireFactors(float[] slope, float airTemperature, float airHumidity, float[] wind) {
+        this.slope = slope;
         this.airTemperature = airTemperature;
         this.airHumidity = airHumidity;
         this.wind = wind;
-    }
-
-    public float getIgnitionTemperature() {
-        return ignitionTemperature;
     }
 
     public float getAirTemperature() {

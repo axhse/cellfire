@@ -228,14 +228,15 @@ export class ScenarioMap extends Component {
     let topColor;
     if (this.layerName === 'fire') {
       value = cell.fire.heat;
-      if (value > cell.factors.ignitionTemperature) {
-        bottomBoundary = cell.factors.ignitionTemperature;
+      let ignitionTemperature = this.scenario.conditions.ignitionTemperature;
+      if (value > ignitionTemperature) {
+        bottomBoundary = ignitionTemperature;
         bottomColor = LAYER_PARAMS.fire.ignitionColor;
         topBoundary = LAYER_PARAMS.fire.flameTemperature;
         topColor = LAYER_PARAMS.fire.flameColor;
       } else {
         bottomBoundary = LAYER_PARAMS.fire.zeroTemperature;
-        topBoundary = cell.factors.ignitionTemperature;
+        topBoundary = ignitionTemperature;
         topColor = LAYER_PARAMS.fire.ignitionColor;
 
         if (cell.fire.isDamaged) {

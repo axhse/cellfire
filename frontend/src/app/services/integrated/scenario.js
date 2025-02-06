@@ -16,6 +16,7 @@ export class ScenarioService {
         startCoordinates,
         startDate,
         actualDate: startDate,
+        conditions: body.conditions,
       };
       // TODO: What if response is not ok?
     }

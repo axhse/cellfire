@@ -9,9 +9,11 @@ public final class Scenario {
     private final String id = UUID.randomUUID().toString();
     private final ForecastLog forecastLog = new ForecastLog();
     private final Instant startDate;
+    private final ScenarioConditions conditions;
 
-    public Scenario(Instant startDate) {
+    public Scenario(Instant startDate, ScenarioConditions conditions) {
         this.startDate = startDate;
+        this.conditions = conditions;
     }
 
     public Instant getCreationDate() {
@@ -28,6 +30,10 @@ public final class Scenario {
 
     public Instant getStartDate() {
         return startDate;
+    }
+
+    public ScenarioConditions getConditions() {
+        return conditions;
     }
 
     public boolean hasForecast(Instant date)
