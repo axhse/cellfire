@@ -1,6 +1,7 @@
 package com.example.cellfire.services;
 
 import com.example.cellfire.models.*;
+import com.google.maps.model.LatLng;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -12,20 +13,27 @@ public final class ForecastAlgorithm {
 
     // -- Combustion --
     /**
-     * Varies from 150k to 250k
+     * Varies from 150k to 250k.
      */
     private static final double ACTIVATION_ENERGY = 200 * 1000.0;
     private static final double COMBUSTION_FREQUENCY = Math.pow(10, 9) / 50000 / 2;
-    private static final double ENERGY_EMISSION = 10000.0;
+    private static final double ENERGY_EMISSION = 10000.0 * 3;
+
+    // -- Wind --
+    private static final double WIND_FORCE = 100.0;
+    /**
+     * Varies from 1 for surface fires to 1.5-2 for crown fires.
+     */
+    private static final double WIND_EFFECT = 1.7;
 
     // -- Heat exchange --
-    private static final double HEAT_EXCHANGE_RATE = 1.0 / 1800 / 2;
+    private static final double HEAT_EXCHANGE_RATE = 0.5 / 1800;
 
     // -- Derived --
     private static final double PHASE_DURATION = (double)Domain.Settings.FORECAST_STEP.toSeconds() / PHASE_QUANTITY;
     private static final double ACTIVATION_ENERGY_TERM = -ACTIVATION_ENERGY / 8.3;
     /**
-     * FORECAST_STEP = 30 min ; PHASE_QUANTITY = 1 : PHASE_DURATION = 1800
+     * FORECAST_STEP = 30 min ; PHASE_QUANTITY = 1 : PHASE_DURATION = 1800.
      */
     private static final double HEAT_EXCHANGE_PROGRESS = Math.min(1, HEAT_EXCHANGE_RATE * PHASE_DURATION);
 
@@ -41,9 +49,8 @@ public final class ForecastAlgorithm {
 
     private void burnFuel(Cell cell, ScenarioConditions conditions) {
         // FIXME: Do not ignore weather.
-
-        float burnedFraction = (float)calculateBurnedFraction(cell, conditions);
-        float energy = (float)calculateCombustionEnergy(cell, burnedFraction);
+        float burnedFraction = (float)evaluateBurnedFraction(cell, conditions);
+        float energy = (float)evaluateCombustionEnergy(cell, burnedFraction);
         float fuel = cell.getFire().getFuel() * (1 - burnedFraction);
         if (fuel < Domain.Settings.SIGNIFICANT_FUEL) {
             fuel = 0;
@@ -59,13 +66,13 @@ public final class ForecastAlgorithm {
             return;
         }
 
-        // FIXME: Consider slope and wind.
+        LatLng fireAnchor = evaluateFireAnchor(cell);
 
         double[] proximity = new double[9];
-        proximity[8] = 1 / evaluateDistance(cell.getCoordinates(), cell.getCoordinates());
+        proximity[8] = 1 / evaluateDistanceToCell(fireAnchor, cell.getCoordinates().toGeoPoint());
         int neighbourIndex = 0;
         for (Cell neighbour : cell.iterateNeighbors()) {
-            proximity[neighbourIndex++] = 1 / evaluateDistance(cell.getCoordinates(), neighbour.getCoordinates());
+            proximity[neighbourIndex++] = 1 / evaluateDistanceToCell(fireAnchor, neighbour.getCoordinates().toGeoPoint());
         }
         double totalProximity = Arrays.stream(proximity).sum();
 
@@ -78,7 +85,6 @@ public final class ForecastAlgorithm {
             neighbour.getFire().setHeat((float)heat);
             neighbourIndex++;
         }
-
     }
 
     public void wasteHeat(Cell cell) {
@@ -87,19 +93,72 @@ public final class ForecastAlgorithm {
         cell.getFire().setHeat((float)heat);
     }
 
-    private double calculateCombustionEnergy(Cell cell, double burnedFraction) {
+    private double evaluateCombustionEnergy(Cell cell, double burnedFraction) {
         return ENERGY_EMISSION * cell.getFire().getFuel() * burnedFraction;
     }
 
-    private double calculateBurnedFraction(Cell cell, ScenarioConditions conditions) {
-        return Math.min(1, calculateCombustionRate(cell, conditions) * PHASE_DURATION);
+    private double evaluateBurnedFraction(Cell cell, ScenarioConditions conditions) {
+        return Math.min(1, evaluateCombustionRate(cell, conditions) * PHASE_DURATION);
     }
 
-    private double calculateCombustionRate(Cell cell, ScenarioConditions conditions) {
+    private double evaluateCombustionRate(Cell cell, ScenarioConditions conditions) {
         if (cell.getFire().getFuel() == 0 || cell.getFire().getHeat() <= conditions.getIgnitionTemperature()) {
             return 0;
         }
         return COMBUSTION_FREQUENCY * Math.exp(ACTIVATION_ENERGY_TERM / (273 + cell.getFire().getHeat()));
+    }
+
+    private LatLng evaluateFireAnchor(Cell cell) {
+        // FIXME: Consider slope.
+        LatLng point = cell.getCoordinates().toGeoPoint();
+        double cellSize = Domain.Settings.CELL_SIZE;
+        double anchorDiffLat = evaluateWindInfluence(cell.getFactors().getWind()[0]) / Domain.Settings.GRID_SIZE;
+        double anchorDiffLng = evaluateWindInfluence(cell.getFactors().getWind()[1]) / Domain.Settings.GRID_SIZE / Math.cos(Math.toRadians(point.lng));
+        if (cellSize < anchorDiffLat) {
+            anchorDiffLat = cellSize;
+        }
+        if (anchorDiffLat < -cellSize) {
+            anchorDiffLat = -cellSize;
+        }
+        if (cellSize < anchorDiffLng) {
+            anchorDiffLng = cellSize;
+        }
+        if (anchorDiffLng < -cellSize) {
+            anchorDiffLng = -cellSize;
+        }
+        return new LatLng(point.lat + anchorDiffLat, point.lng + anchorDiffLng);
+    }
+
+    private double evaluateWindInfluence(double windSpeed) {
+        return WIND_FORCE * Math.pow(windSpeed, WIND_EFFECT);
+    }
+
+    private double evaluateDistanceToCell(LatLng basicPoint, LatLng cellPoint) {
+        double diffLat = Math.abs(basicPoint.lat - cellPoint.lat);
+        double diffLng = Math.abs(basicPoint.lng - cellPoint.lng);
+        if (Domain.Settings.CELL_SIZE / 2 <= Math.max(diffLat, diffLng)) {
+            return evaluateDistance(diffLat, diffLng, basicPoint.lng);
+        }
+        double weightedDistance = 0;
+        double totalWeight = 0;
+        for (int i = -1; i <= 1; i += 2) {
+            for (int j = -1; j <= 1; j += 2) {
+                double cornerLat = cellPoint.lat + i * Domain.Settings.CELL_SIZE / 2;
+                double cornerLng = cellPoint.lng + j * Domain.Settings.CELL_SIZE / 2;
+                diffLat = Math.abs(basicPoint.lat - cornerLat);
+                diffLng = Math.abs(basicPoint.lng - cornerLng);
+                double quarterDistance = evaluateDistance(diffLat, diffLng, basicPoint.lng);
+                double quarterWeight = quarterDistance * quarterDistance;
+                weightedDistance += quarterDistance * quarterWeight;
+                totalWeight += quarterWeight;
+            }
+        }
+        return weightedDistance / totalWeight;
+    }
+
+    private double evaluateDistance(double diffLat, double diffLng, double basicLng) {
+        double distanceLat = diffLat * Math.cos(Math.toRadians(basicLng));
+        return Math.sqrt(distanceLat * distanceLat + diffLng * diffLng);
     }
 
     private void setEmittedEnergy(float energy, Cell cell) {
@@ -108,23 +167,5 @@ public final class ForecastAlgorithm {
 
     private float getEmittedEnergy(Cell cell) {
         return cell.getTwin().getFire().getHeat();
-    }
-
-    private double evaluateDistance(CellCoordinates coordinates, CellCoordinates otherCoordinates) {
-        int deltaX = Math.abs(coordinates.getX() - otherCoordinates.getX());
-        int deltaY = Math.abs(coordinates.getY() - otherCoordinates.getY());
-        double distanceX = deltaX * Math.cos(Math.toRadians(coordinates.toGeoPoint().lng));
-        double distance = Math.sqrt(distanceX * distanceX + deltaY * deltaY);
-        if (deltaY == 1 && deltaX == 0) {
-            distance += 0.04;
-        }
-        if (deltaY == 0) {
-            double correction = 0.38 * Math.sqrt(distanceX * distanceX + 1) / Math.sqrt(2);
-            if (deltaX != 0) {
-                correction *= Math.exp(-2*Math.sqrt(distanceX));
-            }
-            distance += correction;
-        }
-        return distance * Domain.EARTH_EQUATORIAL_CIRCUMFERENCE / Domain.Settings.GRID_SCALE;
     }
 }

@@ -14,7 +14,7 @@ public class ForecastService {
     private final WeatherService weatherService;
 
     private final ScenarioConditions DEMO_CONDITIONS = new ScenarioConditions(200);
-    private final FireFactors DEMO_FACTORS = new FireFactors(new float[]{0, 0}, 20, 10, new float[]{2, 2});
+    private final FireFactors DEMO_FACTORS = new FireFactors(new float[]{0, 0}, 20, 10, new float[]{1, 3});
 
     @Autowired
     public ForecastService(ForecastAlgorithm forecastAlgorithm, TerrainService terrainService, WeatherService weatherService) {
@@ -95,9 +95,6 @@ public class ForecastService {
                     }
                     CellCoordinates neighborCoordinates = cell.getCoordinates().createRelative(offsetX, offsetY);
                     float fuel = terrainService.getFuel(neighborCoordinates);
-                    if (fuel == 0) {
-                        continue;
-                    }
                     FireFactors fireFactors = getFactors(neighborCoordinates, date);
                     Fire fire = new Fire(fireFactors.getAirTemperature(), fuel);
                     Cell neighbor = new Cell(neighborCoordinates, fireFactors, fire);
@@ -121,19 +118,6 @@ public class ForecastService {
 
         forecastAlgorithm.refine(draftForecast, scenario.getConditions());
 
-        draftForecast.getCells().stream().filter(this::isUnaffected).forEach(
-                cell -> {
-                    for (Cell neighbor : cell.iterateNeighbors()) {
-                        neighbor.setNeighbor(
-                                cell.getCoordinates().getX() - neighbor.getCoordinates().getX(),
-                                cell.getCoordinates().getY() - neighbor.getCoordinates().getY(),
-                                null
-                        );
-                    }
-                }
-        );
-        draftForecast.getCells().removeIf(this::isUnaffected);
-
         scenario.getForecastLog().getForecasts().add(draftForecast);
     }
 
@@ -145,10 +129,5 @@ public class ForecastService {
 //                weatherService.getHumidity(coordinates, date),
 //                weatherService.getWind(coordinates, date)
 //        );
-    }
-
-    private boolean isUnaffected(Cell cell) {
-        return !cell.getFire().getIsDamaged()
-                && cell.getFire().getHeat() - cell.getFactors().getAirTemperature() < Domain.Settings.SIGNIFICANT_OVERHEAT;
     }
 }

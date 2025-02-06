@@ -35,10 +35,7 @@ public final class CellCoordinates {
     }
 
     public LatLng toGeoPoint() {
-        return new LatLng(
-                (y + 0.5) / (double) Domain.Settings.GRID_SCALE_FACTOR,
-                (x + 0.5) / (double) Domain.Settings.GRID_SCALE_FACTOR
-        );
+        return new LatLng((y + 0.5) * Domain.Settings.CELL_SIZE, (x + 0.5) * Domain.Settings.CELL_SIZE);
     }
 
     public CellCoordinates createRelative(int offsetX, int offsetY) {
@@ -62,20 +59,8 @@ public final class CellCoordinates {
     }
 
     public double calculateCellArea() {
-        double dLat = Math.toRadians(1.0 / Domain.Settings.GRID_SCALE_FACTOR);
-        double dSinLon = Math.sin(Math.toRadians((x + 1.0) / Domain.Settings.GRID_SCALE_FACTOR)) - Math.sin(Math.toRadians((x + 0.0) / Domain.Settings.GRID_SCALE_FACTOR));
-        return Domain.EARTH_RADIUS * Domain.EARTH_RADIUS * dLat * dSinLon;
-    }
-
-    public double calculatePhysicalDistanceTo(CellCoordinates otherCoordinates) {
-        LatLng p1 = toGeoPoint();
-        LatLng p2 = otherCoordinates.toGeoPoint();
-        double dLat = Math.toRadians(p1.lat - p2.lat);
-        double dLon = Math.toRadians(p1.lng - p2.lng);
-        double sinLat = Math.sin(dLat / 2);
-        double sinLon = Math.sin(dLon / 2);
-        double a = sinLat * sinLat + Math.cos(Math.toRadians(p1.lat)) * Math.cos(Math.toRadians(p2.lat)) * sinLon * sinLon;
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return Domain.EARTH_RADIUS * c;
+        double dLat = Math.toRadians(Domain.Settings.CELL_SIZE);
+        double dSinLng = Math.sin(Math.toRadians((x + 1.0) * Domain.Settings.CELL_SIZE)) - Math.sin(Math.toRadians((x + 0.0) * Domain.Settings.CELL_SIZE));
+        return Domain.EARTH_RADIUS * Domain.EARTH_RADIUS * dLat * dSinLng;
     }
 }
