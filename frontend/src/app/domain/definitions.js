@@ -7,3 +7,4 @@ const TimePeriod = {
 export const SCALE_FACTOR = 200;
 export const FORECAST_STEP = TimePeriod.minutes(30);
 export const MAX_FORECAST_PERIOD = TimePeriod.days(3);
+export const SIGNIFICANT_OVERHEAT = 30;

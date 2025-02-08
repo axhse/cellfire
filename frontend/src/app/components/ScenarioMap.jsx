@@ -11,9 +11,10 @@ import Feature from 'ol/Feature';
 import Control from 'ol/control/Control';
 
 import {
-  SCALE_FACTOR,
   FORECAST_STEP,
   MAX_FORECAST_PERIOD,
+  SCALE_FACTOR,
+  SIGNIFICANT_OVERHEAT,
 } from '../domain/definitions';
 
 import { toCellCoordinates } from '../domain/logic';
@@ -210,6 +211,12 @@ export class ScenarioMap extends Component {
     //     this.scenarioLayerSource.addFeature(startCellFeature);
 
     for (const cell of this.forecast.cells) {
+      if (
+        !cell.fire.isDamaged &&
+        cell.fire.heat < cell.factors.airTemperature + SIGNIFICANT_OVERHEAT
+      ) {
+        continue;
+      }
       const feature = new Feature({
         geometry: createCellFigure(cell.coordinates),
       });
