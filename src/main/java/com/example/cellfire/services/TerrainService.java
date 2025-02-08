@@ -4,7 +4,9 @@ import com.example.cellfire.models.Domain;
 import com.example.cellfire.models.CellCoordinates;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 @Service
 public class TerrainService {
@@ -55,5 +57,90 @@ public class TerrainService {
             return loadedData;
         }
         return loadedData;
+    }
+
+    private static class Map {
+        private final List<MapFragment> fragments;
+
+        public Map(List<MapFragment> fragments) {
+            this.fragments = fragments;
+        }
+
+        public byte getValueFor(CellCoordinates coordinates) {
+            for (MapFragment fragment : fragments) {
+                if (fragment.hasValueFor(coordinates)) {
+                    return fragment.getValueFor(coordinates);
+                }
+            }
+            throw new IllegalArgumentException("Map has value for (%d, %d).".formatted(coordinates.getX(), coordinates.getY()));
+        }
+    }
+
+    private static class MapFragment {
+        private final byte[][] data;
+        private final int scale;
+        private final int x;
+        private final int y;
+        private final int width;
+        private final int height;
+
+        public MapFragment(byte[][] data, int scale, int x, int y, int width, int height) {
+            this.data = data;
+            this.scale = scale;
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+
+        public boolean hasValueFor(CellCoordinates coordinates) {
+            int cellX = coordinates.getX();
+            int cellY = coordinates.getY();
+            int scaleFactor = Domain.Settings.GRID_SCALE_FACTOR;
+            return x * scaleFactor <= cellX && cellX < (x + width) * scaleFactor
+                    && y * scaleFactor <= cellY && cellY < (y + height) * scaleFactor;
+        }
+
+        public byte getValueFor(CellCoordinates coordinates) {
+            int cellX = coordinates.getX();
+            int cellY = coordinates.getY();
+            int scaleFactor = Domain.Settings.GRID_SCALE_FACTOR;
+            int valueX = (cellX - x * scaleFactor) * scale / scaleFactor;
+            int valueY = (cellY - y * scaleFactor) * scale / scaleFactor;
+            return data[valueX][valueY];
+        }
+
+        public static MapFragment load(String name, int scale, int x, int y, int width, int height) {
+            byte[][] data = new byte[width * scale][width * scale];
+            String resourceName = "%s/%s%d_%s%d_%d_%d_%d.bin".formatted(name, x < 0 ? "W" : "E", Math.abs(x), y < 0 ? "S" : "N", Math.abs(y), scale, width, height);
+            try (InputStream inputStream = TerrainService.class.getClassLoader().getResourceAsStream(resourceName)) {
+                if (inputStream == null) {
+                    throw new IllegalArgumentException("Resource not found.");
+                }
+                byte[] bytes = inputStream.readAllBytes();
+                for (int xi = 0; xi < width * scale; xi++) {
+                    System.arraycopy(bytes, 300 * xi, data[xi], 0, height * scale);
+                }
+            }
+            catch (IOException exception) {
+                throw new IllegalArgumentException("Cannot read resource bytes.");
+            }
+            return new MapFragment(data, scale, x, y, width, height);
+        }
+
+        public static MapFragment load(String name, int scale, int x, int y, int size) {
+            return load(name, scale, x, y, size, size);
+        }
+    }
+
+    private static final class MapWholeFragment extends MapFragment {
+        public MapWholeFragment(byte[][] data, int scale) {
+            super(data, scale, -180, -90, 360, 180);
+        }
+
+        @Override
+        public boolean hasValueFor(CellCoordinates coordinates) {
+            return true;
+        }
     }
 }
