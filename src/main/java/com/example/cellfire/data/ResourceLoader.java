@@ -44,6 +44,7 @@ public final class ResourceLoader {
 
     public static TerrainMap loadElevationMap() {
         List<MapFragment> fragments = new ArrayList<>();
+        fragments.add(loadFragment("Elevation", 120, 48, 36, 3));
         fragments.add(loadFullFragment("Elevation", 30));
         return new TerrainMap(fragments);
     }

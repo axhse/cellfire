@@ -26,7 +26,7 @@ public final class ThermalAlgorithm implements Algorithm {
      * += 3.
      * 3.5 in some research.
      */
-    private static final double SLOPE_EFFECT = 3;
+    private static final double SLOPE_EFFECT = 1.5;
 
     /**
      * 0.1-0.3.
@@ -72,12 +72,11 @@ public final class ThermalAlgorithm implements Algorithm {
 
         double[] proximity = new double[9];
         double averageDistance = calculateAverageDistance(cell.getCoordinates(), cell.getCoordinates());
-        double distanceEffect = calculateDistanceEffect(cell, cell);
-        proximity[8] = distanceEffect / averageDistance;
+        proximity[8] = 1.0 / averageDistance;
         int neighbourIndex = 0;
         for (Cell neighbour : cell.iterateNeighbors()) {
             averageDistance = calculateAverageDistance(cell.getCoordinates(), neighbour.getCoordinates());
-            distanceEffect = calculateDistanceEffect(cell, neighbour);
+            double distanceEffect = calculateDistanceEffect(cell, neighbour);
             proximity[neighbourIndex++] = distanceEffect / averageDistance;
         }
         double totalProximity = Arrays.stream(proximity).sum();
@@ -142,7 +141,7 @@ public final class ThermalAlgorithm implements Algorithm {
 
     private double calculateSlopeEffect(Cell cell, Cell otherCell) {
         double elevation = otherCell.getFactors().getElevation() - cell.getFactors().getElevation();
-        if (cell == otherCell || elevation == 0) {
+        if (elevation == 0) {
             return 1;
         }
         double localCos = Math.cos(Math.toRadians(cell.getCoordinates().toGeoPoint().lat));
@@ -154,9 +153,6 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     private double calculateWindEffect(Cell cell, Cell otherCell) {
-        if (cell == otherCell) {
-            return 1;
-        }
         double vectorX = otherCell.getCoordinates().getX() - cell.getCoordinates().getX();
         double vectorY = otherCell.getCoordinates().getY() - cell.getCoordinates().getY();
         double windX = cell.getFactors().getWindX();
