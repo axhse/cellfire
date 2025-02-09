@@ -1,9 +1,9 @@
 package com.example.cellfire.services;
 
+import com.example.cellfire.models.ModelSettings;
 import com.example.cellfire.algorithm.Algorithm;
 import com.example.cellfire.algorithm.ProbabilisticAlgorithm;
 import com.example.cellfire.algorithm.ThermalAlgorithm;
-import com.example.cellfire.models.Domain;
 import com.example.cellfire.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class ForecastService {
         Forecast initialForecast = new Forecast();
         scenario.getForecastLog().getForecasts().add(initialForecast);
         float fuel = (float)terrainService.getFuel(startCoordinates);
-        Fire fire = new Fire(Domain.Settings.INITIAL_HEAT, fuel);
+        Fire fire = new Fire(ModelSettings.INITIAL_HEAT, fuel);
         FireFactors factors = determineFactors(startCoordinates, scenario.getStartDate());
         Cell initialCell = new Cell(startCoordinates, factors, fire);
         initialForecast.getCells().add(initialCell);
@@ -54,7 +54,7 @@ public class ForecastService {
         Forecast draftForecast = new Forecast();
         Forecast lastForecast = scenario.getForecastLog().getForecasts().getLast();
         int furtherStepNumber = scenario.getForecastLog().getForecasts().size();
-        Instant date = scenario.getStartDate().plus(Domain.Settings.FORECAST_STEP.multipliedBy(furtherStepNumber));
+        Instant date = scenario.getStartDate().plus(ModelSettings.FORECAST_STEP.multipliedBy(furtherStepNumber));
 
         lastForecast.getCells().forEach(cell -> {
             FireFactors fireFactors = determineFactors(cell.getCoordinates(), date);

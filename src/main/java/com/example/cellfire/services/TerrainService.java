@@ -1,9 +1,9 @@
 package com.example.cellfire.services;
 
+import com.example.cellfire.models.ModelSettings;
 import com.example.cellfire.data.ResourceLoader;
 import com.example.cellfire.data.TerrainMap;
 import com.example.cellfire.models.CellCoordinates;
-import com.example.cellfire.models.Domain;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,7 +20,7 @@ public class TerrainService {
     public double getFuel(CellCoordinates coordinates) {
         double canopyHeight = canopyHeightMap.getValueFor(coordinates, (byte)0);
         double fuel = calculateFuel(canopyHeight);
-        return fuel < Domain.Settings.SIGNIFICANT_FUEL ? 0 : fuel;
+        return fuel < ModelSettings.SIGNIFICANT_FUEL ? 0 : fuel;
     }
 
     public double getIgnitionTemperature(CellCoordinates coordinates) {

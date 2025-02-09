@@ -35,25 +35,25 @@ public final class CellCoordinates {
     }
 
     public LatLng toGeoPoint() {
-        return new LatLng((y + 0.5) * Domain.Settings.GRID_SIZE, (x + 0.5) * Domain.Settings.GRID_SIZE);
+        return new LatLng((y + 0.5) * ModelSettings.GRID_CELL_SIZE, (x + 0.5) * ModelSettings.GRID_CELL_SIZE);
     }
 
     public CellCoordinates createRelative(int offsetX, int offsetY) {
         int x = this.x + offsetX;
         int y = this.y + offsetY;
-        if (y < -Domain.Settings.GRID_SCALE / 4) {
-            y = -Domain.Settings.GRID_SCALE / 2 + y;
-            x += Domain.Settings.GRID_SCALE / 2;
+        if (y < -ModelSettings.GRID_X_TICKS / 4) {
+            y = -ModelSettings.GRID_X_TICKS / 2 + y;
+            x += ModelSettings.GRID_X_TICKS / 2;
         }
-        if (Domain.Settings.GRID_SCALE / 4 <= y) {
-            y = Domain.Settings.GRID_SCALE / 2 - y - 1;
-            x += Domain.Settings.GRID_SCALE / 2;
+        if (ModelSettings.GRID_X_TICKS / 4 <= y) {
+            y = ModelSettings.GRID_X_TICKS / 2 - y - 1;
+            x += ModelSettings.GRID_X_TICKS / 2;
         }
-        if (x <= -Domain.Settings.GRID_SCALE / 2) {
-            x += Domain.Settings.GRID_SCALE;
+        if (x <= -ModelSettings.GRID_X_TICKS / 2) {
+            x += ModelSettings.GRID_X_TICKS;
         }
-        if (Domain.Settings.GRID_SCALE / 2 < x) {
-            x -= Domain.Settings.GRID_SCALE;
+        if (ModelSettings.GRID_X_TICKS / 2 < x) {
+            x -= ModelSettings.GRID_X_TICKS;
         }
         return new CellCoordinates(x, y);
     }

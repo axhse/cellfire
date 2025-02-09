@@ -44,7 +44,7 @@ public final class Scenario {
     public Forecast getForecast(Instant date)
     {
         Duration forecastPeriod = Duration.between(startDate, date);
-        int forecastIndex = (int)forecastPeriod.dividedBy(Domain.Settings.FORECAST_STEP);
+        int forecastIndex = (int)forecastPeriod.dividedBy(ModelSettings.FORECAST_STEP);
         if (forecastIndex < forecastLog.getForecasts().size()) {
             return forecastLog.getForecasts().get(forecastIndex);
         }

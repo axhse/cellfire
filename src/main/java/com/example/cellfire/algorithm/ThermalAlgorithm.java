@@ -1,5 +1,7 @@
 package com.example.cellfire.algorithm;
 
+import com.example.cellfire.models.Domain;
+import com.example.cellfire.models.ModelSettings;
 import com.example.cellfire.models.*;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +39,7 @@ public final class ThermalAlgorithm implements Algorithm {
     private static final double RADIATION_RATE = 2 * Math.pow(10, -11);
 
     // -- Derived --
-    private static final double PHASE_DURATION = (double)Domain.Settings.FORECAST_STEP.toSeconds();
+    private static final double PHASE_DURATION = (double) ModelSettings.FORECAST_STEP.toSeconds();
     private static final double CONVENTION_PROGRESS = Math.min(1, CONVENTION_RATE * PHASE_DURATION);
 
     @Override
@@ -54,7 +56,7 @@ public final class ThermalAlgorithm implements Algorithm {
         float burnedFraction = (float)calculateBurnedFraction(cell, conditions);
         float energy = (float)calculateCombustionEnergy(cell, burnedFraction);
         float fuel = cell.getFire().getFuel() * (1 - burnedFraction);
-        if (fuel < Domain.Settings.SIGNIFICANT_FUEL) {
+        if (fuel < ModelSettings.SIGNIFICANT_FUEL) {
             fuel = 0;
         }
 
@@ -146,7 +148,7 @@ public final class ThermalAlgorithm implements Algorithm {
         double localCos = Math.cos(Math.toRadians(cell.getCoordinates().toGeoPoint().lat));
         double distanceX = Math.abs(cell.getCoordinates().getX() - otherCell.getCoordinates().getX()) * localCos;
         double distanceY = Math.abs(cell.getCoordinates().getY() - otherCell.getCoordinates().getY());
-        double distance = Domain.Settings.CELL_HEIGHT * Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+        double distance = ModelSettings.CELL_HEIGHT * Math.sqrt(distanceX * distanceX + distanceY * distanceY);
         double slope = elevation / distance;
         return Math.exp(SLOPE_EFFECT * slope);
     }
