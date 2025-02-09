@@ -12,9 +12,8 @@ public final class ThermalAlgorithm implements Algorithm {
     /**
      * Varies from 150k to 250k.
      */
-    private static final double ACTIVATION_ENERGY = 200 * Math.pow(10, 3);
-    private static final double COMBUSTION_FREQUENCY = Math.pow(10, 9) / 5000;
-    private static final double ENERGY_EMISSION = 10000.0 * 1;
+    private static final double COMBUSTION_FREQUENCY = 7.0;
+    private static final double ENERGY_EMISSION = 10000.0;
 
     // -- Slope --
     /**
@@ -36,7 +35,6 @@ public final class ThermalAlgorithm implements Algorithm {
 
     // -- Derived --
     private static final double PHASE_DURATION = (double)Domain.Settings.FORECAST_STEP.toSeconds();
-    private static final double ACTIVATION_ENERGY_TERM = -ACTIVATION_ENERGY / 8.3;
     private static final double CONVENTION_PROGRESS = Math.min(1, CONVENTION_RATE * PHASE_DURATION);
 
     @Override
@@ -91,7 +89,7 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     private double toAbsoluteTemperature(double celsiusTemperature) {
-        return 273 + celsiusTemperature;
+        return Domain.CELSIUS_ZERO_TEMPERATURE + celsiusTemperature;
     }
 
     public void wasteHeat(Cell cell) {
@@ -118,23 +116,19 @@ public final class ThermalAlgorithm implements Algorithm {
         if (cell.getFire().getFuel() == 0 || cell.getFire().getHeat() <= conditions.getIgnitionTemperature()) {
             return 0;
         }
-        return COMBUSTION_FREQUENCY * Math.exp(ACTIVATION_ENERGY_TERM / (toAbsoluteTemperature(cell.getFire().getHeat())));
+        return COMBUSTION_FREQUENCY * Math.exp(
+                -conditions.getActivationEnergy() / Domain.UNIVERSAL_GAS_CONSTANT
+                        / (toAbsoluteTemperature(cell.getFire().getHeat()))
+        );
     }
 
     private double calculateAverageDistance(CellCoordinates first, CellCoordinates second) {
         double localCos = Math.cos(Math.toRadians(first.toGeoPoint().lat));
         double distanceX = Math.abs(first.getX() - second.getX()) * localCos;
         double distanceY = Math.abs(first.getY() - second.getY());
-        double parts = 1;
-        if (distanceX == 0) {
-            distanceX = 0.5 * localCos;
-            parts *= 2;
-        }
-        if (distanceY == 0) {
-            distanceY = 0.5;
-            parts *= 2;
-        }
-        return parts * Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+        distanceX += distanceX == 0 ? 0.5 * localCos : 0;
+        distanceY += distanceY == 0 ? 0.5 : 0;
+        return Math.sqrt(distanceX * distanceX + distanceY * distanceY);
     }
 
     private double calculateDistanceEffect(Cell cell, Cell otherCell) {

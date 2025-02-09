@@ -17,9 +17,6 @@ public class ForecastService {
     private final ThermalAlgorithm thermalAlgorithm;
     private final ProbabilisticAlgorithm probabilisticAlgorithm;
 
-    private final ScenarioConditions DEMO_CONDITIONS = new ScenarioConditions(300);
-    private final FireFactors DEMO_FACTORS = new FireFactors(0, 20, 10, 1, 3);
-
     @Autowired
     public ForecastService(TerrainService terrainService, WeatherService weatherService, ThermalAlgorithm thermalAlgorithm, ProbabilisticAlgorithm probabilisticAlgorithm) {
         this.terrainService = terrainService;
@@ -29,18 +26,20 @@ public class ForecastService {
     }
 
     public ScenarioConditions determineConditions(CellCoordinates startCoordinates) {
-        return DEMO_CONDITIONS;
+        return new ScenarioConditions(
+                ScenarioConditions.Algorithm.THERMAL,
+                terrainService.getIgnitionTemperature(startCoordinates),
+                terrainService.getActivationEnergy(startCoordinates)
+        );
     }
 
     public void initiate(Scenario scenario, CellCoordinates startCoordinates) {
         Forecast initialForecast = new Forecast();
         scenario.getForecastLog().getForecasts().add(initialForecast);
-        float fuel = terrainService.getFuel(startCoordinates);
-        if (fuel == 0) {
-            return;
-        }
-        Fire fire = new Fire(Domain.Settings.INITIAL_FIRE_HEAT, fuel);
-        Cell initialCell = new Cell(startCoordinates, getFactors(startCoordinates, scenario.getStartDate()), fire);
+        float fuel = (float)terrainService.getFuel(startCoordinates);
+        Fire fire = new Fire(Domain.Settings.INITIAL_HEAT, fuel);
+        FireFactors factors = determineFactors(startCoordinates, scenario.getStartDate());
+        Cell initialCell = new Cell(startCoordinates, factors, fire);
         initialForecast.getCells().add(initialCell);
     }
 
@@ -58,7 +57,10 @@ public class ForecastService {
         Instant date = scenario.getStartDate().plus(Domain.Settings.FORECAST_STEP.multipliedBy(furtherStepNumber));
 
         lastForecast.getCells().forEach(cell -> {
-            FireFactors fireFactors = getFactors(cell.getCoordinates(), date);
+            FireFactors fireFactors = determineFactors(cell.getCoordinates(), date);
+            if (fireFactors.equals(cell.getFactors())) {
+                fireFactors = cell.getFactors();
+            }
             Fire lastFire = cell.getFire();
             boolean isDamaged = lastFire.getIsDamaged()
                     || scenario.getConditions().getIgnitionTemperature() < lastFire.getHeat();
@@ -99,14 +101,17 @@ public class ForecastService {
                         continue;
                     }
                     CellCoordinates neighborCoordinates = cell.getCoordinates().createRelative(offsetX, offsetY);
-                    float fuel = terrainService.getFuel(neighborCoordinates);
-                    FireFactors fireFactors = getFactors(neighborCoordinates, date);
+                    float fuel = (float)terrainService.getFuel(neighborCoordinates);
+                    FireFactors fireFactors = determineFactors(neighborCoordinates, date);
+                    if (fireFactors.equals(cell.getFactors())) {
+                        fireFactors = cell.getFactors();
+                    }
                     Fire fire = new Fire(fireFactors.getAirTemperature(), fuel);
                     Cell neighbor = new Cell(neighborCoordinates, fireFactors, fire);
 
 //                    neighbor.setNeighbor(-offsetX, -offsetY, cell);
 //                    cell.setNeighbor(offsetX, offsetY, neighbor);
-                    // FIXME: optimize
+                    // TODO: optimize
                     draftForecast.getCells().forEach(otherCell -> {
                         int distanceX = otherCell.getCoordinates().getX() - neighbor.getCoordinates().getX();
                         int distanceY = otherCell.getCoordinates().getY() - neighbor.getCoordinates().getY();
@@ -121,18 +126,32 @@ public class ForecastService {
             }
         });
 
-        thermalAlgorithm.refine(draftForecast, scenario.getConditions());
+        selectAlgorithm(scenario).refine(draftForecast, scenario.getConditions());
 
         scenario.getForecastLog().getForecasts().add(draftForecast);
     }
 
-    private FireFactors getFactors(CellCoordinates coordinates, Instant date) {
-        return DEMO_FACTORS;
-//        return new FireFactors(
-//                terrainService.getIgnitionTemperature(coordinates),
-//                weatherService.getTemperature(coordinates, date),
-//                weatherService.getHumidity(coordinates, date),
-//                weatherService.getWind(coordinates, date)
-//        );
+    private Algorithm selectAlgorithm(Scenario scenario) {
+        String algorithmName = scenario.getConditions().getAlgorithm();
+        if (algorithmName.equals(ScenarioConditions.Algorithm.THERMAL)) {
+            return thermalAlgorithm;
+        }
+        if (algorithmName.equals(ScenarioConditions.Algorithm.PROBABILISTIC)) {
+            return probabilisticAlgorithm;
+        }
+        return thermalAlgorithm;
+    }
+
+    private FireFactors determineFactors(CellCoordinates coordinates, Instant date) {
+        if (true) {
+            return new FireFactors(0, 20, 10, 1, 3);
+        }
+        return new FireFactors(
+                (float)terrainService.getElevation(coordinates),
+                (float)weatherService.getAirTemperature(coordinates, date),
+                (float)weatherService.getAirHumidity(coordinates, date),
+                (float)weatherService.getWindX(coordinates, date),
+                (float)weatherService.getWindY(coordinates, date)
+        );
     }
 }

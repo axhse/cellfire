@@ -1,13 +1,30 @@
 package com.example.cellfire.models;
 
-public class ScenarioConditions {
-    private final float ignitionTemperature;
+public final class ScenarioConditions {
+    private final double ignitionTemperature;
+    private final double activationEnergy;
+    private final String algorithm;
 
-    public ScenarioConditions(float ignitionTemperature) {
+    public ScenarioConditions(String algorithm, double ignitionTemperature, double activationEnergy) {
+        this.algorithm = algorithm;
         this.ignitionTemperature = ignitionTemperature;
+        this.activationEnergy = activationEnergy;
     }
 
-    public float getIgnitionTemperature() {
+    public String getAlgorithm() {
+        return algorithm;
+    }
+
+    public double getIgnitionTemperature() {
         return ignitionTemperature;
+    }
+
+    public double getActivationEnergy() {
+        return activationEnergy;
+    }
+
+    public static final class Algorithm {
+        public static String THERMAL = "thermal";
+        public static String PROBABILISTIC = "probabilistic";
     }
 }

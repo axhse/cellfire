@@ -8,6 +8,8 @@ public final class Domain {
      * Earth polar circumference: 39 930  km.
      */
     public static final double EARTH_CIRCUMFERENCE = 40_000_000;
+    public static final double UNIVERSAL_GAS_CONSTANT = 8.3;
+    public static final double CELSIUS_ZERO_TEMPERATURE = 273;
 
     public final static class Settings {
         // -- Grid --
@@ -20,7 +22,7 @@ public final class Domain {
         // -- Forecast --
         public static final Duration FORECAST_STEP = Duration.ofMinutes(30);
         public static final Duration MAX_FORECAST_PERIOD = Duration.ofDays(3);
-        public static final float INITIAL_FIRE_HEAT = 1000;
+        public static final float INITIAL_HEAT = 1000;
         public static final float SIGNIFICANT_FUEL = 0.01F;
 
         // -- Derived --
