@@ -1,4 +1,4 @@
-package com.example.cellfire.services;
+package com.example.cellfire.algorithm;
 
 import com.example.cellfire.models.*;
 import com.google.maps.model.LatLng;
@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.util.Arrays;
 
 @Service
-public final class ForecastAlgorithm {
+public final class ThermalAlgorithm implements Algorithm {
     // -- Combustion --
     /**
      * Varies from 150k to 250k.
@@ -33,6 +33,7 @@ public final class ForecastAlgorithm {
     private static final double ACTIVATION_ENERGY_TERM = -ACTIVATION_ENERGY / 8.3;
     private static final double CONVENTION_PROGRESS = Math.min(1, CONVENTION_RATE * PHASE_DURATION);
 
+    @Override
     public void refine(Forecast draftForecast, ScenarioConditions conditions) {
         draftForecast.getCells().forEach((cell) -> {
             burnFuel(cell, conditions);

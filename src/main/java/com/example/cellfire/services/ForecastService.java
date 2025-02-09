@@ -1,5 +1,8 @@
 package com.example.cellfire.services;
 
+import com.example.cellfire.algorithm.Algorithm;
+import com.example.cellfire.algorithm.ProbabilisticAlgorithm;
+import com.example.cellfire.algorithm.ThermalAlgorithm;
 import com.example.cellfire.models.Domain;
 import com.example.cellfire.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,18 +12,20 @@ import java.time.Instant;
 
 @Service
 public class ForecastService {
-    private final ForecastAlgorithm forecastAlgorithm;
     private final TerrainService terrainService;
     private final WeatherService weatherService;
+    private final ThermalAlgorithm thermalAlgorithm;
+    private final ProbabilisticAlgorithm probabilisticAlgorithm;
 
     private final ScenarioConditions DEMO_CONDITIONS = new ScenarioConditions(300);
     private final FireFactors DEMO_FACTORS = new FireFactors(new float[]{0, 0}, 20, 10, new float[]{1, 3});
 
     @Autowired
-    public ForecastService(ForecastAlgorithm forecastAlgorithm, TerrainService terrainService, WeatherService weatherService) {
-        this.forecastAlgorithm = forecastAlgorithm;
+    public ForecastService(TerrainService terrainService, WeatherService weatherService, ThermalAlgorithm thermalAlgorithm, ProbabilisticAlgorithm probabilisticAlgorithm) {
         this.terrainService = terrainService;
         this.weatherService = weatherService;
+        this.thermalAlgorithm = thermalAlgorithm;
+        this.probabilisticAlgorithm = probabilisticAlgorithm;
     }
 
     public ScenarioConditions determineConditions(CellCoordinates startCoordinates) {
@@ -116,7 +121,7 @@ public class ForecastService {
             }
         });
 
-        forecastAlgorithm.refine(draftForecast, scenario.getConditions());
+        thermalAlgorithm.refine(draftForecast, scenario.getConditions());
 
         scenario.getForecastLog().getForecasts().add(draftForecast);
     }
