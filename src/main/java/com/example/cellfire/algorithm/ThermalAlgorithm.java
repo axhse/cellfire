@@ -1,7 +1,6 @@
 package com.example.cellfire.algorithm;
 
 import com.example.cellfire.models.*;
-import com.google.maps.model.LatLng;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -17,12 +16,19 @@ public final class ThermalAlgorithm implements Algorithm {
     private static final double COMBUSTION_FREQUENCY = Math.pow(10, 9) / 5000;
     private static final double ENERGY_EMISSION = 10000.0 * 1;
 
-    // -- Wind --
-    private static final double WIND_FORCE = 100.0;
+    // -- Slope --
     /**
-     * Varies from 1 for surface fires to 1.5-2 for crown fires.
+     * += 3.
+     * 3.5 in some research.
      */
-    private static final double WIND_EFFECT = 1.7;
+    private static final double SLOPE_EFFECT = 3;
+
+    // -- Wind --
+    /**
+     * 0.1-0.3.
+     * 0.13 in some research.
+     */
+    private static final double WIND_EFFECT = 0.15;
 
     // -- Heat exchange --
     private static final double CONVENTION_RATE = 0.3 / Duration.ofMinutes(30).toSeconds();
@@ -44,8 +50,8 @@ public final class ThermalAlgorithm implements Algorithm {
 
     private void burnFuel(Cell cell, ScenarioConditions conditions) {
         // FIXME: Do not ignore weather.
-        float burnedFraction = (float)evaluateBurnedFraction(cell, conditions);
-        float energy = (float)evaluateCombustionEnergy(cell, burnedFraction);
+        float burnedFraction = (float)calculateBurnedFraction(cell, conditions);
+        float energy = (float)calculateCombustionEnergy(cell, burnedFraction);
         float fuel = cell.getFire().getFuel() * (1 - burnedFraction);
         if (fuel < Domain.Settings.SIGNIFICANT_FUEL) {
             fuel = 0;
@@ -61,13 +67,15 @@ public final class ThermalAlgorithm implements Algorithm {
             return;
         }
 
-        LatLng fireAnchor = evaluateFireAnchor(cell);
-
         double[] proximity = new double[9];
-        proximity[8] = 1 / evaluateDistanceToCell(fireAnchor, cell.getCoordinates().toGeoPoint());
+        double averageDistance = calculateAverageDistance(cell.getCoordinates(), cell.getCoordinates());
+        double distanceEffect = calculateDistanceEffect(cell, cell);
+        proximity[8] = distanceEffect / averageDistance;
         int neighbourIndex = 0;
         for (Cell neighbour : cell.iterateNeighbors()) {
-            proximity[neighbourIndex++] = 1 / evaluateDistanceToCell(fireAnchor, neighbour.getCoordinates().toGeoPoint());
+            averageDistance = calculateAverageDistance(cell.getCoordinates(), neighbour.getCoordinates());
+            distanceEffect = calculateDistanceEffect(cell, neighbour);
+            proximity[neighbourIndex++] = distanceEffect / averageDistance;
         }
         double totalProximity = Arrays.stream(proximity).sum();
 
@@ -82,6 +90,10 @@ public final class ThermalAlgorithm implements Algorithm {
         }
     }
 
+    private double toAbsoluteTemperature(double celsiusTemperature) {
+        return 273 + celsiusTemperature;
+    }
+
     public void wasteHeat(Cell cell) {
         double heat = cell.getFire().getHeat();
         double absoluteTemperature = toAbsoluteTemperature(heat);
@@ -94,77 +106,64 @@ public final class ThermalAlgorithm implements Algorithm {
         cell.getFire().setHeat((float)heat);
     }
 
-    private double evaluateCombustionEnergy(Cell cell, double burnedFraction) {
+    private double calculateCombustionEnergy(Cell cell, double burnedFraction) {
         return ENERGY_EMISSION * cell.getFire().getFuel() * burnedFraction;
     }
 
-    private double evaluateBurnedFraction(Cell cell, ScenarioConditions conditions) {
-        return Math.min(1, evaluateCombustionRate(cell, conditions) * PHASE_DURATION);
+    private double calculateBurnedFraction(Cell cell, ScenarioConditions conditions) {
+        return Math.min(1, calculateCombustionRate(cell, conditions) * PHASE_DURATION);
     }
 
-    private double evaluateCombustionRate(Cell cell, ScenarioConditions conditions) {
+    private double calculateCombustionRate(Cell cell, ScenarioConditions conditions) {
         if (cell.getFire().getFuel() == 0 || cell.getFire().getHeat() <= conditions.getIgnitionTemperature()) {
             return 0;
         }
-        var exp = Math.exp(ACTIVATION_ENERGY_TERM / (toAbsoluteTemperature(cell.getFire().getHeat())));
         return COMBUSTION_FREQUENCY * Math.exp(ACTIVATION_ENERGY_TERM / (toAbsoluteTemperature(cell.getFire().getHeat())));
     }
 
-    private LatLng evaluateFireAnchor(Cell cell) {
-        // FIXME: Consider slope.
-        LatLng point = cell.getCoordinates().toGeoPoint();
-        double cellSize = Domain.Settings.CELL_SIZE;
-        double anchorDiffLat = evaluateWindInfluence(cell.getFactors().getWind()[0]) / Domain.Settings.GRID_SIZE;
-        double anchorDiffLng = evaluateWindInfluence(cell.getFactors().getWind()[1]) / Domain.Settings.GRID_SIZE / Math.cos(Math.toRadians(point.lng));
-        if (cellSize < anchorDiffLat) {
-            anchorDiffLat = cellSize;
+    private double calculateAverageDistance(CellCoordinates first, CellCoordinates second) {
+        double localCos = Math.cos(Math.toRadians(first.toGeoPoint().lat));
+        double distanceX = Math.abs(first.getX() - second.getX()) * localCos;
+        double distanceY = Math.abs(first.getY() - second.getY());
+        double parts = 1;
+        if (distanceX == 0) {
+            distanceX = 0.5 * localCos;
+            parts *= 2;
         }
-        if (anchorDiffLat < -cellSize) {
-            anchorDiffLat = -cellSize;
+        if (distanceY == 0) {
+            distanceY = 0.5;
+            parts *= 2;
         }
-        if (cellSize < anchorDiffLng) {
-            anchorDiffLng = cellSize;
-        }
-        if (anchorDiffLng < -cellSize) {
-            anchorDiffLng = -cellSize;
-        }
-        return new LatLng(point.lat + anchorDiffLat, point.lng + anchorDiffLng);
+        return parts * Math.sqrt(distanceX * distanceX + distanceY * distanceY);
     }
 
-    private double evaluateWindInfluence(double windSpeed) {
-        return WIND_FORCE * Math.pow(windSpeed, WIND_EFFECT);
+    private double calculateDistanceEffect(Cell cell, Cell otherCell) {
+        return calculateSlopeEffect(cell, otherCell) * calculateWindEffect(cell, otherCell);
     }
 
-    private double evaluateDistanceToCell(LatLng basicPoint, LatLng cellPoint) {
-        double diffLat = Math.abs(basicPoint.lat - cellPoint.lat);
-        double diffLng = Math.abs(basicPoint.lng - cellPoint.lng);
-        if (Domain.Settings.CELL_SIZE / 2 <= Math.max(diffLat, diffLng)) {
-            return evaluateDistance(diffLat, diffLng, basicPoint.lng);
+    private double calculateSlopeEffect(Cell cell, Cell otherCell) {
+        double elevation = otherCell.getFactors().getElevation() - cell.getFactors().getElevation();
+        if (cell == otherCell || elevation == 0) {
+            return 1;
         }
-        double weightedDistance = 0;
-        double totalWeight = 0;
-        for (int i = -1; i <= 1; i += 2) {
-            for (int j = -1; j <= 1; j += 2) {
-                double cornerLat = cellPoint.lat + i * Domain.Settings.CELL_SIZE / 2;
-                double cornerLng = cellPoint.lng + j * Domain.Settings.CELL_SIZE / 2;
-                diffLat = Math.abs(basicPoint.lat - cornerLat);
-                diffLng = Math.abs(basicPoint.lng - cornerLng);
-                double quarterDistance = evaluateDistance(diffLat, diffLng, basicPoint.lng);
-                double quarterWeight = quarterDistance * quarterDistance;
-                weightedDistance += quarterDistance * quarterWeight;
-                totalWeight += quarterWeight;
-            }
+        double localCos = Math.cos(Math.toRadians(cell.getCoordinates().toGeoPoint().lat));
+        double distanceX = Math.abs(cell.getCoordinates().getX() - otherCell.getCoordinates().getX()) * localCos;
+        double distanceY = Math.abs(cell.getCoordinates().getY() - otherCell.getCoordinates().getY());
+        double distance = Domain.Settings.CELL_HEIGHT * Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+        double slope = elevation / distance;
+        return Math.exp(SLOPE_EFFECT * slope);
+    }
+
+    private double calculateWindEffect(Cell cell, Cell otherCell) {
+        if (cell == otherCell) {
+            return 1;
         }
-        return weightedDistance / totalWeight;
-    }
-
-    private double evaluateDistance(double diffLat, double diffLng, double basicLng) {
-        double distanceLat = diffLat * Math.cos(Math.toRadians(basicLng));
-        return Math.sqrt(distanceLat * distanceLat + diffLng * diffLng);
-    }
-
-    private double toAbsoluteTemperature(double celsiusTemperature) {
-        return 273 + celsiusTemperature;
+        double vectorX = otherCell.getCoordinates().getX() - cell.getCoordinates().getX();
+        double vectorY = otherCell.getCoordinates().getY() - cell.getCoordinates().getY();
+        double windX = cell.getFactors().getWindX();
+        double windY = cell.getFactors().getWindX();
+        double windSpeed = (windX * vectorX + windY * vectorY) / Math.sqrt(vectorX * vectorX + vectorY * vectorY);
+        return Math.exp(WIND_EFFECT * windSpeed);
     }
 
     private void setEmittedEnergy(float energy, Cell cell) {

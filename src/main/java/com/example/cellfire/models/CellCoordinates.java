@@ -35,7 +35,7 @@ public final class CellCoordinates {
     }
 
     public LatLng toGeoPoint() {
-        return new LatLng((y + 0.5) * Domain.Settings.CELL_SIZE, (x + 0.5) * Domain.Settings.CELL_SIZE);
+        return new LatLng((y + 0.5) * Domain.Settings.GRID_SIZE, (x + 0.5) * Domain.Settings.GRID_SIZE);
     }
 
     public CellCoordinates createRelative(int offsetX, int offsetY) {
@@ -56,11 +56,5 @@ public final class CellCoordinates {
             x -= Domain.Settings.GRID_SCALE;
         }
         return new CellCoordinates(x, y);
-    }
-
-    public double calculateCellArea() {
-        double dLat = Math.toRadians(Domain.Settings.CELL_SIZE);
-        double dSinLng = Math.sin(Math.toRadians((x + 1.0) * Domain.Settings.CELL_SIZE)) - Math.sin(Math.toRadians((x + 0.0) * Domain.Settings.CELL_SIZE));
-        return Domain.EARTH_RADIUS * Domain.EARTH_RADIUS * dLat * dSinLng;
     }
 }

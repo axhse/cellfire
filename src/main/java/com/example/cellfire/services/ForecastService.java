@@ -18,7 +18,7 @@ public class ForecastService {
     private final ProbabilisticAlgorithm probabilisticAlgorithm;
 
     private final ScenarioConditions DEMO_CONDITIONS = new ScenarioConditions(300);
-    private final FireFactors DEMO_FACTORS = new FireFactors(new float[]{0, 0}, 20, 10, new float[]{1, 3});
+    private final FireFactors DEMO_FACTORS = new FireFactors(0, 20, 10, 1, 3);
 
     @Autowired
     public ForecastService(TerrainService terrainService, WeatherService weatherService, ThermalAlgorithm thermalAlgorithm, ProbabilisticAlgorithm probabilisticAlgorithm) {

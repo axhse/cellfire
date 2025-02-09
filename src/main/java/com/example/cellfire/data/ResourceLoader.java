@@ -42,6 +42,12 @@ public final class ResourceLoader {
         return new MapFullFragment(data, scale);
     }
 
+    public static TerrainMap loadElevationMap() {
+        List<MapFragment> fragments = new ArrayList<>();
+        fragments.add(loadFullFragment("Elevation", 30));
+        return new TerrainMap(fragments);
+    }
+
     public static TerrainMap loadForestTypeClusterMap() {
         List<MapFragment> fragments = new ArrayList<>();
         fragments.add(loadFullFragment("ForestTypeCluster", 10));
