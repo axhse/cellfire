@@ -18,7 +18,7 @@ public class ForecastService {
     private final ProbabilisticAlgorithm probabilisticAlgorithm;
 
     @Autowired
-    public ForecastService(TerrainService terrainService, WeatherService weatherService, ThermalAlgorithm thermalAlgorithm, ProbabilisticAlgorithm probabilisticAlgorithm) {
+    public ForecastService(TerrainService terrainService, StandaloneWeatherService weatherService, ThermalAlgorithm thermalAlgorithm, ProbabilisticAlgorithm probabilisticAlgorithm) {
         this.terrainService = terrainService;
         this.weatherService = weatherService;
         this.thermalAlgorithm = thermalAlgorithm;
@@ -143,9 +143,6 @@ public class ForecastService {
     }
 
     private FireFactors determineFactors(CellCoordinates coordinates, Instant date) {
-        if (true) {
-            return new FireFactors(0, 20, 10, 1, 3);
-        }
         return new FireFactors(
                 (float)terrainService.getElevation(coordinates),
                 (float)weatherService.getAirTemperature(coordinates, date),

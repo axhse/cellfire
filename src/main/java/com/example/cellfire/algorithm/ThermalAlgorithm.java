@@ -15,14 +15,17 @@ public final class ThermalAlgorithm implements Algorithm {
     private static final double COMBUSTION_FREQUENCY = 7.0;
     private static final double ENERGY_EMISSION = 10000.0;
 
-    // -- Slope --
+    /**
+     * 1-2.
+     */
+    private static final double AIR_HUMIDITY_EFFECT = 1.5;
+
     /**
      * += 3.
      * 3.5 in some research.
      */
     private static final double SLOPE_EFFECT = 3;
 
-    // -- Wind --
     /**
      * 0.1-0.3.
      * 0.13 in some research.
@@ -113,13 +116,13 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     private double calculateCombustionRate(Cell cell, ScenarioConditions conditions) {
-        if (cell.getFire().getFuel() == 0 || cell.getFire().getHeat() <= conditions.getIgnitionTemperature()) {
+        if (cell.getFire().getFuel() == 0 || cell.getFire().getHeat() <= conditions.getIgnitionTemperature()
+                || cell.getFactors().getAirTemperature() <= 0) {
             return 0;
         }
-        return COMBUSTION_FREQUENCY * Math.exp(
-                -conditions.getActivationEnergy() / Domain.UNIVERSAL_GAS_CONSTANT
-                        / (toAbsoluteTemperature(cell.getFire().getHeat()))
-        );
+        double firePower = -conditions.getActivationEnergy() / Domain.UNIVERSAL_GAS_CONSTANT / toAbsoluteTemperature(cell.getFire().getHeat());
+        double airHumidityEffect = Math.exp(-AIR_HUMIDITY_EFFECT * cell.getFactors().getAirHumidity());
+        return airHumidityEffect * COMBUSTION_FREQUENCY * Math.exp(firePower);
     }
 
     private double calculateAverageDistance(CellCoordinates first, CellCoordinates second) {

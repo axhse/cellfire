@@ -1,25 +1,15 @@
 package com.example.cellfire.services;
 
 import com.example.cellfire.models.CellCoordinates;
-import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
-@Service
-public final class WeatherService {
-    public double getAirTemperature(CellCoordinates coordinates, Instant date) {
-        return 20;
-    }
+public interface WeatherService {
+    double getAirTemperature(CellCoordinates coordinates, Instant date);
 
-    public double getAirHumidity(CellCoordinates coordinates, Instant date) {
-        return 10;
-    }
+    double getAirHumidity(CellCoordinates coordinates, Instant date);
 
-    public double getWindX(CellCoordinates coordinates, Instant date) {
-        return 1;
-    }
+    double getWindX(CellCoordinates coordinates, Instant date);
 
-    public double getWindY(CellCoordinates coordinates, Instant date) {
-        return 3;
-    }
+    double getWindY(CellCoordinates coordinates, Instant date);
 }
