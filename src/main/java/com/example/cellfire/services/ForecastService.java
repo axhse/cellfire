@@ -27,7 +27,7 @@ public class ForecastService {
 
     public ScenarioConditions determineConditions(CellCoordinates startCoordinates) {
         return new ScenarioConditions(
-                ScenarioConditions.Algorithm.THERMAL,
+                ScenarioConditions.Algorithm.PROBABILISTIC,
                 terrainService.getIgnitionTemperature(startCoordinates),
                 terrainService.getActivationEnergy(startCoordinates)
         );
