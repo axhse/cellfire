@@ -1,17 +1,17 @@
 import numpy as np
 
 from converters import (
-    compress_gradient_map_data,
+    compress_map_data,
     transform_from_tiff_coordinates_to_map_coordinates,
 )
 from map_fragment import MapFragment, MapFullFragment
 from resource_manager import ResourceManager
-from visual import GradientPlotDrawer
+from visual import GradientMapDrawer
 
 ELEVATION_MAP_NAME = "Elevation"
 ELEVATION_MAP_FRAGMENT_SIZE = 90
 ELEVATION_MAP_SCALE = 120
-ELEVATION_MAP_DRAWER = GradientPlotDrawer((240, 240, 255), (64, 32, 0))
+ELEVATION_MAP_DRAWER = GradientMapDrawer((240, 240, 255), (64, 32, 0))
 
 
 def get_sector_coordinates(sector):
@@ -28,7 +28,7 @@ def produce_elevation_sector_map(
     initial_scale = data.shape[0] // ELEVATION_MAP_FRAGMENT_SIZE
     if initial_scale % scale != 0:
         raise Exception("Invalid scale.")
-    data = compress_gradient_map_data(data, initial_scale // scale)
+    data = compress_map_data(data, initial_scale // scale)
     elevations = transform_from_tiff_coordinates_to_map_coordinates(data)
     x, y = get_sector_coordinates(sector)
     return MapFragment(elevations, ELEVATION_MAP_NAME, scale, x, y)

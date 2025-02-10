@@ -1,14 +1,14 @@
 import numpy as np
 
 from converters import (
-    compress_category_map_data,
-    compress_gradient_map_data,
+    collapse_category_map_data,
+    compress_map_data,
     transform_from_image_coordinates_to_map_coordinates,
     transform_from_tiff_coordinates_to_map_coordinates,
 )
 from map_fragment import MapFragment, MapFullFragment
 from resource_manager import ResourceManager
-from visual import CategoryPlotDrawer, GradientPlotDrawer
+from visual import CategoryMapDrawer, GradientMapDrawer
 
 FOREST_TYPE_MAP_NAME = "ForestType"
 FOREST_TYPE_CLUSTER_MAP_NAME = "ForestTypeCluster"
@@ -31,8 +31,8 @@ FOREST_TYPE_COLORS = [
     [153, 255, 153],
     [51, 153, 102],
 ]
-FOREST_TYPE_MAP_DRAWER = CategoryPlotDrawer(FOREST_TYPE_COLORS)
-CANOPY_HEIGHT_MAP_DRAWER = GradientPlotDrawer(top_color=(0, 128, 0))
+FOREST_TYPE_MAP_DRAWER = CategoryMapDrawer(FOREST_TYPE_COLORS)
+CANOPY_HEIGHT_MAP_DRAWER = GradientMapDrawer(top_color=(0, 128, 0))
 
 
 def produce_forest_type_map(resource_manager: ResourceManager):
@@ -79,7 +79,7 @@ def produce_forest_type_cluster_map(resource_manager: ResourceManager):
     ]
     for absolute_scale, relative_scale in scales:
         initial_data = compression[absolute_scale // relative_scale]
-        compressed_data = compress_category_map_data(initial_data, relative_scale)
+        compressed_data = collapse_category_map_data(initial_data, relative_scale)
         compression[absolute_scale] = compressed_data
         stretched_data = np.repeat(compressed_data, absolute_scale, axis=0)
         stretched_data = np.repeat(stretched_data, absolute_scale, axis=1)
@@ -101,7 +101,7 @@ def produce_canopy_height_map(resource_manager: ResourceManager, x, y, scale):
     if initial_scale % scale != 0:
         raise Exception("Invalid scale.")
     data[data == 255] = 0
-    data = compress_gradient_map_data(data, initial_scale // scale)
+    data = compress_map_data(data, initial_scale // scale)
     canopy_heights = transform_from_tiff_coordinates_to_map_coordinates(data)
     return MapFragment(canopy_heights, CANOPY_HEIGHT_MAP_NAME, scale, x, y)
 

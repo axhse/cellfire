@@ -1,4 +1,4 @@
-import numpy as np
+from converters import compress_map_data, stretch_map_data
 
 
 class MapFragment:
@@ -14,6 +14,16 @@ class MapFragment:
         self.__height = data.shape[1] // scale
         if self.__width < 1 or self.__height < 1:
             raise Exception("Invalid fragment shape.")
+
+    def compress(self, factor):
+        if self.__scale * self.__width % factor != 0:
+            raise Exception("Invalid factor.")
+        data = compress_map_data(self.data, factor)
+        scale = self.__scale // factor
+        if data.shape[0] < self.__width:
+            data = stretch_map_data(data, self.__width // data.shape[0])
+            scale = 1
+        return MapFragment(data, self.__map_name, scale, self.__x, self.__y)
 
     def cut(self, x, y, width, height):
         if (
@@ -65,9 +75,8 @@ class MapFullFragment(MapFragment):
         if data.shape[0] < 360:
             if 360 % data.shape[0] != 0:
                 raise Exception("Invalid fragment shape.")
-            scale = 360 // data.shape[0]
-            data = np.repeat(data, scale, axis=0)
-            data = np.repeat(data, scale, axis=1)
+            data = stretch_map_data(data, 360 // data.shape[0])
+        print(data.shape)
         if data.shape[0] % 360 != 0 or data.shape[0] != data.shape[1] * 2:
             raise Exception("Invalid fragment shape.")
         scale = data.shape[0] // 360

@@ -2,15 +2,16 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.colors import BoundaryNorm, LinearSegmentedColormap, ListedColormap
 
-from converters import compress_gradient_map_data
+from converters import compress_map_data
+from map_fragment import MapFragment
 
 
-class PlotDrawer:
-    def draw(self, fragment, scale=1):
+class MapDrawer:
+    def draw(self, fragment: MapFragment, scale=1):
         data = fragment.data
         if fragment.scale % scale != 0:
             raise Exception("Invalid image scale.")
-        data = compress_gradient_map_data(data, fragment.scale // scale)
+        data = compress_map_data(data, fragment.scale // scale)
         data = data.transpose()[::-1, :]
         figure, axes = plt.subplots(figsize=(12, 6))
         self._draw_plot(axes, data)
@@ -27,7 +28,7 @@ class PlotDrawer:
         pass
 
 
-class GradientPlotDrawer(PlotDrawer):
+class GradientMapDrawer(MapDrawer):
     DEFAULT_BOTTOM_COLOR = (255, 255, 255)
     DEFAULT_TOP_COLOR = (0, 0, 128)
 
@@ -48,7 +49,7 @@ class GradientPlotDrawer(PlotDrawer):
         plt.colorbar(image, ax=axes)
 
 
-class CategoryPlotDrawer(PlotDrawer):
+class CategoryMapDrawer(MapDrawer):
     DEFAULT_UNDEFINED_CATEGORY_COLOR = (255, 255, 255)
 
     def __init__(self, palette=None, undefined_category_color=None):
@@ -57,9 +58,14 @@ class CategoryPlotDrawer(PlotDrawer):
 
     def _draw_plot(self, axes, scaled_data):
         colors = [
-            self.undefined_category_color or self.DEFAULT_UNDEFINED_CATEGORY_COLOR
-        ] + (self.palette or self.__generate_default_palette(scaled_data.max()))
-        colors = [self._to_plt_color(color) for color in colors]
+            self.undefined_category_color
+            and self._to_plt_color(self.undefined_category_color)
+            or self._to_plt_color(self.DEFAULT_UNDEFINED_CATEGORY_COLOR)
+        ] + (
+            [self._to_plt_color(color) for color in self.palette or []]
+            or self.__generate_default_palette(scaled_data.max())
+        )
+        print(colors)
         cmap = ListedColormap(colors)
         bounds = np.arange(-0.5, len(colors))
         norm = BoundaryNorm(bounds, cmap.N)
