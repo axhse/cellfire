@@ -9,7 +9,7 @@ import java.util.Random;
 public final class ProbabilisticAlgorithm implements Algorithm {
     private static final Random random = new Random();
 
-    private static final double BASIC_PROBABILITY = 0.58;
+    private static final double BASIC_PROBABILITY = 0.58 / 3;
     private static final double SLOPE_EFFECT = 0.078;
     private static final double WIND_SPEED_EFFECT = 0.045;
     private static final double WIND_COS_EFFECT = 0.131;
