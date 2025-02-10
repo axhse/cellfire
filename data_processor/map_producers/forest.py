@@ -1,13 +1,13 @@
 import numpy as np
 
-from converters import (
+from map_fragment import MapFragment, MapFullFragment
+from resource_manager import ResourceManager
+from transformation import (
     collapse_category_map_data,
     compress_map_data,
     transform_from_image_coordinates_to_map_coordinates,
     transform_from_tiff_coordinates_to_map_coordinates,
 )
-from map_fragment import MapFragment, MapFullFragment
-from resource_manager import ResourceManager
 from visual import CategoryMapDrawer, GradientMapDrawer
 
 FOREST_TYPE_MAP_NAME = "ForestType"
@@ -54,13 +54,13 @@ def load_forest_type_map(resource_manager: ResourceManager):
 
 
 def compress_cluster_map_data(resource_manager: ResourceManager, scale):
-    initial_data = load_forest_type_map(resource_manager, FOREST_TYPE_MAP_NAME).data
+    initial_data = load_forest_type_map(resource_manager).data
     data = compress_cluster_map_data(initial_data, scale)
     return MapFullFragment(data, "CompressedForestType")
 
 
 def produce_forest_type_cluster_map(resource_manager: ResourceManager):
-    data = load_forest_type_map(resource_manager, FOREST_TYPE_MAP_NAME).data.copy()
+    data = load_forest_type_map(resource_manager).data.copy()
     compression = {1: data}
     scales = [
         (2, 2),

@@ -4,8 +4,8 @@ import numpy as np
 import rasterio
 from PIL import Image
 
-from converters import image_to_rgb_array
 from map_fragment import MapFragment
+from transformation import image_to_rgb_array
 
 
 class ResourceManager:
@@ -66,6 +66,6 @@ class ResourceManager:
         return os.path.join(self.__build_map_dir_path(map_name), file_name)
 
 
-def create_resource_directory(dir_path):
+def make_sure_directory_exists(dir_path):
     if not os.path.isdir(dir_path):
         os.mkdir(dir_path)

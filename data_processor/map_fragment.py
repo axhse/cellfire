@@ -1,4 +1,4 @@
-from converters import compress_map_data, stretch_map_data
+from transformation import compress_map_data, stretch_map_data
 
 
 class MapFragment:

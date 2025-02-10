@@ -1,11 +1,11 @@
 import numpy as np
 
-from converters import (
+from map_fragment import MapFragment, MapFullFragment
+from resource_manager import ResourceManager
+from transformation import (
     compress_map_data,
     transform_from_tiff_coordinates_to_map_coordinates,
 )
-from map_fragment import MapFragment, MapFullFragment
-from resource_manager import ResourceManager
 from visual import GradientMapDrawer
 
 ELEVATION_MAP_NAME = "Elevation"

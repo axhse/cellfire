@@ -2,8 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.colors import BoundaryNorm, LinearSegmentedColormap, ListedColormap
 
-from converters import compress_map_data
 from map_fragment import MapFragment
+from transformation import compress_map_data
 
 
 class MapDrawer:
