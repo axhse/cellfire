@@ -1,9 +1,9 @@
 package com.example.cellfire.services;
 
 import com.example.cellfire.models.ModelSettings;
-import com.example.cellfire.algorithm.Algorithm;
-import com.example.cellfire.algorithm.ProbabilisticAlgorithm;
-import com.example.cellfire.algorithm.ThermalAlgorithm;
+import com.example.cellfire.algorithms.Algorithm;
+import com.example.cellfire.algorithms.ProbabilisticAlgorithm;
+import com.example.cellfire.algorithms.ThermalAlgorithm;
 import com.example.cellfire.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.example.cellfire.algorithm;
+package com.example.cellfire.algorithms;
 
 import com.example.cellfire.models.*;
 import org.springframework.stereotype.Service;

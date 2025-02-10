@@ -1,4 +1,4 @@
-package com.example.cellfire.algorithm;
+package com.example.cellfire.algorithms;
 
 import com.example.cellfire.models.Domain;
 import com.example.cellfire.models.ModelSettings;
