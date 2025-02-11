@@ -36,18 +36,8 @@ public final class Scenario {
         return conditions;
     }
 
-    public boolean hasForecast(Instant date)
+    public boolean hasForecast(int step)
     {
-        return getForecast(date) != null;
-    }
-
-    public Forecast getForecast(Instant date)
-    {
-        Duration forecastPeriod = Duration.between(startDate, date);
-        int forecastIndex = (int)forecastPeriod.dividedBy(ModelSettings.FORECAST_STEP);
-        if (forecastIndex < forecastLog.getForecasts().size()) {
-            return forecastLog.getForecasts().get(forecastIndex);
-        }
-        return null;
+        return step < forecastLog.getForecasts().size();
     }
 }

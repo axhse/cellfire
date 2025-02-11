@@ -1,37 +1,37 @@
-import { FORECAST_STEP } from '../../domain/definitions';
-
 export class ScenarioService {
-  async createScenario(startCoordinates, startDate) {
-    return {
+  async createScenario(startCoordinates, startDate, algorithm) {
+    const scenario = {
       id: 'DEMO-ID',
       startCoordinates,
       startDate,
-      actualDate: startDate,
-      conditions: { ignitionTemperature: 200 },
+      step: 0,
+      forecastLog: { forecasts: [] },
+      conditions: {
+        algorithm,
+        ignitionTemperature: 280,
+      },
     };
+    scenario.forecastLog.forecasts.push(produceDemoForecast(scenario, 0));
+    return scenario;
   }
 
   async removeScenario() {
     return;
   }
 
-  async forecastScenario(scenario) {
-    return produceDemoForecast(scenario);
+  async forecastScenario(scenario, step) {
+    while (scenario.forecastLog.forecasts.length <= step) {
+      scenario.forecastLog.forecasts.push(
+        produceDemoForecast(scenario, scenario.forecastLog.forecasts.length)
+      );
+    }
   }
 }
 
-function produceDemoForecast(scenario) {
+function produceDemoForecast(scenario, step) {
   const demoCells = [];
-  for (
-    let x = 0;
-    x <= (scenario.actualDate - scenario.startDate) / FORECAST_STEP;
-    x++
-  ) {
-    for (
-      let y = 0;
-      x + y <= (scenario.actualDate - scenario.startDate) / FORECAST_STEP;
-      y++
-    ) {
+  for (let x = 0; x <= step; x++) {
+    for (let y = 0; x + y <= step; y++) {
       demoCells.push(produceDemoCell(scenario.startCoordinates, x, y));
       if (x > 0) {
         demoCells.push(produceDemoCell(scenario.startCoordinates, -x, y));

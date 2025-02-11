@@ -3,7 +3,7 @@ package com.example.cellfire.api;
 import com.example.cellfire.api.params.ScenarioCreationParams;
 import com.example.cellfire.api.params.ScenarioForecastParams;
 import com.example.cellfire.api.params.ScenarioIdParams;
-import com.example.cellfire.models.Forecast;
+import com.example.cellfire.models.ForecastLog;
 import com.example.cellfire.models.Scenario;
 import com.example.cellfire.services.ForecastService;
 import com.example.cellfire.services.ScenarioService;
@@ -29,13 +29,16 @@ public class ScenarioController {
 
     @PostMapping("/scenario/create")
     public Map<String, Object> createScenario(@RequestBody ScenarioCreationParams params) {
-        Scenario scenario = new Scenario(params.getStartDate(), forecastService.determineConditions(params.getStartCoordinates()));
+        Scenario scenario = new Scenario(
+                params.getStartDate(), forecastService.determineConditions(params.getAlgorithm(),
+                params.getStartCoordinates()));
         forecastService.initiate(scenario, params.getStartCoordinates());
         scenarioService.addScenario(scenario);
 
         Map<String, Object> response = new HashMap<>();
         response.put("scenarioId", scenario.getId());
         response.put("conditions", scenario.getConditions());
+        response.put("forecastLog", scenario.getForecastLog());
         return response;
     }
 
@@ -53,8 +56,11 @@ public class ScenarioController {
             // TODO: return 4xx
             return response;
         }
-        Forecast forecast = forecastService.forecast(scenario, params.getActualDate());
-        response.put("forecast", forecast);
+        forecastService.forecast(scenario, params.getEndStep());
+        ForecastLog partialForecastLog = new ForecastLog();
+        partialForecastLog.getForecasts().addAll(scenario.getForecastLog().getForecasts().subList(
+                params.getStartStep(), params.getEndStep() + 1));
+        response.put("partialForecastLog", partialForecastLog);
         return response;
     }
 }

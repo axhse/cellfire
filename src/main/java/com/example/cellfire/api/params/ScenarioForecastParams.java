@@ -1,16 +1,20 @@
 package com.example.cellfire.api.params;
 
-import java.time.Instant;
-
 public final class ScenarioForecastParams extends ScenarioIdParams {
-    private final long actualTs;
+    private final int startStep;
+    private final int endStep;
 
-    public ScenarioForecastParams(String scenarioId, long actualTs) {
+    public ScenarioForecastParams(String scenarioId, int startStep, int toTimePoint) {
         super(scenarioId);
-        this.actualTs = actualTs;
+        this.startStep = startStep;
+        this.endStep = toTimePoint;
     }
 
-    public Instant getActualDate() {
-        return Instant.ofEpochMilli(actualTs);
+    public int getStartStep() {
+        return startStep;
+    }
+
+    public int getEndStep() {
+        return endStep;
     }
 }

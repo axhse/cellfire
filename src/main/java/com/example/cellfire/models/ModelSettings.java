@@ -11,8 +11,8 @@ public final class ModelSettings {
     public static final int GRID_SCALE = 200;
 
     // -- Forecast --
-    public static final Duration FORECAST_STEP = Duration.ofMinutes(30);
-    public static final Duration MAX_FORECAST_PERIOD = Duration.ofDays(7);
+    public static final Duration STEP_DURATION = Duration.ofMinutes(30);
+    public static final Duration LIMIT_DURATION = Duration.ofDays(7);
     public static final float INITIAL_HEAT = 1000;
     public static final float SIGNIFICANT_FUEL = 0.01F;
 

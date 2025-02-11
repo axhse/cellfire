@@ -39,7 +39,7 @@ public final class ThermalAlgorithm implements Algorithm {
     private static final double RADIATION_RATE = 2 * Math.pow(10, -11);
 
     // -- Derived --
-    private static final double PHASE_DURATION = (double) ModelSettings.FORECAST_STEP.toSeconds();
+    private static final double PHASE_DURATION = (double) ModelSettings.STEP_DURATION.toSeconds();
     private static final double CONVENTION_PROGRESS = Math.min(1, CONVENTION_RATE * PHASE_DURATION);
 
     @Override

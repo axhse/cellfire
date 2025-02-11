@@ -25,9 +25,10 @@ public class ForecastService {
         this.probabilisticAlgorithm = probabilisticAlgorithm;
     }
 
-    public ScenarioConditions determineConditions(CellCoordinates startCoordinates) {
+    public ScenarioConditions determineConditions(
+            String algorithm, CellCoordinates startCoordinates) {
         return new ScenarioConditions(
-                ScenarioConditions.Algorithm.PROBABILISTIC,
+                algorithm,
                 terrainService.getIgnitionTemperature(startCoordinates),
                 terrainService.getActivationEnergy(startCoordinates)
         );
@@ -43,18 +44,17 @@ public class ForecastService {
         initialForecast.getCells().add(initialCell);
     }
 
-    public synchronized Forecast forecast(Scenario scenario, Instant date) {
-        while (!scenario.hasForecast(date)) {
+    public synchronized void forecast(Scenario scenario, int step) {
+        while (!scenario.hasForecast(step)) {
             forecastFurther(scenario);
         }
-        return scenario.getForecast(date);
     }
 
     private void forecastFurther(Scenario scenario) {
         Forecast draftForecast = new Forecast();
         Forecast lastForecast = scenario.getForecastLog().getForecasts().getLast();
         int furtherStepNumber = scenario.getForecastLog().getForecasts().size();
-        Instant date = scenario.getStartDate().plus(ModelSettings.FORECAST_STEP.multipliedBy(furtherStepNumber));
+        Instant date = scenario.getStartDate().plus(ModelSettings.STEP_DURATION.multipliedBy(furtherStepNumber));
 
         lastForecast.getCells().forEach(cell -> {
             FireFactors fireFactors = determineFactors(cell.getCoordinates(), date);

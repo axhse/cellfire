@@ -1,10 +1,11 @@
 import React from 'react';
-import { ScenarioMap } from './ScenarioMap';
+import { SimulationMap } from './SimulationMap';
 
 function AppPage() {
   return (
-    <div className='page-container'>
-      <ScenarioMap />
+    <div id='page-container'>
+      <h2>Simulate a wildfire under real weather conditions</h2>
+      <SimulationMap />
     </div>
   );
 }

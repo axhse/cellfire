@@ -1,9 +1,10 @@
 export class ScenarioService {
-  async createScenario(startCoordinates, startDate) {
+  async createScenario(startCoordinates, startDate, algorithm) {
     const response = await fetch('/scenario/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        algorithm,
         startCoordinates,
         startTs: startDate.valueOf(),
       }),
@@ -13,13 +14,15 @@ export class ScenarioService {
       const body = await response.json();
       return {
         id: body.scenarioId,
+        forecastLog: body.forecastLog,
+        conditions: body.conditions,
         startCoordinates,
         startDate,
-        actualDate: startDate,
-        conditions: body.conditions,
+        algorithm,
+        step: 0,
       };
-      // TODO: What if response is not ok?
     }
+    // TODO: Handle errors?
   }
 
   async removeScenario(scenario) {
@@ -32,9 +35,9 @@ export class ScenarioService {
     });
   }
 
-  async forecastScenario(scenario) {
-    if (scenario.actualDate === scenario.startDate) {
-      // TODO: optimization
+  async forecastScenario(scenario, step) {
+    if (step < scenario.forecastLog.forecasts.length) {
+      return;
     }
 
     const response = await fetch('/scenario/forecast', {
@@ -42,14 +45,16 @@ export class ScenarioService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         scenarioId: scenario.id,
-        actualTs: scenario.actualDate.valueOf(),
+        startStep: scenario.forecastLog.forecasts.length,
+        endStep: step,
       }),
     });
 
     if (response.ok) {
       const body = await response.json();
-      return body.forecast;
+      return scenario.forecastLog.forecasts.push(
+        ...body.partialForecastLog.forecasts
+      );
     }
-    // TODO: What if response is not ok?
   }
 }
