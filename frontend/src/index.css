@@ -120,7 +120,7 @@ button {
 
 .ol-control button.layer-toggle {
   display: block;
-  width: 80px;
+  width: 170px;
   margin-top: 5px;
 }
 
@@ -153,7 +153,7 @@ label.hidden {
 #control-container-timeline {
   position: absolute;
   bottom: 10px;
-  left: 220px;
+  right: 220px;
 }
 
 #control-container-info {

@@ -52,6 +52,11 @@ function produceDemoCell(startCoordinates, offsetX, offsetY) {
     100 + (((offsetX + 3) * 5) % 77) * 10 + (((offsetY + 7) * 9) % 100) * 4;
   const fuel =
     0 + (((offsetX + 4) * 5) % 77) / 77 + (((offsetY + 3) * 9) % 100) / 44;
+  const airTemperature = (fuel * 40) % 40;
+  const airHumidity = (Math.round(fuel * 100 + 1000) % 101) / 100;
+  const elevation = (fuel * 200 + heat / 5 + 12402394) % 500;
+  const windX = Math.round(fuel * 100 + 1000) % 7;
+  const windY = Math.round(fuel * 123 + 12340) % 4;
   const isDamaged = (offsetX * 2 + offsetY * 5 + 7) % 20 < 10;
 
   return {
@@ -60,6 +65,6 @@ function produceDemoCell(startCoordinates, offsetX, offsetY) {
       y: startCoordinates.y + offsetY,
     },
     fire: { heat, fuel, isDamaged },
-    factors: { airTemperature: 30 },
+    factors: { airTemperature, airHumidity, elevation, windX, windY },
   };
 }

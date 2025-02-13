@@ -31,19 +31,34 @@ const INITIAL_MAP_ZOOM = 12;
 
 const LAYER_OPACITY = 0.6;
 const LAYER_PARAMS = {
-  fire: {
+  boundaries: {
+    sparseFuel: 0,
+    denseFuel: 1,
+    noElevation: 0,
+    peakElevation: 2000,
+    zeroHumidity: 0,
+    peakHumidity: 1,
     zeroTemperature: 0,
-    flameTemperature: 1300,
-    vegetationColor: [0, 255, 0, LAYER_OPACITY],
-    coalColor: [0, 0, 0, LAYER_OPACITY / 1.6],
-    flameMinColor: [255, 160, 0, LAYER_OPACITY],
-    flameMaxColor: [255, 0, 0, LAYER_OPACITY],
+    heatTemperature: 35,
+    peakFlameTemperature: 1300,
+    noWind: 0,
+    intenseWind: 10,
   },
-  fuel: {
-    minAmount: 0,
-    maxAmount: 1,
-    minColor: [0, 0, 0, 0.1],
-    maxColor: [0, 180, 30, LAYER_OPACITY],
+  colors: {
+    vegetation: [0, 255, 0, LAYER_OPACITY],
+    weakFlame: [255, 180, 0, LAYER_OPACITY],
+    strongFlame: [255, 0, 0, LAYER_OPACITY],
+    coal: [0, 0, 0, LAYER_OPACITY / 1.6],
+    sparseFuel: [0, 0, 0, 0.1],
+    denseFuel: [0, 180, 30, LAYER_OPACITY],
+    ground: [0, 0, 0, 0.1],
+    mountain: [50, 30, 0, LAYER_OPACITY],
+    frost: [200, 200, 255, LAYER_OPACITY / 2],
+    heat: [255, 64, 64, LAYER_OPACITY],
+    dry: [255, 255, 128, LAYER_OPACITY],
+    humid: [128, 128, 255, LAYER_OPACITY],
+    calm: [200, 200, 200, LAYER_OPACITY / 2],
+    storm: [200, 0, 50, LAYER_OPACITY],
   },
 };
 
@@ -189,7 +204,8 @@ export class SimulationMap extends Component {
     header.className = 'header';
     container.appendChild(header);
 
-    for (const layer of [Layer.Fire, Layer.Fuel]) {
+    for (const layerField in Layer) {
+      const layer = Layer[layerField];
       addControlButton(
         container,
         () => {
@@ -264,7 +280,9 @@ export class SimulationMap extends Component {
       const feature = new Feature({
         geometry: createCellFigure(cell.coordinates),
       });
-      const style = new Style({ fill: this.createCellFiller(cell) });
+      const style = new Style({
+        fill: this.createCellFiller(cell),
+      });
       feature.setStyle(style);
 
       this.controls.layerSource.addFeature(feature);
@@ -274,35 +292,64 @@ export class SimulationMap extends Component {
   createCellFiller(cell) {
     let value;
     let bottomBoundary;
-    let bottomColor;
     let topBoundary;
+    let bottomColor;
     let topColor;
     if (this.controls.layer === Layer.Fire) {
       value = cell.fire.heat;
       let ignitionTemperature = this.scenario.conditions.ignitionTemperature;
       if (value > ignitionTemperature) {
         bottomBoundary = ignitionTemperature;
-        bottomColor = LAYER_PARAMS.fire.flameMinColor;
-        topBoundary = LAYER_PARAMS.fire.flameTemperature;
-        topColor = LAYER_PARAMS.fire.flameMaxColor;
+        topBoundary = LAYER_PARAMS.boundaries.peakFlameTemperature;
+        bottomColor = LAYER_PARAMS.colors.weakFlame;
+        topColor = LAYER_PARAMS.colors.strongFlame;
       } else {
-        bottomBoundary = LAYER_PARAMS.fire.zeroTemperature;
+        bottomBoundary = LAYER_PARAMS.boundaries.zeroTemperature;
         topBoundary = ignitionTemperature;
-        topColor = LAYER_PARAMS.fire.flameMinColor;
-
         if (cell.fire.isDamaged) {
-          bottomColor = LAYER_PARAMS.fire.coalColor;
+          bottomColor = LAYER_PARAMS.colors.coal;
         } else {
-          bottomColor = LAYER_PARAMS.fire.vegetationColor;
+          bottomColor = LAYER_PARAMS.colors.vegetation;
         }
+        topColor = LAYER_PARAMS.colors.weakFlame;
       }
     }
     if (this.controls.layer === Layer.Fuel) {
       value = cell.fire.fuel;
-      bottomBoundary = LAYER_PARAMS.fuel.minAmount;
-      bottomColor = LAYER_PARAMS.fuel.minColor;
-      topBoundary = LAYER_PARAMS.fuel.maxAmount;
-      topColor = LAYER_PARAMS.fuel.maxColor;
+      bottomBoundary = LAYER_PARAMS.boundaries.sparseFuel;
+      topBoundary = LAYER_PARAMS.boundaries.denseFuel;
+      bottomColor = LAYER_PARAMS.colors.sparseFuel;
+      topColor = LAYER_PARAMS.colors.denseFuel;
+    }
+    if (this.controls.layer === Layer.Elevation) {
+      value = cell.factors.elevation;
+      bottomBoundary = LAYER_PARAMS.boundaries.noElevation;
+      topBoundary = LAYER_PARAMS.boundaries.peakElevation;
+      bottomColor = LAYER_PARAMS.colors.ground;
+      topColor = LAYER_PARAMS.colors.mountain;
+    }
+    if (this.controls.layer === Layer.AirTemperature) {
+      value = cell.factors.airTemperature;
+      bottomBoundary = LAYER_PARAMS.boundaries.zeroTemperature;
+      topBoundary = LAYER_PARAMS.boundaries.heatTemperature;
+      bottomColor = LAYER_PARAMS.colors.frost;
+      topColor = LAYER_PARAMS.colors.heat;
+    }
+    if (this.controls.layer === Layer.AirHumidity) {
+      value = cell.factors.airHumidity;
+      bottomBoundary = LAYER_PARAMS.boundaries.zeroHumidity;
+      topBoundary = LAYER_PARAMS.boundaries.peakHumidity;
+      bottomColor = LAYER_PARAMS.colors.dry;
+      topColor = LAYER_PARAMS.colors.humid;
+    }
+    if (this.controls.layer === Layer.WindSpeed) {
+      value = Math.sqrt(
+        Math.pow(cell.factors.windX, 2) + Math.pow(cell.factors.windY, 2)
+      );
+      bottomBoundary = LAYER_PARAMS.boundaries.noWind;
+      topBoundary = LAYER_PARAMS.boundaries.intenseWind;
+      bottomColor = LAYER_PARAMS.colors.calm;
+      topColor = LAYER_PARAMS.colors.storm;
     }
 
     const gradient = calculateGradient(value, bottomBoundary, topBoundary);
@@ -334,6 +381,10 @@ const PointerMode = {
 const Layer = {
   Fire: 'fire',
   Fuel: 'fuel',
+  Elevation: 'elevation',
+  AirTemperature: 'temperature',
+  AirHumidity: 'humidity',
+  WindSpeed: 'wind',
 };
 
 class SimulationMapControls {
@@ -369,11 +420,12 @@ class SimulationMapControls {
 
   switchLayer(layer) {
     this.layer = layer;
-    for (layer of [Layer.Fire, Layer.Fuel]) {
+    for (const otherLayerField in Layer) {
+      const otherLayer = Layer[otherLayerField];
       switchElementClass(
-        document.getElementById(`layer-toggle-${layer}`),
+        document.getElementById(`layer-toggle-${otherLayer}`),
         'off',
-        this.layer !== layer
+        otherLayer !== this.layer
       );
     }
   }
@@ -459,9 +511,17 @@ function calculateGradient(value, bottomBoundary, topBoundary) {
 function fillLayerToggle(layer) {
   switch (layer) {
     case Layer.Fire:
-      return '🔥Fire';
+      return '🔥 Fire';
     case Layer.Fuel:
-      return '🌳Fuel';
+      return '🌳 Fuel';
+    case Layer.Elevation:
+      return '⛰️ Elevation';
+    case Layer.AirTemperature:
+      return '♨️ Air temperature';
+    case Layer.AirHumidity:
+      return '💧 Air humidity';
+    case Layer.WindSpeed:
+      return '🌀 Wind speed';
   }
 }
 
