@@ -1,6 +1,6 @@
 package com.example.cellfire.data;
 
-import com.example.cellfire.services.TerrainService;
+import com.example.cellfire.services.TerrainMapService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +12,7 @@ public final class ResourceLoader {
     public static byte[][] loadFragmentData(String name, int scale, int x, int y, int width, int height) {
         byte[][] data = new byte[width * scale][height * scale];
         String resourceName = "%s/%s%d%s%dWidth%dHeight%dScale%d.bin".formatted(name, x < 0 ? "West" : "East", Math.abs(x), y < 0 ? "South" : "North", Math.abs(y), width, height, scale);
-        try (InputStream inputStream = TerrainService.class.getClassLoader().getResourceAsStream(resourceName)) {
+        try (InputStream inputStream = TerrainMapService.class.getClassLoader().getResourceAsStream(resourceName)) {
             if (inputStream == null) {
                 throw new IllegalArgumentException("Resource not found.");
             }

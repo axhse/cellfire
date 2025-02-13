@@ -29,10 +29,10 @@ public class ScenarioController {
 
     @PostMapping("/scenario/create")
     public Map<String, Object> createScenario(@RequestBody ScenarioCreationParams params) {
-        Scenario scenario = new Scenario(params.getAlgorithm(),
-                params.getStartDate(), forecastService.determineConditions(
-                params.getStartCoordinates()));
-        forecastService.initiate(scenario, params.getStartCoordinates());
+        Scenario scenario = forecastService.startScenario(params.getAlgorithm(),
+                params.getStartCoordinates(),
+                params.getStartDate()
+                );
         scenarioService.addScenario(scenario);
 
         Map<String, Object> response = new HashMap<>();

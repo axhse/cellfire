@@ -1,19 +1,20 @@
 package com.example.cellfire.models;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
 public final class Scenario {
     private final String id = UUID.randomUUID().toString();
     private final Instant creationDate = Instant.now();
+    private final CellCoordinates startCoordinates;
     private final Instant startDate;
     private final String algorithm;
     private final ScenarioConditions conditions;
     private final ForecastLog forecastLog = new ForecastLog();
 
-    public Scenario(String algorithm, Instant startDate, ScenarioConditions conditions) {
+    public Scenario(String algorithm, CellCoordinates startCoordinates, Instant startDate, ScenarioConditions conditions) {
         this.algorithm = algorithm;
+        this.startCoordinates = startCoordinates;
         this.startDate = startDate;
         this.conditions = conditions;
     }
@@ -24,6 +25,10 @@ public final class Scenario {
 
     public Instant getCreationDate() {
         return creationDate;
+    }
+
+    public CellCoordinates getStartCoordinates() {
+        return startCoordinates;
     }
 
     public Instant getStartDate() {

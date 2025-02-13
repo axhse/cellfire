@@ -18,21 +18,16 @@ public class ForecastService {
     private final ProbabilisticAlgorithm probabilisticAlgorithm;
 
     @Autowired
-    public ForecastService(TerrainService terrainService, StandaloneWeatherService weatherService, ThermalAlgorithm thermalAlgorithm, ProbabilisticAlgorithm probabilisticAlgorithm) {
+    public ForecastService(TerrainService terrainService, WeatherService weatherService, ThermalAlgorithm thermalAlgorithm, ProbabilisticAlgorithm probabilisticAlgorithm) {
         this.terrainService = terrainService;
         this.weatherService = weatherService;
         this.thermalAlgorithm = thermalAlgorithm;
         this.probabilisticAlgorithm = probabilisticAlgorithm;
     }
 
-    public ScenarioConditions determineConditions(CellCoordinates startCoordinates) {
-        return new ScenarioConditions(
-                terrainService.getIgnitionTemperature(startCoordinates),
-                terrainService.getActivationEnergy(startCoordinates)
-        );
-    }
+    public Scenario startScenario(String algorithm, CellCoordinates startCoordinates, Instant startDate) {
+        Scenario scenario = new Scenario(algorithm, startCoordinates, startDate, determineConditions(startCoordinates));
 
-    public void initiate(Scenario scenario, CellCoordinates startCoordinates) {
         Forecast initialForecast = new Forecast();
         scenario.getForecastLog().getForecasts().add(initialForecast);
         float fuel = (float)terrainService.getFuel(startCoordinates);
@@ -40,6 +35,8 @@ public class ForecastService {
         FireFactors factors = determineFactors(startCoordinates, scenario.getStartDate());
         Cell initialCell = new Cell(startCoordinates, factors, fire);
         initialForecast.getCells().add(initialCell);
+
+        return scenario;
     }
 
     public synchronized void forecast(Scenario scenario, int step) {
@@ -138,6 +135,13 @@ public class ForecastService {
             return probabilisticAlgorithm;
         }
         return thermalAlgorithm;
+    }
+
+    private ScenarioConditions determineConditions(CellCoordinates startCoordinates) {
+        return new ScenarioConditions(
+                terrainService.getIgnitionTemperature(startCoordinates),
+                terrainService.getActivationEnergy(startCoordinates)
+        );
     }
 
     private FireFactors determineFactors(CellCoordinates coordinates, Instant date) {
