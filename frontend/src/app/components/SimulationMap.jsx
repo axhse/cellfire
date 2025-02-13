@@ -12,13 +12,17 @@ import Control from 'ol/control/Control';
 
 import {
   TimePeriod,
-  SCALE_FACTOR,
+  GRID_SCALE,
   STEP_DURATION,
   LIMIT_STEPS,
   SIGNIFICANT_OVERHEAT,
 } from '../domain/definitions';
 
-import { toCellCoordinates } from '../domain/logic';
+import {
+  calculateCellArea,
+  getCurrentDate,
+  toCellCoordinates,
+} from '../domain/logic';
 import { scenarioService } from '../services/registry';
 
 // const INITIAL_MAP_CENTER = [37.6173, 55.7558];
@@ -95,9 +99,9 @@ export class SimulationMap extends Component {
       () => {
         this.controls.switchAlgorithm();
       },
-      this.controls.algorithmName,
+      titleAlgorithm(this.controls.algorithm),
       'Switch algorithm',
-      'control-inline-button auto-width',
+      'control-inline-button',
       'algorithm-switcher'
     );
 
@@ -135,9 +139,21 @@ export class SimulationMap extends Component {
         () => this.navigateTimeline(stepShift),
         `${describeTimePeriod(stepShift, false)}`,
         titleTimelineButton(stepShift),
-        'control-inline-button auto-width'
+        'control-inline-button timeline'
       );
     }
+
+    const startDateLabel = document.createElement('label');
+    startDateLabel.id = 'label-start-date';
+    container.appendChild(startDateLabel);
+
+    const timePeriodLabel = document.createElement('label');
+    timePeriodLabel.id = 'label-period';
+    container.appendChild(timePeriodLabel);
+
+    const currentDateLabel = document.createElement('label');
+    currentDateLabel.id = 'label-current-date';
+    container.appendChild(currentDateLabel);
 
     return new Control({ element: container });
   }
@@ -151,6 +167,14 @@ export class SimulationMap extends Component {
     header.innerHTML = 'Information';
     header.className = 'header';
     container.appendChild(header);
+
+    const activeAlgorithmLabel = document.createElement('label');
+    activeAlgorithmLabel.id = 'label-active-algorithm';
+    container.appendChild(activeAlgorithmLabel);
+
+    const damagedAreaLabel = document.createElement('label');
+    damagedAreaLabel.id = 'label-damaged-area';
+    container.appendChild(damagedAreaLabel);
 
     return new Control({ element: container });
   }
@@ -193,21 +217,23 @@ export class SimulationMap extends Component {
     const startCoordinates = toCellCoordinates(toLonLat(event.coordinate));
     this.scenario = await scenarioService.createScenario(
       startCoordinates,
-      Date.now(),
+      getCurrentDate(),
       this.controls.algorithm
     );
     this.displayForecast();
-    this.controls.enterSimulation();
+    this.controls.enterSimulation(this.scenario);
   }
 
   async navigateTimeline(stepShift) {
-    const desiredTimePoint = Math.min(
+    const newStep = Math.min(
       LIMIT_STEPS,
       Math.max(0, this.scenario.step + stepShift)
     );
-    this.scenario.step = desiredTimePoint;
-    await scenarioService.forecastScenario(this.scenario, desiredTimePoint);
+    this.scenario.step = newStep;
+    await scenarioService.forecastScenario(this.scenario, newStep);
     this.displayForecast();
+    this.controls.updateTimeline(this.scenario);
+    this.controls.updateInformation(this.scenario);
   }
 
   displayForecast() {
@@ -320,10 +346,6 @@ class SimulationMapControls {
     this.layer = Layer.Fire;
   }
 
-  get algorithmName() {
-    return this.algorithm.charAt(0).toUpperCase() + this.algorithm.slice(1);
-  }
-
   setPointerMode(pointerMode) {
     if (pointerMode === this.pointerMode) {
       return;
@@ -342,7 +364,7 @@ class SimulationMapControls {
         ? Algorithm.Probabilistic
         : Algorithm.Thermal;
     const switcher = document.getElementById('algorithm-switcher');
-    switcher.innerHTML = this.algorithmName;
+    switcher.innerHTML = titleAlgorithm(this.algorithm);
   }
 
   switchLayer(layer) {
@@ -356,7 +378,43 @@ class SimulationMapControls {
     }
   }
 
-  enterSimulation() {
+  setPeriod(steps) {
+    document.getElementById('label-period').innerHTML =
+      describeTimePeriod(steps);
+  }
+
+  setDate(dateLabelId, dateTitle, date) {
+    document.getElementById(dateLabelId).innerHTML =
+      `${dateTitle}: ${formatDate(date)}`;
+  }
+
+  setCurrentDate(date) {
+    this.setDate('label-current-date', 'Current', date);
+  }
+
+  setDamagedArea(scenario) {
+    const damagedArea = Math.round(calculateDamagedArea(scenario) / 10000);
+    document.getElementById('label-damaged-area').innerHTML =
+      `Damaged area: ${damagedArea} ha`;
+  }
+
+  updateTimeline(scenario) {
+    this.setPeriod(scenario.step);
+    this.setCurrentDate(
+      new Date(scenario.startDate.valueOf() + scenario.step * STEP_DURATION)
+    );
+  }
+
+  updateInformation(scenario) {
+    this.setDamagedArea(scenario);
+  }
+
+  enterSimulation(scenario) {
+    document.getElementById('label-active-algorithm').innerHTML =
+      `Active algorithm: ${titleAlgorithm(scenario.algorithm)}`;
+    this.setDate('label-start-date', 'Start', scenario.startDate);
+    this.updateTimeline(scenario);
+    this.updateInformation(scenario);
     for (const controlName of ['timeline', 'info', 'layer']) {
       switchElementClass(
         document.getElementById('control-container-' + controlName),
@@ -367,11 +425,20 @@ class SimulationMapControls {
   }
 }
 
+function calculateDamagedArea(scenario) {
+  const cells = scenario.forecastLog.forecasts[scenario.step].cells;
+  const damagedCells = cells.filter((cell) => cell.fire.isDamaged);
+  const damagedCellAreas = damagedCells.map((cell) =>
+    calculateCellArea(cell.coordinates)
+  );
+  return damagedCellAreas.reduce((a1, a2) => a1 + a2, 0);
+}
+
 function createCellFigure(coordinates) {
-  const leftEdgeLon = coordinates.x / SCALE_FACTOR;
-  const rightEdgeLon = (coordinates.x + 1) / SCALE_FACTOR;
-  const bottomEdgeLat = coordinates.y / SCALE_FACTOR;
-  const topEdgeLat = (coordinates.y + 1) / SCALE_FACTOR;
+  const leftEdgeLon = coordinates.x / GRID_SCALE;
+  const rightEdgeLon = (coordinates.x + 1) / GRID_SCALE;
+  const bottomEdgeLat = coordinates.y / GRID_SCALE;
+  const topEdgeLat = (coordinates.y + 1) / GRID_SCALE;
 
   return new Polygon([
     [
@@ -386,13 +453,7 @@ function createCellFigure(coordinates) {
 
 function calculateGradient(value, bottomBoundary, topBoundary) {
   let gradient = (value - bottomBoundary) / (topBoundary - bottomBoundary);
-  if (gradient < 0) {
-    gradient = 0;
-  }
-  if (gradient > 1) {
-    gradient = 1;
-  }
-  return gradient;
+  return Math.max(0, Math.min(1, gradient));
 }
 
 function fillLayerToggle(layer) {
@@ -402,6 +463,10 @@ function fillLayerToggle(layer) {
     case Layer.Fuel:
       return '🌳Fuel';
   }
+}
+
+function titleAlgorithm(algorithm) {
+  return algorithm.charAt(0).toUpperCase() + algorithm.slice(1);
 }
 
 function titleLayerToggle(layer) {
@@ -425,11 +490,14 @@ function describeTimePeriod(steps, verbose = true) {
   ].forEach((periodItem) => {
     const periodName = periodItem[0];
     const period = periodItem[1];
-    if (period(1) <= duration) {
+    if (
+      period(1) <= duration ||
+      (sections === 0 && period === TimePeriod.minutes)
+    ) {
       const amount = Math.floor(duration / period(1));
       duration -= amount * period(1);
       sections += 1;
-      description += ` ${amount}${verbose ? ' ' : ''}${periodName}${verbose && amount > 1 ? 's' : ''}`;
+      description += ` ${amount}${verbose ? ' ' : ''}${periodName}${verbose && amount !== 1 ? 's' : ''}`;
     }
   });
   return `${sign < 0 ? '-' : '+'}${verbose || sections > 1 ? ' ' : ''}${description.slice(1)}`;
@@ -458,4 +526,12 @@ function switchElementClass(element, className, isWanted) {
   } else {
     element.classList.remove(className);
   }
+}
+
+function formatDate(date) {
+  return `${date.getFullYear()}-${make2digit(date.getMonth())}-${make2digit(date.getDate())} ${make2digit(date.getHours())}:${make2digit(date.getMinutes())}`;
+}
+
+function make2digit(n) {
+  return String(n).padStart(2, '0');
 }

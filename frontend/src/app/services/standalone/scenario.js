@@ -2,12 +2,12 @@ export class ScenarioService {
   async createScenario(startCoordinates, startDate, algorithm) {
     const scenario = {
       id: 'DEMO-ID',
+      algorithm,
       startCoordinates,
       startDate,
       step: 0,
       forecastLog: { forecasts: [] },
       conditions: {
-        algorithm,
         ignitionTemperature: 280,
       },
     };

@@ -4,7 +4,7 @@ export const TimePeriod = {
   minutes: (n) => n * 60 * 1000,
 };
 
-export const SCALE_FACTOR = 200;
+export const GRID_SCALE = 200;
 export const STEP_DURATION = TimePeriod.minutes(30);
 const LIMIT_DURATION = TimePeriod.days(7);
 export const LIMIT_STEPS = LIMIT_DURATION / STEP_DURATION;

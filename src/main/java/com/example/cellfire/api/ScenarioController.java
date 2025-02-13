@@ -29,8 +29,8 @@ public class ScenarioController {
 
     @PostMapping("/scenario/create")
     public Map<String, Object> createScenario(@RequestBody ScenarioCreationParams params) {
-        Scenario scenario = new Scenario(
-                params.getStartDate(), forecastService.determineConditions(params.getAlgorithm(),
+        Scenario scenario = new Scenario(params.getAlgorithm(),
+                params.getStartDate(), forecastService.determineConditions(
                 params.getStartCoordinates()));
         forecastService.initiate(scenario, params.getStartCoordinates());
         scenarioService.addScenario(scenario);

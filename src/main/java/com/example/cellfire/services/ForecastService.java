@@ -25,10 +25,8 @@ public class ForecastService {
         this.probabilisticAlgorithm = probabilisticAlgorithm;
     }
 
-    public ScenarioConditions determineConditions(
-            String algorithm, CellCoordinates startCoordinates) {
+    public ScenarioConditions determineConditions(CellCoordinates startCoordinates) {
         return new ScenarioConditions(
-                algorithm,
                 terrainService.getIgnitionTemperature(startCoordinates),
                 terrainService.getActivationEnergy(startCoordinates)
         );
@@ -132,11 +130,11 @@ public class ForecastService {
     }
 
     private Algorithm selectAlgorithm(Scenario scenario) {
-        String algorithmName = scenario.getConditions().getAlgorithm();
-        if (algorithmName.equals(ScenarioConditions.Algorithm.THERMAL)) {
+        String algorithmName = scenario.getAlgorithm();
+        if (algorithmName.equals(Scenario.Algorithm.THERMAL)) {
             return thermalAlgorithm;
         }
-        if (algorithmName.equals(ScenarioConditions.Algorithm.PROBABILISTIC)) {
+        if (algorithmName.equals(Scenario.Algorithm.PROBABILISTIC)) {
             return probabilisticAlgorithm;
         }
         return thermalAlgorithm;

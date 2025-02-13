@@ -5,39 +5,50 @@ import java.time.Instant;
 import java.util.UUID;
 
 public final class Scenario {
-    private final Instant creationDate = Instant.now();
     private final String id = UUID.randomUUID().toString();
-    private final ForecastLog forecastLog = new ForecastLog();
+    private final Instant creationDate = Instant.now();
     private final Instant startDate;
+    private final String algorithm;
     private final ScenarioConditions conditions;
+    private final ForecastLog forecastLog = new ForecastLog();
 
-    public Scenario(Instant startDate, ScenarioConditions conditions) {
+    public Scenario(String algorithm, Instant startDate, ScenarioConditions conditions) {
+        this.algorithm = algorithm;
         this.startDate = startDate;
         this.conditions = conditions;
-    }
-
-    public Instant getCreationDate() {
-        return creationDate;
     }
 
     public String getId() {
         return id;
     }
 
-    public ForecastLog getForecastLog() {
-        return forecastLog;
+    public Instant getCreationDate() {
+        return creationDate;
     }
 
     public Instant getStartDate() {
         return startDate;
     }
 
+    public String getAlgorithm() {
+        return algorithm;
+    }
+
     public ScenarioConditions getConditions() {
         return conditions;
+    }
+
+    public ForecastLog getForecastLog() {
+        return forecastLog;
     }
 
     public boolean hasForecast(int step)
     {
         return step < forecastLog.getForecasts().size();
+    }
+
+    public static final class Algorithm {
+        public static String THERMAL = "thermal";
+        public static String PROBABILISTIC = "probabilistic";
     }
 }

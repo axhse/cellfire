@@ -16,9 +16,9 @@ export class ScenarioService {
         id: body.scenarioId,
         forecastLog: body.forecastLog,
         conditions: body.conditions,
+        algorithm,
         startCoordinates,
         startDate,
-        algorithm,
         step: 0,
       };
     }
