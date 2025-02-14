@@ -5,7 +5,6 @@ import com.example.cellfire.models.ModelSettings;
 import com.example.cellfire.models.*;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.util.Arrays;
 
 @Service
@@ -14,33 +13,32 @@ public final class ThermalAlgorithm implements Algorithm {
     /**
      * Varies from 150k to 250k.
      */
-    private static final double COMBUSTION_FREQUENCY = 7.0;
-    private static final double ENERGY_EMISSION = 10000.0;
+    public static double COMBUSTION_RATE = 7.0;
+    public static double ENERGY_EMISSION = 10000.0;
 
     /**
      * 1-2.
      */
-    private static final double AIR_HUMIDITY_EFFECT = 1.5;
+    public static double AIR_HUMIDITY_EFFECT = 1.5;
 
     /**
      * += 3.
      * 3.5 in some research.
      */
-    private static final double SLOPE_EFFECT = 1.5;
+    public static double SLOPE_EFFECT = 1.5;
 
     /**
      * 0.1-0.3.
      * 0.13 in some research.
      */
-    private static final double WIND_EFFECT = 0.15;
+    public static double WIND_EFFECT = 0.15;
 
     // -- Heat exchange --
-    private static final double CONVENTION_RATE = 0.3 / Duration.ofMinutes(30).toSeconds();
-    private static final double RADIATION_RATE = 2 * Math.pow(10, -11);
+    public static double CONVENTION_RATE = 0.3;
+    public static double RADIATION_RATE = 2 * Math.pow(10, -11);
 
-    // -- Derived --
-    private static final double PHASE_DURATION = (double) ModelSettings.STEP_DURATION.toSeconds();
-    private static final double CONVENTION_PROGRESS = Math.min(1, CONVENTION_RATE * PHASE_DURATION);
+    // -- Sizing --
+    public static double DISTANCE_EFFECT = 1.0 / 200;
 
     @Override
     public void refine(Forecast draftForecast, ScenarioConditions conditions) {
@@ -77,7 +75,7 @@ public final class ThermalAlgorithm implements Algorithm {
         for (Cell neighbour : cell.iterateNeighbors()) {
             averageDistance = calculateAverageDistance(cell.getCoordinates(), neighbour.getCoordinates());
             double distanceEffect = calculateDistanceEffect(cell, neighbour);
-            proximity[neighbourIndex++] = distanceEffect / averageDistance;
+            proximity[neighbourIndex++] = distanceEffect / averageDistance * ModelSettings.GRID_SCALE / DISTANCE_EFFECT;
         }
         double totalProximity = Arrays.stream(proximity).sum();
 
@@ -99,11 +97,11 @@ public final class ThermalAlgorithm implements Algorithm {
     public void wasteHeat(Cell cell) {
         double heat = cell.getFire().getHeat();
         double absoluteTemperature = toAbsoluteTemperature(heat);
-        double optimum = Math.pow((1 - CONVENTION_PROGRESS) / 4 / RADIATION_RATE, 1.0 / 3);
+        double optimum = Math.pow((1 - CONVENTION_RATE) / 4 / RADIATION_RATE, 1.0 / 3);
         if (absoluteTemperature > optimum) {
             heat -= absoluteTemperature - optimum;
         }
-        heat -= CONVENTION_PROGRESS * (heat - cell.getFactors().getAirTemperature())
+        heat -= CONVENTION_RATE * (heat - cell.getFactors().getAirTemperature())
                 + RADIATION_RATE * Math.pow(toAbsoluteTemperature(heat), 4);
         cell.getFire().setHeat((float)heat);
     }
@@ -113,7 +111,8 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     private double calculateBurnedFraction(Cell cell, ScenarioConditions conditions) {
-        return Math.min(1, calculateCombustionRate(cell, conditions) * PHASE_DURATION);
+        double phaseDuration = ModelSettings.STEP_DURATION.toSeconds();
+        return Math.min(1, calculateCombustionRate(cell, conditions) * phaseDuration);
     }
 
     private double calculateCombustionRate(Cell cell, ScenarioConditions conditions) {
@@ -123,7 +122,7 @@ public final class ThermalAlgorithm implements Algorithm {
         }
         double firePower = -conditions.getActivationEnergy() / Domain.UNIVERSAL_GAS_CONSTANT / toAbsoluteTemperature(cell.getFire().getHeat());
         double airHumidityEffect = Math.exp(-AIR_HUMIDITY_EFFECT * cell.getFactors().getAirHumidity());
-        return airHumidityEffect * COMBUSTION_FREQUENCY * Math.exp(firePower);
+        return airHumidityEffect * COMBUSTION_RATE * Math.exp(firePower);
     }
 
     private double calculateAverageDistance(CellCoordinates first, CellCoordinates second) {

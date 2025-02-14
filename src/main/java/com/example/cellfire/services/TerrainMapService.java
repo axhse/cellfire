@@ -35,9 +35,15 @@ public class TerrainMapService implements TerrainService {
     }
 
     @Override
-    public double getElevation(CellCoordinates coordinates) {
-        double elevation = elevationMap.getValueFor(coordinates, (byte)0);
-        return elevation * 6400 / 255;
+    public double getIgnitionTemperature(CellCoordinates coordinates) {
+        byte forestType = forestTypeClusterMap.getValueFor(coordinates, (byte) 0);
+        return TerrainMapService.determineIgnitionTemperature(forestType);
+    }
+
+    @Override
+    public double getActivationEnergy(CellCoordinates coordinates) {
+        byte forestType = forestTypeClusterMap.getValueFor(coordinates, (byte) 0);
+        return TerrainMapService.determineActivationEnergy(forestType);
     }
 
     @Override
@@ -48,15 +54,9 @@ public class TerrainMapService implements TerrainService {
     }
 
     @Override
-    public double getIgnitionTemperature(CellCoordinates coordinates) {
-        byte forestType = forestTypeClusterMap.getValueFor(coordinates, (byte) 0);
-        return TerrainMapService.determineIgnitionTemperature(forestType);
-    }
-
-    @Override
-    public double getActivationEnergy(CellCoordinates coordinates) {
-        byte forestType = forestTypeClusterMap.getValueFor(coordinates, (byte) 0);
-        return TerrainMapService.determineActivationEnergy(forestType);
+    public double getElevation(CellCoordinates coordinates) {
+        double elevation = elevationMap.getValueFor(coordinates, (byte)0);
+        return elevation * 6400 / 255;
     }
 
     private double calculateFuel(double canopyHeight) {

@@ -11,47 +11,38 @@ import com.example.cellfire.services.WeatherService;
 
 import java.time.Instant;
 
-public abstract class TuneCase<TAlgorithm extends Algorithm> {
+public abstract class TuneCase {
     protected final ForecastService forecastService;
-    protected final Scenario scenario;
-    protected final TAlgorithm algorithm;
+    protected final Algorithm algorithm;
     private final double weight;
     private final boolean isObligatory;
-    protected double score = -2;
 
-    public TuneCase(TAlgorithm algorithm, double weight, boolean isObligatory) {
+    public TuneCase(Algorithm algorithm, double weight, boolean isObligatory) {
         this.algorithm = algorithm;
         this.weight = weight;
         this.isObligatory = isObligatory;
         this.forecastService = this.createForecastService();
-        this.scenario = this.createScenario();
     }
 
-    public TuneCase(TAlgorithm algorithm, double weight) {
+    public TuneCase(Algorithm algorithm, double weight) {
         this(algorithm, weight, true);
     }
 
-    public TuneCase(TAlgorithm algorithm) {
+    public TuneCase(Algorithm algorithm) {
         this(algorithm, 1);
     }
 
-    public boolean isObligatory() {
-        return this.isObligatory;
+    public String getName() {
+        return this.getClass().getSimpleName();
     }
 
-    public double getWeight() {
-        return this.weight;
+    public final double evaluate() {
+        double score = evaluate(createScenario());
+        score = score < 0 ? (this.isObligatory ? -1 : 0) : Math.min(1, score);
+        return score * this.weight;
     }
 
-    public double getWeightedScore() {
-        return this.weight * this.score;
-    }
-
-    public double getScore() {
-        return this.score;
-    }
-
-    public abstract void evaluate();
+    protected abstract double evaluate(Scenario scenario);
 
     protected abstract TerrainService createTerrainService();
 

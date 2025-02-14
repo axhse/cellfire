@@ -5,24 +5,14 @@ import com.example.cellfire.services.TerrainMapService;
 import com.example.cellfire.services.TerrainService;
 
 public final class UniformTerrainService implements TerrainService {
-    private final double elevation;
-    private final double fuel;
     private final byte forestType;
+    private final double fuel;
+    private final double elevation;
 
-    public UniformTerrainService(double elevation, double fuel, byte forestType) {
-        this.elevation = elevation;
-        this.fuel = fuel;
+    public UniformTerrainService(byte forestType, double fuel, double elevation) {
         this.forestType = forestType;
-    }
-
-    @Override
-    public double getElevation(CellCoordinates coordinates) {
-        return this.elevation;
-    }
-
-    @Override
-    public double getFuel(CellCoordinates coordinates) {
-        return this.fuel;
+        this.fuel = fuel;
+        this.elevation = elevation;
     }
 
     @Override
@@ -33,5 +23,15 @@ public final class UniformTerrainService implements TerrainService {
     @Override
     public double getActivationEnergy(CellCoordinates coordinates) {
         return TerrainMapService.determineActivationEnergy(this.forestType);
+    }
+
+    @Override
+    public double getFuel(CellCoordinates coordinates) {
+        return this.fuel;
+    }
+
+    @Override
+    public double getElevation(CellCoordinates coordinates) {
+        return this.elevation;
     }
 }

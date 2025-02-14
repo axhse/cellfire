@@ -8,10 +8,10 @@ public final class ModelSettings {
      * Cell size of 1/SCALE_FACTOR° for both latitude and longitude
      * corresponds with height ≈110/SCALE_FACTOR km and width ≈110/SCALE_FACTOR km near the equator.
      */
-    public static final int GRID_SCALE = 200;
+    public static int GRID_SCALE = 200;
 
     // -- Forecast --
-    public static final Duration STEP_DURATION = Duration.ofMinutes(30);
+    public static Duration STEP_DURATION = Duration.ofMinutes(30);
     public static final float INITIAL_HEAT = 1000;
     public static final float SIGNIFICANT_FUEL = 0.01F;
 
