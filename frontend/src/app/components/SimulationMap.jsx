@@ -36,10 +36,7 @@ const LAYER_PARAMS = {
     denseFuel: 1,
     noElevation: 0,
     peakElevation: 2000,
-    zeroHumidity: 0,
-    peakHumidity: 1,
     zeroTemperature: 0,
-    heatTemperature: 35,
     peakFlameTemperature: 1300,
     noWind: 0,
     intenseWind: 10,
@@ -53,10 +50,6 @@ const LAYER_PARAMS = {
     denseFuel: [0, 180, 30, LAYER_OPACITY],
     ground: [0, 0, 0, 0.1],
     mountain: [50, 30, 0, LAYER_OPACITY],
-    frost: [200, 200, 255, LAYER_OPACITY / 2],
-    heat: [255, 64, 64, LAYER_OPACITY],
-    dry: [255, 255, 128, LAYER_OPACITY],
-    humid: [128, 128, 255, LAYER_OPACITY],
     calm: [200, 200, 200, LAYER_OPACITY / 2],
     storm: [200, 0, 50, LAYER_OPACITY],
   },
@@ -328,20 +321,6 @@ export class SimulationMap extends Component {
       bottomColor = LAYER_PARAMS.colors.ground;
       topColor = LAYER_PARAMS.colors.mountain;
     }
-    if (this.controls.layer === Layer.AirTemperature) {
-      value = cell.factors.airTemperature;
-      bottomBoundary = LAYER_PARAMS.boundaries.zeroTemperature;
-      topBoundary = LAYER_PARAMS.boundaries.heatTemperature;
-      bottomColor = LAYER_PARAMS.colors.frost;
-      topColor = LAYER_PARAMS.colors.heat;
-    }
-    if (this.controls.layer === Layer.AirHumidity) {
-      value = cell.factors.airHumidity;
-      bottomBoundary = LAYER_PARAMS.boundaries.zeroHumidity;
-      topBoundary = LAYER_PARAMS.boundaries.peakHumidity;
-      bottomColor = LAYER_PARAMS.colors.dry;
-      topColor = LAYER_PARAMS.colors.humid;
-    }
     if (this.controls.layer === Layer.WindSpeed) {
       value = Math.sqrt(
         Math.pow(cell.factors.windX, 2) + Math.pow(cell.factors.windY, 2)
@@ -382,8 +361,6 @@ const Layer = {
   Fire: 'fire',
   Fuel: 'fuel',
   Elevation: 'elevation',
-  AirTemperature: 'temperature',
-  AirHumidity: 'humidity',
   WindSpeed: 'wind',
 };
 
@@ -516,10 +493,6 @@ function fillLayerToggle(layer) {
       return '🌳 Fuel';
     case Layer.Elevation:
       return '⛰️ Elevation';
-    case Layer.AirTemperature:
-      return '♨️ Air temperature';
-    case Layer.AirHumidity:
-      return '💧 Air humidity';
     case Layer.WindSpeed:
       return '🌀 Wind speed';
   }
