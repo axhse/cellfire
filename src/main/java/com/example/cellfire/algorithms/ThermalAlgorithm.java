@@ -34,7 +34,7 @@ public final class ThermalAlgorithm implements Algorithm {
     public static double WIND_EFFECT = 0.15;
 
     // -- Heat exchange --
-    public static double CONVENTION_RATE = 0.3;
+    public static double CONVECTION_RATE = 0.3;
     public static double RADIATION_RATE = 2 * Math.pow(10, -11);
 
     // -- Sizing --
@@ -97,11 +97,11 @@ public final class ThermalAlgorithm implements Algorithm {
     public void wasteHeat(Cell cell) {
         double heat = cell.getFire().getHeat();
         double absoluteTemperature = toAbsoluteTemperature(heat);
-        double optimum = Math.pow((1 - CONVENTION_RATE) / 4 / RADIATION_RATE, 1.0 / 3);
+        double optimum = Math.pow((1 - CONVECTION_RATE) / 4 / RADIATION_RATE, 1.0 / 3);
         if (absoluteTemperature > optimum) {
             heat -= absoluteTemperature - optimum;
         }
-        heat -= CONVENTION_RATE * (heat - cell.getFactors().getAirTemperature())
+        heat -= CONVECTION_RATE * (heat - cell.getFactors().getAirTemperature())
                 + RADIATION_RATE * Math.pow(toAbsoluteTemperature(heat), 4);
         cell.getFire().setHeat((float)heat);
     }
