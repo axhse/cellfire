@@ -1,6 +1,6 @@
 import numpy as np
 
-from map_fragment import MapFragment, MapFullFragment
+from map_fragment import FullMap, MapFragment
 from resource_manager import ResourceManager
 from transformation import (
     compress_map_data,
@@ -20,7 +20,7 @@ def get_sector_coordinates(sector):
     return x, y
 
 
-def produce_elevation_sector_map(
+def produce_elevation_sector(
     resource_manager: ResourceManager, sector, scale=ELEVATION_MAP_SCALE
 ):
     input_file_path = f"Elevation\\gebco_08_rev_elev_{sector}_grey_geo.tif"
@@ -34,24 +34,24 @@ def produce_elevation_sector_map(
     return MapFragment(elevations, ELEVATION_MAP_NAME, scale, x, y)
 
 
-def produce_elevation_full_map(
-    resource_manager: ResourceManager, scale=ELEVATION_MAP_SCALE
-):
+def produce_elevation_map(resource_manager: ResourceManager, scale=ELEVATION_MAP_SCALE):
     sectors = [f"{x}{y}" for x in "ABCD" for y in [1, 2]]
     fragments = [
-        produce_elevation_sector_map(resource_manager, sector, scale)
-        for sector in sectors
+        produce_elevation_sector(resource_manager, sector, scale) for sector in sectors
     ]
     fragments.sort(key=lambda fragment: (fragment.x, fragment.y))
     rows = [
         np.hstack([fragments[2 * x].data, fragments[2 * x + 1].data]) for x in range(4)
     ]
     elevations = np.vstack(rows)
-    return MapFullFragment(elevations, ELEVATION_MAP_NAME)
+    return FullMap(elevations, ELEVATION_MAP_NAME)
 
 
-def load_elevation_sector_map(
-    resource_manager: ResourceManager, sector, scale=ELEVATION_MAP_SCALE
+def load_elevation_sector(
+    resource_manager: ResourceManager,
+    sector,
+    scale=ELEVATION_MAP_SCALE,
+    compressed=False,
 ):
     x, y = get_sector_coordinates(sector)
     return resource_manager.load_map_fragment(
@@ -61,10 +61,11 @@ def load_elevation_sector_map(
         y,
         ELEVATION_MAP_FRAGMENT_SIZE,
         ELEVATION_MAP_FRAGMENT_SIZE,
+        compressed,
     )
 
 
-def load_elevation_full_map(
-    resource_manager: ResourceManager, scale=ELEVATION_MAP_SCALE
+def load_elevation_map(
+    resource_manager: ResourceManager, scale=ELEVATION_MAP_SCALE, compressed=False
 ):
-    return resource_manager.load_map_full_fragment(ELEVATION_MAP_NAME, scale)
+    return resource_manager.load_full_map(ELEVATION_MAP_NAME, scale, compressed)

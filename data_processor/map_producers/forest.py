@@ -1,6 +1,6 @@
 import numpy as np
 
-from map_fragment import MapFragment, MapFullFragment
+from map_fragment import FullMap, MapFragment
 from resource_manager import ResourceManager
 from transformation import (
     collapse_category_map_data,
@@ -44,23 +44,11 @@ def produce_forest_type_map(resource_manager: ResourceManager):
         mask |= inaccuracy <= TOLERATED_TYPE_FOREST_COLOR_INACCURACY
         forest_types[mask] = forest_type_index + 1
     forest_types = transform_from_image_coordinates_to_map_coordinates(forest_types)
-    return MapFullFragment(forest_types, FOREST_TYPE_MAP_NAME)
-
-
-def load_forest_type_map(resource_manager: ResourceManager):
-    return resource_manager.load_map_full_fragment(
-        FOREST_TYPE_MAP_NAME, FOREST_TYPE_MAP_SCALE
-    )
-
-
-def compress_cluster_map_data(resource_manager: ResourceManager, scale):
-    initial_data = load_forest_type_map(resource_manager).data
-    data = compress_cluster_map_data(initial_data, scale)
-    return MapFullFragment(data, "CompressedForestType")
+    return FullMap(forest_types, FOREST_TYPE_MAP_NAME)
 
 
 def produce_forest_type_cluster_map(resource_manager: ResourceManager):
-    data = load_forest_type_map(resource_manager).data.copy()
+    data = produce_forest_type_map(resource_manager).data
     compression = {1: data}
     scales = [
         (2, 2),
@@ -85,16 +73,10 @@ def produce_forest_type_cluster_map(resource_manager: ResourceManager):
         stretched_data = np.repeat(stretched_data, absolute_scale, axis=1)
         mask = (data == 0) & (stretched_data != 0)
         data[mask] = stretched_data[mask]
-    return MapFullFragment(data, FOREST_TYPE_CLUSTER_MAP_NAME)
+    return FullMap(data, FOREST_TYPE_CLUSTER_MAP_NAME)
 
 
-def load_forest_type_cluster_map(resource_manager: ResourceManager):
-    return resource_manager.load_map_full_fragment(
-        FOREST_TYPE_CLUSTER_MAP_NAME, FOREST_TYPE_MAP_SCALE
-    )
-
-
-def produce_canopy_height_map(resource_manager: ResourceManager, x, y, scale):
+def produce_canopy_height_sector(resource_manager: ResourceManager, x, y, scale):
     input_file_path = f"CanopyHeight\\ETH_GlobalCanopyHeight_10m_2020_{'S' if y < 0 else 'N'}{abs(y):02d}{'W' if x < 0 else 'E'}{abs(x):03d}_Map.tif"
     data = resource_manager.load_tiff(input_file_path)
     initial_scale = data.shape[0] // CANOPY_HEIGHT_MAP_FRAGMENT_SIZE
@@ -106,7 +88,21 @@ def produce_canopy_height_map(resource_manager: ResourceManager, x, y, scale):
     return MapFragment(canopy_heights, CANOPY_HEIGHT_MAP_NAME, scale, x, y)
 
 
-def load_canopy_height_map(resource_manager: ResourceManager, x, y, scale):
+def load_forest_type_map(resource_manager: ResourceManager, compressed=False):
+    return resource_manager.load_full_map(
+        FOREST_TYPE_MAP_NAME, FOREST_TYPE_MAP_SCALE, compressed
+    )
+
+
+def load_forest_type_cluster_map(resource_manager: ResourceManager, compressed=False):
+    return resource_manager.load_full_map(
+        FOREST_TYPE_CLUSTER_MAP_NAME, FOREST_TYPE_MAP_SCALE, compressed
+    )
+
+
+def load_canopy_height_sector(
+    resource_manager: ResourceManager, scale, x, y, compressed=False
+):
     return resource_manager.load_map_fragment(
         CANOPY_HEIGHT_MAP_NAME,
         scale,
@@ -114,4 +110,5 @@ def load_canopy_height_map(resource_manager: ResourceManager, x, y, scale):
         y,
         CANOPY_HEIGHT_MAP_FRAGMENT_SIZE,
         CANOPY_HEIGHT_MAP_FRAGMENT_SIZE,
+        compressed,
     )

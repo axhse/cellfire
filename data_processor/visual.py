@@ -65,7 +65,6 @@ class CategoryMapDrawer(MapDrawer):
             [self._to_plt_color(color) for color in self.palette or []]
             or self.__generate_default_palette(scaled_data.max())
         )
-        print(colors)
         cmap = ListedColormap(colors)
         bounds = np.arange(-0.5, len(colors))
         norm = BoundaryNorm(bounds, cmap.N)

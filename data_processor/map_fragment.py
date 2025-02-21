@@ -70,14 +70,13 @@ class MapFragment:
         return self.__height
 
 
-class MapFullFragment(MapFragment):
+class FullMap(MapFragment):
     def __init__(self, data, map_name):
         if data.shape[0] < 360:
             if 360 % data.shape[0] != 0:
-                raise Exception("Invalid fragment shape.")
+                raise Exception("Invalid map shape.")
             data = stretch_map_data(data, 360 // data.shape[0])
-        print(data.shape)
         if data.shape[0] % 360 != 0 or data.shape[0] != data.shape[1] * 2:
-            raise Exception("Invalid fragment shape.")
+            raise Exception("Invalid map shape.")
         scale = data.shape[0] // 360
         super().__init__(data, map_name, scale, -180, -90)

@@ -1,3 +1,5 @@
+import bz2
+
 import numpy as np
 from PIL import Image
 from scipy.stats import mode
@@ -17,6 +19,14 @@ def transform_from_image_coordinates_to_map_coordinates(matrix):
 
 def transform_from_tiff_coordinates_to_map_coordinates(matrix):
     return transform_from_image_coordinates_to_map_coordinates(matrix)
+
+
+def compress_bytes(byte_sequence):
+    return bz2.compress(byte_sequence)
+
+
+def decompress_bytes(byte_sequence):
+    return bz2.decompress(byte_sequence)
 
 
 def compress_map_data(data, factor):

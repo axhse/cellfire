@@ -2,15 +2,15 @@ package com.example.cellfire.services;
 
 import com.example.cellfire.models.ModelSettings;
 import com.example.cellfire.data.ResourceLoader;
-import com.example.cellfire.data.TerrainMap;
+import com.example.cellfire.data.Mosaic;
 import com.example.cellfire.models.CellCoordinates;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TerrainMapService implements TerrainService {
-    private final TerrainMap elevationMap = ResourceLoader.loadElevationMap();
-    private final TerrainMap forestTypeClusterMap = ResourceLoader.loadForestTypeClusterMap();
-    private final TerrainMap canopyHeightMap = ResourceLoader.loadCanopyHeightMap();
+    private final Mosaic elevationMap = ResourceLoader.loadElevationMap();
+    private final Mosaic forestTypeClusterMap = ResourceLoader.loadForestTypeClusterMap();
+    private final Mosaic canopyHeightMap = ResourceLoader.loadCanopyHeightMap();
 
     public static double determineIgnitionTemperature(byte forestType) {
         return switch (forestType) {
@@ -36,26 +36,26 @@ public class TerrainMapService implements TerrainService {
 
     @Override
     public double getIgnitionTemperature(CellCoordinates coordinates) {
-        byte forestType = forestTypeClusterMap.getValueFor(coordinates, (byte) 0);
+        byte forestType = forestTypeClusterMap.at(coordinates, (byte) 0);
         return TerrainMapService.determineIgnitionTemperature(forestType);
     }
 
     @Override
     public double getActivationEnergy(CellCoordinates coordinates) {
-        byte forestType = forestTypeClusterMap.getValueFor(coordinates, (byte) 0);
+        byte forestType = forestTypeClusterMap.at(coordinates, (byte) 0);
         return TerrainMapService.determineActivationEnergy(forestType);
     }
 
     @Override
     public double getFuel(CellCoordinates coordinates) {
-        double canopyHeight = canopyHeightMap.getValueFor(coordinates, (byte)0);
+        double canopyHeight = canopyHeightMap.at(coordinates, (byte)0);
         double fuel = calculateFuel(canopyHeight);
         return fuel < ModelSettings.SIGNIFICANT_FUEL ? 0 : fuel;
     }
 
     @Override
     public double getElevation(CellCoordinates coordinates) {
-        double elevation = elevationMap.getValueFor(coordinates, (byte)0);
+        double elevation = elevationMap.at(coordinates, (byte)0);
         return elevation * 6400 / 255;
     }
 

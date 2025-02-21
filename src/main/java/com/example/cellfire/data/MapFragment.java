@@ -20,7 +20,7 @@ public class MapFragment {
         this.height = height;
     }
 
-    public boolean hasValueFor(CellCoordinates coordinates) {
+    public boolean has(CellCoordinates coordinates) {
         int cellX = coordinates.getX();
         int cellY = coordinates.getY();
         int scaleFactor = ModelSettings.GRID_SCALE;
@@ -28,7 +28,7 @@ public class MapFragment {
                 && y * scaleFactor <= cellY && cellY < (y + height) * scaleFactor;
     }
 
-    public byte getValueFor(CellCoordinates coordinates) {
+    public byte at(CellCoordinates coordinates) {
         int cellX = coordinates.getX();
         int cellY = coordinates.getY();
         int scaleFactor = ModelSettings.GRID_SCALE;
