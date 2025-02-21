@@ -35,9 +35,9 @@ public class Simulator {
         SimulationStep initialSimulationStep = new SimulationStep();
         scenario.getSimulation().getSteps().add(initialSimulationStep);
         float fuel = (float)terrainService.getFuel(scenario.getStartCoordinates());
-        Fire fire = new Fire(ModelSettings.INITIAL_HEAT, fuel);
-        FireFactors factors = determineFactors(scenario.getStartCoordinates(), scenario.getStartDate());
-        Cell initialCell = new Cell(scenario.getStartCoordinates(), factors, fire);
+        CellState cellState = new CellState(ModelSettings.INITIAL_HEAT, fuel);
+        Weather weather = determineWeather(scenario.getStartCoordinates(), scenario.getStartDate());
+        Cell initialCell = new Cell(scenario.getStartCoordinates(), cellState, weather);
         initialSimulationStep.getCells().add(initialCell);
     }
 
@@ -54,15 +54,15 @@ public class Simulator {
         Instant date = scenario.getStartDate().plus(ModelSettings.STEP_DURATION.multipliedBy(furtherStepNumber));
 
         lastSimulationStep.getCells().forEach(cell -> {
-            FireFactors fireFactors = determineFactors(cell.getCoordinates(), date);
-            if (fireFactors.equals(cell.getFactors())) {
-                fireFactors = cell.getFactors();
+            Weather weather = determineWeather(cell.getCoordinates(), date);
+            if (weather.equals(cell.getWeather())) {
+                weather = cell.getWeather();
             }
-            Fire lastFire = cell.getFire();
-            boolean isDamaged = lastFire.getIsDamaged()
-                    || scenario.getConditions().getIgnitionTemperature() < lastFire.getHeat();
-            Fire draftFire = new Fire(lastFire.getHeat(), lastFire.getFuel(), isDamaged);
-            Cell draftCell = new Cell(cell.getCoordinates(), fireFactors, draftFire);
+            CellState lastCellState = cell.getState();
+            boolean isDamaged = lastCellState.getIsDamaged()
+                    || scenario.getConditions().getIgnitionTemperature() < lastCellState.getHeat();
+            CellState draftCellState = new CellState(lastCellState.getHeat(), lastCellState.getFuel(), isDamaged);
+            Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, weather);
             draftCell.setTwin(cell);
             cell.setTwin(draftCell);
             draftSimulationStep.getCells().add(draftCell);
@@ -89,7 +89,7 @@ public class Simulator {
 
         lastSimulationStep.getCells().forEach(previousCell -> {
             Cell cell = previousCell.getTwin();
-            if (cell.getFire().getHeat() <= scenario.getConditions().getIgnitionTemperature()) {
+            if (cell.getState().getHeat() <= scenario.getConditions().getIgnitionTemperature()) {
                 return;
             }
             for (int offsetX = -1; offsetX <= 1; offsetX++) {
@@ -99,12 +99,12 @@ public class Simulator {
                     }
                     CellCoordinates neighborCoordinates = cell.getCoordinates().createRelative(offsetX, offsetY);
                     float fuel = (float)terrainService.getFuel(neighborCoordinates);
-                    FireFactors fireFactors = determineFactors(neighborCoordinates, date);
-                    if (fireFactors.equals(cell.getFactors())) {
-                        fireFactors = cell.getFactors();
+                    Weather weather = determineWeather(neighborCoordinates, date);
+                    if (weather.equals(cell.getWeather())) {
+                        weather = cell.getWeather();
                     }
-                    Fire fire = new Fire(fireFactors.getAirTemperature(), fuel);
-                    Cell neighbor = new Cell(neighborCoordinates, fireFactors, fire);
+                    CellState cellState = new CellState(weather.getAirTemperature(), fuel);
+                    Cell neighbor = new Cell(neighborCoordinates, cellState, weather);
 
 //                    neighbor.setNeighbor(-offsetX, -offsetY, cell);
 //                    cell.setNeighbor(offsetX, offsetY, neighbor);
@@ -143,8 +143,8 @@ public class Simulator {
         );
     }
 
-    private FireFactors determineFactors(CellCoordinates coordinates, Instant date) {
-        return new FireFactors(
+    private Weather determineWeather(CellCoordinates coordinates, Instant date) {
+        return new Weather(
                 (float)terrainService.getElevation(coordinates),
                 (float)weatherService.getAirTemperature(coordinates, date),
                 (float)weatherService.getAirHumidity(coordinates, date),

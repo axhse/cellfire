@@ -8,25 +8,25 @@ public final class Cell {
     @JsonIgnore
     private final Cell[] vicinity = new Cell[9];
     private final CellCoordinates coordinates;
-    private final FireFactors factors;
-    private final Fire fire;
+    private final CellState state;
+    private final Weather weather;
 
-    public Cell(CellCoordinates coordinates, FireFactors fireFactors, Fire fire) {
+    public Cell(CellCoordinates coordinates, CellState state, Weather weather) {
         this.coordinates = coordinates;
-        this.factors = fireFactors;
-        this.fire = fire;
+        this.state = state;
+        this.weather = weather;
     }
 
     public CellCoordinates getCoordinates() {
         return coordinates;
     }
 
-    public FireFactors getFactors() {
-        return factors;
+    public CellState getState() {
+        return state;
     }
 
-    public Fire getFire() {
-        return fire;
+    public Weather getWeather() {
+        return weather;
     }
 
     @JsonIgnore
@@ -40,7 +40,6 @@ public final class Cell {
 
     @JsonIgnore
     public Cell getNeighbor(int offsetX, int offsetY) {
-        var index = 3 * (offsetX + 1) + offsetY + 1;
         return vicinity[3 * (offsetX + 1) + offsetY + 1];
     }
 

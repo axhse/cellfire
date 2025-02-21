@@ -42,7 +42,7 @@ public final class ResilientForestBurnsUnderModerateFactors extends TuneCase {
             simulator.simulate(scenario, step);
             int damagedCellCount = 0;
             for (Cell cell : scenario.getSimulation().getSteps().get(step).getCells()) {
-                if (cell.getFire().getIsDamaged()) {
+                if (cell.getState().getIsDamaged()) {
                     damagedCellCount++;
                 }
             }

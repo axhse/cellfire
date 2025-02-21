@@ -265,8 +265,8 @@ export class SimulationMap extends Component {
     for (const cell of this.scenario.simulation.steps[this.scenario.step]
       .cells) {
       if (
-        !cell.fire.isDamaged &&
-        cell.fire.heat < cell.factors.airTemperature + SIGNIFICANT_OVERHEAT
+        !cell.state.isDamaged &&
+        cell.state.heat < cell.weather.airTemperature + SIGNIFICANT_OVERHEAT
       ) {
         continue;
       }
@@ -289,7 +289,7 @@ export class SimulationMap extends Component {
     let bottomColor;
     let topColor;
     if (this.controls.layer === Layer.Fire) {
-      value = cell.fire.heat;
+      value = cell.state.heat;
       let ignitionTemperature = this.scenario.conditions.ignitionTemperature;
       if (value > ignitionTemperature) {
         bottomBoundary = ignitionTemperature;
@@ -299,7 +299,7 @@ export class SimulationMap extends Component {
       } else {
         bottomBoundary = LAYER_PARAMS.boundaries.zeroTemperature;
         topBoundary = ignitionTemperature;
-        if (cell.fire.isDamaged) {
+        if (cell.state.isDamaged) {
           bottomColor = LAYER_PARAMS.colors.coal;
         } else {
           bottomColor = LAYER_PARAMS.colors.vegetation;
@@ -308,14 +308,14 @@ export class SimulationMap extends Component {
       }
     }
     if (this.controls.layer === Layer.Fuel) {
-      value = cell.fire.fuel;
+      value = cell.state.fuel;
       bottomBoundary = LAYER_PARAMS.boundaries.sparseFuel;
       topBoundary = LAYER_PARAMS.boundaries.denseFuel;
       bottomColor = LAYER_PARAMS.colors.sparseFuel;
       topColor = LAYER_PARAMS.colors.denseFuel;
     }
     if (this.controls.layer === Layer.Elevation) {
-      value = cell.factors.elevation;
+      value = cell.weather.elevation;
       bottomBoundary = LAYER_PARAMS.boundaries.noElevation;
       topBoundary = LAYER_PARAMS.boundaries.peakElevation;
       bottomColor = LAYER_PARAMS.colors.ground;
@@ -323,7 +323,7 @@ export class SimulationMap extends Component {
     }
     if (this.controls.layer === Layer.WindSpeed) {
       value = Math.sqrt(
-        Math.pow(cell.factors.windX, 2) + Math.pow(cell.factors.windY, 2)
+        Math.pow(cell.weather.windX, 2) + Math.pow(cell.weather.windY, 2)
       );
       bottomBoundary = LAYER_PARAMS.boundaries.noWind;
       topBoundary = LAYER_PARAMS.boundaries.intenseWind;
@@ -456,7 +456,7 @@ class SimulationMapControls {
 
 function calculateDamagedArea(scenario) {
   const cells = scenario.simulation.steps[scenario.step].cells;
-  const damagedCells = cells.filter((cell) => cell.fire.isDamaged);
+  const damagedCells = cells.filter((cell) => cell.state.isDamaged);
   const damagedCellAreas = damagedCells.map((cell) =>
     calculateCellArea(cell.coordinates)
   );

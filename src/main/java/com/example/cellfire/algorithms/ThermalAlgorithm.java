@@ -90,13 +90,13 @@ public final class ThermalAlgorithm implements Algorithm {
         // FIXME: Do not ignore weather.
         float burnedFraction = (float)calculateBurnedFraction(cell, conditions);
         float energy = (float)calculateCombustionEnergy(cell, burnedFraction);
-        float fuel = cell.getFire().getFuel() * (1 - burnedFraction);
+        float fuel = cell.getState().getFuel() * (1 - burnedFraction);
         if (fuel < ModelSettings.SIGNIFICANT_FUEL) {
             fuel = 0;
         }
 
         setEmittedEnergy(energy, cell);
-        cell.getFire().setFuel(fuel);
+        cell.getState().setFuel(fuel);
     }
 
     private void transferEnergy(Cell cell) {
@@ -118,12 +118,12 @@ public final class ThermalAlgorithm implements Algorithm {
         double totalProximity = Arrays.stream(proximity).sum();
 
         double emittedEnergy = getEmittedEnergy(cell);
-        double heat = cell.getFire().getHeat() + emittedEnergy * proximity[8] / totalProximity;
-        cell.getFire().setHeat((float)heat);
+        double heat = cell.getState().getHeat() + emittedEnergy * proximity[8] / totalProximity;
+        cell.getState().setHeat((float)heat);
         neighbourIndex = 0;
         for (Cell neighbour : cell.iterateNeighbors()) {
-            heat = neighbour.getFire().getHeat() + emittedEnergy * proximity[neighbourIndex] / totalProximity;
-            neighbour.getFire().setHeat((float)heat);
+            heat = neighbour.getState().getHeat() + emittedEnergy * proximity[neighbourIndex] / totalProximity;
+            neighbour.getState().setHeat((float)heat);
             neighbourIndex++;
         }
     }
@@ -133,19 +133,19 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     public void wasteHeat(Cell cell) {
-        double heat = cell.getFire().getHeat();
+        double heat = cell.getState().getHeat();
         double absoluteTemperature = toAbsoluteTemperature(heat);
         double optimum = Math.pow((1 - convectionRate) / 4 / radiationRate, 1.0 / 3);
         if (absoluteTemperature > optimum) {
             heat -= absoluteTemperature - optimum;
         }
-        heat -= convectionRate * (heat - cell.getFactors().getAirTemperature())
+        heat -= convectionRate * (heat - cell.getWeather().getAirTemperature())
                 + radiationRate * Math.pow(toAbsoluteTemperature(heat), 4);
-        cell.getFire().setHeat((float)heat);
+        cell.getState().setHeat((float)heat);
     }
 
     private double calculateCombustionEnergy(Cell cell, double burnedFraction) {
-        return energyEmission * cell.getFire().getFuel() * burnedFraction;
+        return energyEmission * cell.getState().getFuel() * burnedFraction;
     }
 
     private double calculateBurnedFraction(Cell cell, ScenarioConditions conditions) {
@@ -154,13 +154,13 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     private double calculateCombustionRate(Cell cell, ScenarioConditions conditions) {
-        if (cell.getFire().getFuel() == 0 || cell.getFire().getHeat() <= conditions.getIgnitionTemperature()
-                || cell.getFactors().getAirTemperature() <= 0) {
+        if (cell.getState().getFuel() == 0 || cell.getState().getHeat() <= conditions.getIgnitionTemperature()
+                || cell.getWeather().getAirTemperature() <= 0) {
             return 0;
         }
-        double firePower = -conditions.getActivationEnergy() / Domain.UNIVERSAL_GAS_CONSTANT / toAbsoluteTemperature(cell.getFire().getHeat());
-        double airHumidityFactor = Math.exp(-airHumidityEffect * cell.getFactors().getAirHumidity());
-        return airHumidityFactor * combustionRate * Math.exp(firePower);
+        double firePower = -conditions.getActivationEnergy() / Domain.UNIVERSAL_GAS_CONSTANT / toAbsoluteTemperature(cell.getState().getHeat());
+        double airHumidityInfluence = Math.exp(-airHumidityEffect * cell.getWeather().getAirHumidity());
+        return airHumidityInfluence * combustionRate * Math.exp(firePower);
     }
 
     private double calculateAverageDistance(CellCoordinates first, CellCoordinates second) {
@@ -177,7 +177,7 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     private double calculateSlopeEffect(Cell cell, Cell otherCell) {
-        double elevation = otherCell.getFactors().getElevation() - cell.getFactors().getElevation();
+        double elevation = otherCell.getWeather().getElevation() - cell.getWeather().getElevation();
         if (elevation == 0) {
             return 1;
         }
@@ -192,17 +192,17 @@ public final class ThermalAlgorithm implements Algorithm {
     private double calculateWindEffect(Cell cell, Cell otherCell) {
         double vectorX = otherCell.getCoordinates().getX() - cell.getCoordinates().getX();
         double vectorY = otherCell.getCoordinates().getY() - cell.getCoordinates().getY();
-        double windX = cell.getFactors().getWindX();
-        double windY = cell.getFactors().getWindX();
+        double windX = cell.getWeather().getWindX();
+        double windY = cell.getWeather().getWindX();
         double windSpeed = (windX * vectorX + windY * vectorY) / Math.sqrt(vectorX * vectorX + vectorY * vectorY);
         return Math.exp(windEffect * windSpeed);
     }
 
     private void setEmittedEnergy(float energy, Cell cell) {
-        cell.setTwin(new Cell(null, null, new Fire(energy, 0)));
+        cell.setTwin(new Cell(null, new CellState(energy, 0), null));
     }
 
     private float getEmittedEnergy(Cell cell) {
-        return cell.getTwin().getFire().getHeat();
+        return cell.getTwin().getState().getHeat();
     }
 }
