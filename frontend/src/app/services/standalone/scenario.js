@@ -6,12 +6,10 @@ export class ScenarioService {
       startCoordinates,
       startDate,
       step: 0,
-      forecastLog: { forecasts: [] },
-      conditions: {
-        ignitionTemperature: 280,
-      },
+      simulation: { steps: [] },
+      conditions: { ignitionTemperature: 280 },
     };
-    scenario.forecastLog.forecasts.push(produceDemoForecast(scenario, 0));
+    scenario.simulation.steps.push(produceDemoSimulationStep(scenario, 0));
     return scenario;
   }
 
@@ -19,16 +17,16 @@ export class ScenarioService {
     return;
   }
 
-  async forecastScenario(scenario, step) {
-    while (scenario.forecastLog.forecasts.length <= step) {
-      scenario.forecastLog.forecasts.push(
-        produceDemoForecast(scenario, scenario.forecastLog.forecasts.length)
+  async simulateScenario(scenario, step) {
+    while (scenario.simulation.steps.length <= step) {
+      scenario.simulation.steps.push(
+        produceDemoSimulationStep(scenario, scenario.simulation.steps.length)
       );
     }
   }
 }
 
-function produceDemoForecast(scenario, step) {
+function produceDemoSimulationStep(scenario, step) {
   const demoCells = [];
   for (let x = 0; x <= step; x++) {
     for (let y = 0; x + y <= step; y++) {

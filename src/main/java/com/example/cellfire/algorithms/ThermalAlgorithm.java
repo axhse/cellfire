@@ -78,12 +78,12 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     @Override
-    public void refine(Forecast draftForecast, ScenarioConditions conditions) {
-        draftForecast.getCells().forEach((cell) -> {
+    public void refine(SimulationStep draftSimulationStep, ScenarioConditions conditions) {
+        draftSimulationStep.getCells().forEach((cell) -> {
             burnFuel(cell, conditions);
         });
-        draftForecast.getCells().forEach(this::transferEnergy);
-        draftForecast.getCells().forEach(this::wasteHeat);
+        draftSimulationStep.getCells().forEach(this::transferEnergy);
+        draftSimulationStep.getCells().forEach(this::wasteHeat);
     }
 
     private void burnFuel(Cell cell, ScenarioConditions conditions) {

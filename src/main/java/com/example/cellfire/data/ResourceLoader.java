@@ -1,6 +1,6 @@
 package com.example.cellfire.data;
 
-import com.example.cellfire.services.TerrainMosaicService;
+import com.example.cellfire.services.MosaicTerrainService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +30,7 @@ public final class ResourceLoader {
     private static byte[][] loadFragmentData(String name, int scale, int x, int y, int width, int height) {
         byte[][] data = new byte[width * scale][height * scale];
         String resourceName = "%s/%s".formatted(name, buildResourceFileName(scale, x, y, width, height));
-        try (InputStream inputStream = TerrainMosaicService.class.getClassLoader().getResourceAsStream(resourceName)) {
+        try (InputStream inputStream = MosaicTerrainService.class.getClassLoader().getResourceAsStream(resourceName)) {
             if (inputStream == null) {
                 throw new IllegalArgumentException("Resource not found.");
             }

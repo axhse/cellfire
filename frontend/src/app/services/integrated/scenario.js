@@ -13,8 +13,8 @@ export class ScenarioService {
     if (response.ok) {
       const body = await response.json();
       return {
-        id: body.scenarioId,
-        forecastLog: body.forecastLog,
+        id: body.id,
+        simulation: body.simulation,
         conditions: body.conditions,
         algorithm,
         startCoordinates,
@@ -35,26 +35,24 @@ export class ScenarioService {
     });
   }
 
-  async forecastScenario(scenario, step) {
-    if (step < scenario.forecastLog.forecasts.length) {
+  async simulateScenario(scenario, step) {
+    if (step < scenario.simulation.steps.length) {
       return;
     }
 
-    const response = await fetch('/scenario/forecast', {
+    const response = await fetch('/scenario/simulate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         scenarioId: scenario.id,
-        startStep: scenario.forecastLog.forecasts.length,
+        startStep: scenario.simulation.steps.length,
         endStep: step,
       }),
     });
 
     if (response.ok) {
       const body = await response.json();
-      return scenario.forecastLog.forecasts.push(
-        ...body.partialForecastLog.forecasts
-      );
+      scenario.simulation.steps.push(...body.steps);
     }
   }
 }

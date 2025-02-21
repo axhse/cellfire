@@ -10,7 +10,7 @@ public final class ModelSettings {
      */
     public static int GRID_SCALE = 200;
 
-    // -- Forecast --
+    // -- Simulation --
     public static Duration STEP_DURATION = Duration.ofMinutes(30);
     public static final float INITIAL_HEAT = 1000;
     public static final float SIGNIFICANT_FUEL = 0.01F;

@@ -4,7 +4,7 @@ import com.example.cellfire.algorithms.Algorithm;
 import com.example.cellfire.algorithms.ThermalAlgorithm;
 import com.example.cellfire.models.CellCoordinates;
 import com.example.cellfire.models.Scenario;
-import com.example.cellfire.services.ForecastService;
+import com.example.cellfire.services.Simulator;
 
 import java.time.Instant;
 
@@ -44,11 +44,13 @@ public abstract class TuneCase {
         return new CellCoordinates(0, 0);
     }
 
-    protected Scenario startScenario(ForecastService forecastService, Algorithm algorithm) {
+    protected Scenario createAndStartScenario(Simulator simulator, Algorithm algorithm) {
         String algorithmName = algorithm instanceof ThermalAlgorithm
                 ? Scenario.Algorithm.THERMAL : Scenario.Algorithm.PROBABILISTIC;
         // FIXME: round to step duration.
         Instant startTime = Instant.now();
-        return forecastService.startScenario(algorithmName, getStartCoordinates(), startTime);
+        Scenario scenario = simulator.createScenario(algorithmName, getStartCoordinates(), startTime);
+        simulator.startScenario(scenario);
+        return scenario;
     }
 }

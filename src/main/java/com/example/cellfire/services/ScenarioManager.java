@@ -8,9 +8,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Service
-public final class ScenarioService {
+public final class ScenarioManager {
     private final List<Scenario> scenarios = new ArrayList<>();
 
     public Scenario getScenario(String id)

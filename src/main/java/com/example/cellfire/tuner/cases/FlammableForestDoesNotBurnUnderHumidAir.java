@@ -4,7 +4,7 @@ package com.example.cellfire.tuner.cases;
 import com.example.cellfire.algorithms.Algorithm;
 import com.example.cellfire.models.Cell;
 import com.example.cellfire.models.Scenario;
-import com.example.cellfire.services.ForecastService;
+import com.example.cellfire.services.Simulator;
 import com.example.cellfire.tuner.services.UniformTerrainService;
 import com.example.cellfire.tuner.services.UniformWeatherService;
 
@@ -30,19 +30,18 @@ public final class FlammableForestDoesNotBurnUnderHumidAir extends TuneCase {
 
     @Override
     protected double score(Algorithm algorithm) {
-        ForecastService forecastService = new ForecastService(
+        Simulator simulator = new Simulator(
                 new UniformTerrainService(FOREST_TYPE, FUEL, 0),
                 new UniformWeatherService(AIR_TEMPERATURE, AIR_HUMIDITY, WIND_X, WIND_Y),
                 algorithm
         );
-        Scenario scenario = startScenario(forecastService, algorithm);
+        Scenario scenario = createAndStartScenario(simulator, algorithm);
 
         int limitSteps = 10;
-        forecastService.forecast(scenario, limitSteps);
         for (int step = 2; step <= limitSteps; step++) {
-            forecastService.forecast(scenario, step);
+            simulator.simulate(scenario, step);
             int damagedCellCount = 0;
-            for (Cell cell : scenario.getForecastLog().getForecasts().get(step).getCells()) {
+            for (Cell cell : scenario.getSimulation().getSteps().get(step).getCells()) {
                 if (cell.getFire().getIsDamaged()) {
                     damagedCellCount++;
                 }

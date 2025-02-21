@@ -10,7 +10,7 @@ public final class Scenario {
     private final Instant startDate;
     private final String algorithm;
     private final ScenarioConditions conditions;
-    private final ForecastLog forecastLog = new ForecastLog();
+    private final Simulation simulation = new Simulation();
 
     public Scenario(String algorithm, CellCoordinates startCoordinates, Instant startDate, ScenarioConditions conditions) {
         this.algorithm = algorithm;
@@ -43,15 +43,11 @@ public final class Scenario {
         return conditions;
     }
 
-    public ForecastLog getForecastLog() {
-        return forecastLog;
+    public Simulation getSimulation() {
+        return simulation;
     }
 
-    public boolean hasForecast(int step)
-    {
-        return step < forecastLog.getForecasts().size();
-    }
-
+    // TODO: Remove.
     public static final class Algorithm {
         public static String THERMAL = "thermal";
         public static String PROBABILISTIC = "probabilistic";

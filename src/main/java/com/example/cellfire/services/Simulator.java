@@ -11,49 +11,49 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 
 @Service
-public class ForecastService {
+public class Simulator {
     private final TerrainService terrainService;
     private final WeatherService weatherService;
     private final Algorithm algorithm;
 
-    public ForecastService(TerrainService terrainService, WeatherService weatherService, Algorithm algorithm) {
+    public Simulator(TerrainService terrainService, WeatherService weatherService, Algorithm algorithm) {
         this.terrainService = terrainService;
         this.weatherService = weatherService;
         this.algorithm = algorithm;
     }
 
     @Autowired
-    public ForecastService(TerrainService terrainService, WeatherService weatherService) {
+    public Simulator(TerrainService terrainService, WeatherService weatherService) {
         this(terrainService, weatherService, new ThermalAlgorithm());
     }
 
-    public Scenario startScenario(String algorithm, CellCoordinates startCoordinates, Instant startDate) {
-        Scenario scenario = new Scenario(algorithm, startCoordinates, startDate, determineConditions(startCoordinates));
-
-        Forecast initialForecast = new Forecast();
-        scenario.getForecastLog().getForecasts().add(initialForecast);
-        float fuel = (float)terrainService.getFuel(startCoordinates);
-        Fire fire = new Fire(ModelSettings.INITIAL_HEAT, fuel);
-        FireFactors factors = determineFactors(startCoordinates, scenario.getStartDate());
-        Cell initialCell = new Cell(startCoordinates, factors, fire);
-        initialForecast.getCells().add(initialCell);
-
-        return scenario;
+    public Scenario createScenario(String algorithm, CellCoordinates startCoordinates, Instant startDate) {
+        return new Scenario(algorithm, startCoordinates, startDate, determineConditions(startCoordinates));
     }
 
-    public synchronized void forecast(Scenario scenario, int step) {
-        while (!scenario.hasForecast(step)) {
-            forecastFurther(scenario);
+    public void startScenario(Scenario scenario) {
+        SimulationStep initialSimulationStep = new SimulationStep();
+        scenario.getSimulation().getSteps().add(initialSimulationStep);
+        float fuel = (float)terrainService.getFuel(scenario.getStartCoordinates());
+        Fire fire = new Fire(ModelSettings.INITIAL_HEAT, fuel);
+        FireFactors factors = determineFactors(scenario.getStartCoordinates(), scenario.getStartDate());
+        Cell initialCell = new Cell(scenario.getStartCoordinates(), factors, fire);
+        initialSimulationStep.getCells().add(initialCell);
+    }
+
+    public synchronized void simulate(Scenario scenario, int endStep) {
+        while (!scenario.getSimulation().hasStep(endStep)) {
+            simulateFurther(scenario);
         }
     }
 
-    private void forecastFurther(Scenario scenario) {
-        Forecast draftForecast = new Forecast();
-        Forecast lastForecast = scenario.getForecastLog().getForecasts().getLast();
-        int furtherStepNumber = scenario.getForecastLog().getForecasts().size();
+    private void simulateFurther(Scenario scenario) {
+        SimulationStep draftSimulationStep = new SimulationStep();
+        SimulationStep lastSimulationStep = scenario.getSimulation().getSteps().getLast();
+        int furtherStepNumber = scenario.getSimulation().getSteps().size();
         Instant date = scenario.getStartDate().plus(ModelSettings.STEP_DURATION.multipliedBy(furtherStepNumber));
 
-        lastForecast.getCells().forEach(cell -> {
+        lastSimulationStep.getCells().forEach(cell -> {
             FireFactors fireFactors = determineFactors(cell.getCoordinates(), date);
             if (fireFactors.equals(cell.getFactors())) {
                 fireFactors = cell.getFactors();
@@ -65,10 +65,10 @@ public class ForecastService {
             Cell draftCell = new Cell(cell.getCoordinates(), fireFactors, draftFire);
             draftCell.setTwin(cell);
             cell.setTwin(draftCell);
-            draftForecast.getCells().add(draftCell);
+            draftSimulationStep.getCells().add(draftCell);
         });
 
-        lastForecast.getCells().forEach(cell -> {
+        lastSimulationStep.getCells().forEach(cell -> {
             for (int offsetX = -1; offsetX <= 1; offsetX++) {
                 for (int offsetY = -1; offsetY <= 1; offsetY++) {
                     if (offsetX == 0 && offsetY == 0) {
@@ -83,12 +83,12 @@ public class ForecastService {
             }
         });
 
-        draftForecast.getCells().forEach(cell -> {
+        draftSimulationStep.getCells().forEach(cell -> {
             cell.setTwin(null);
         });
 
-        lastForecast.getCells().forEach(lastForecastCell -> {
-            Cell cell = lastForecastCell.getTwin();
+        lastSimulationStep.getCells().forEach(previousCell -> {
+            Cell cell = previousCell.getTwin();
             if (cell.getFire().getHeat() <= scenario.getConditions().getIgnitionTemperature()) {
                 return;
             }
@@ -109,7 +109,7 @@ public class ForecastService {
 //                    neighbor.setNeighbor(-offsetX, -offsetY, cell);
 //                    cell.setNeighbor(offsetX, offsetY, neighbor);
                     // TODO: optimize
-                    draftForecast.getCells().forEach(otherCell -> {
+                    draftSimulationStep.getCells().forEach(otherCell -> {
                         int distanceX = otherCell.getCoordinates().getX() - neighbor.getCoordinates().getX();
                         int distanceY = otherCell.getCoordinates().getY() - neighbor.getCoordinates().getY();
                         if (Math.abs(distanceX) <= 1 && Math.abs(distanceY) <= 1) {
@@ -118,17 +118,17 @@ public class ForecastService {
                         }
                     });
 
-                    draftForecast.getCells().add(neighbor);
+                    draftSimulationStep.getCells().add(neighbor);
                 }
             }
         });
 
-        selectAlgorithm(scenario).refine(draftForecast, scenario.getConditions());
+        selectAlgorithm(scenario).refine(draftSimulationStep, scenario.getConditions());
 
-        scenario.getForecastLog().getForecasts().add(draftForecast);
+        scenario.getSimulation().getSteps().add(draftSimulationStep);
     }
 
-    // TODO: Remove
+    // TODO: Remove.
     private Algorithm selectAlgorithm(Scenario scenario) {
         if (scenario.getAlgorithm().equals(Scenario.Algorithm.PROBABILISTIC)) {
             return new ProbabilisticAlgorithm();

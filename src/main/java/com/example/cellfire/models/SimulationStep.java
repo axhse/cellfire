@@ -3,7 +3,7 @@ package com.example.cellfire.models;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Forecast {
+public final class SimulationStep {
     private final List<Cell> cells = new ArrayList<>();
 
     public List<Cell> getCells() {

@@ -203,7 +203,7 @@ export class SimulationMap extends Component {
         container,
         () => {
           this.controls.switchLayer(layer);
-          this.displayForecast();
+          this.displaySimulation();
         },
         fillLayerToggle(layer),
         titleLayerToggle(layer),
@@ -229,7 +229,7 @@ export class SimulationMap extends Component {
       getCurrentDate(),
       this.controls.algorithm
     );
-    this.displayForecast();
+    this.displaySimulation();
     this.controls.enterSimulation(this.scenario);
   }
 
@@ -239,18 +239,18 @@ export class SimulationMap extends Component {
       Math.max(0, this.scenario.step + stepShift)
     );
     this.scenario.step = newStep;
-    await scenarioService.forecastScenario(this.scenario, newStep);
-    this.displayForecast();
+    await scenarioService.simulateScenario(this.scenario, newStep);
+    this.displaySimulation();
     this.controls.updateTimeline(this.scenario);
     this.controls.updateInformation(this.scenario);
   }
 
-  displayForecast() {
-    this.updateForecastCells();
-    this.updateForecastInfo();
+  displaySimulation() {
+    this.updateSimulationCells();
+    this.updateSimulationInfo();
   }
 
-  updateForecastCells() {
+  updateSimulationCells() {
     this.controls.layerSource.clear();
 
     const startCellFeature = new Feature({
@@ -262,8 +262,8 @@ export class SimulationMap extends Component {
     startCellFeature.setStyle(startCellStyle);
     this.controls.layerSource.addFeature(startCellFeature);
 
-    const forecast = this.scenario.forecastLog.forecasts[this.scenario.step];
-    for (const cell of forecast.cells) {
+    for (const cell of this.scenario.simulation.steps[this.scenario.step]
+      .cells) {
       if (
         !cell.fire.isDamaged &&
         cell.fire.heat < cell.factors.airTemperature + SIGNIFICANT_OVERHEAT
@@ -344,7 +344,7 @@ export class SimulationMap extends Component {
     return new Fill({ color: `rgba(${color})` });
   }
 
-  updateForecastInfo() {}
+  updateSimulationInfo() {}
 }
 
 const Algorithm = {
@@ -455,7 +455,7 @@ class SimulationMapControls {
 }
 
 function calculateDamagedArea(scenario) {
-  const cells = scenario.forecastLog.forecasts[scenario.step].cells;
+  const cells = scenario.simulation.steps[scenario.step].cells;
   const damagedCells = cells.filter((cell) => cell.fire.isDamaged);
   const damagedCellAreas = damagedCells.map((cell) =>
     calculateCellArea(cell.coordinates)

@@ -1,7 +1,7 @@
 package com.example.cellfire.tuner.services;
 
 import com.example.cellfire.models.CellCoordinates;
-import com.example.cellfire.services.TerrainMosaicService;
+import com.example.cellfire.services.MosaicTerrainService;
 import com.example.cellfire.services.TerrainService;
 
 public final class UniformTerrainService implements TerrainService {
@@ -17,12 +17,12 @@ public final class UniformTerrainService implements TerrainService {
 
     @Override
     public double getIgnitionTemperature(CellCoordinates coordinates) {
-        return TerrainMosaicService.determineIgnitionTemperature(this.forestType);
+        return MosaicTerrainService.determineIgnitionTemperature(this.forestType);
     }
 
     @Override
     public double getActivationEnergy(CellCoordinates coordinates) {
-        return TerrainMosaicService.determineActivationEnergy(this.forestType);
+        return MosaicTerrainService.determineActivationEnergy(this.forestType);
     }
 
     @Override
