@@ -1,10 +1,10 @@
 package com.example.cellfire.models;
 
-public final class ScenarioConditions {
+public final class SimulationConditions {
     private final double ignitionTemperature;
     private final double activationEnergy;
 
-    public ScenarioConditions(double ignitionTemperature, double activationEnergy) {
+    public SimulationConditions(double ignitionTemperature, double activationEnergy) {
         this.ignitionTemperature = ignitionTemperature;
         this.activationEnergy = activationEnergy;
     }

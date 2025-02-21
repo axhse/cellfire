@@ -285,7 +285,8 @@ export class SimulationMap extends Component {
     let topColor;
     if (this.controls.layer === Layer.Fire) {
       value = cell.state.heat;
-      const ignitionTemperature = this.scenario.conditions.ignitionTemperature;
+      const ignitionTemperature =
+        this.scenario.simulation.conditions.ignitionTemperature;
       if (value > ignitionTemperature) {
         bottomBoundary = ignitionTemperature;
         topBoundary = LAYER_STYLE.boundaries.peakFlameTemperature;

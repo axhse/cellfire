@@ -15,7 +15,6 @@ export class ScenarioService {
       return {
         id: body.id,
         simulation: body.simulation,
-        conditions: body.conditions,
         algorithm,
         startCoordinates,
         startDate,

@@ -60,7 +60,7 @@ public class Simulator {
             }
             CellState lastCellState = cell.getState();
             boolean isDamaged = lastCellState.getIsDamaged()
-                    || scenario.getConditions().getIgnitionTemperature() < lastCellState.getHeat();
+                    || scenario.getSimulation().getConditions().getIgnitionTemperature() < lastCellState.getHeat();
             CellState draftCellState = new CellState(lastCellState.getHeat(), lastCellState.getFuel(), isDamaged);
             Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, weather);
             draftCell.setTwin(cell);
@@ -89,7 +89,7 @@ public class Simulator {
 
         lastSimulationStep.getCells().forEach(previousCell -> {
             Cell cell = previousCell.getTwin();
-            if (cell.getState().getHeat() <= scenario.getConditions().getIgnitionTemperature()) {
+            if (cell.getState().getHeat() <= scenario.getSimulation().getConditions().getIgnitionTemperature()) {
                 return;
             }
             for (int offsetX = -1; offsetX <= 1; offsetX++) {
@@ -123,7 +123,7 @@ public class Simulator {
             }
         });
 
-        selectAlgorithm(scenario).refine(draftSimulationStep, scenario.getConditions());
+        selectAlgorithm(scenario).refine(draftSimulationStep, scenario.getSimulation().getConditions());
 
         scenario.getSimulation().getSteps().add(draftSimulationStep);
     }
@@ -136,8 +136,8 @@ public class Simulator {
         return algorithm;
     }
 
-    private ScenarioConditions determineConditions(CellCoordinates startCoordinates) {
-        return new ScenarioConditions(
+    private SimulationConditions determineConditions(CellCoordinates startCoordinates) {
+        return new SimulationConditions(
                 terrainService.getIgnitionTemperature(startCoordinates),
                 terrainService.getActivationEnergy(startCoordinates)
         );

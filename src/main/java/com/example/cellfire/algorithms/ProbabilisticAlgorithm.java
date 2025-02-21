@@ -13,7 +13,7 @@ public final class ProbabilisticAlgorithm implements Algorithm {
     private static final double WIND_COS_EFFECT = 0.131;
 
     @Override
-    public void refine(SimulationStep draftSimulationStep, ScenarioConditions conditions) {
+    public void refine(SimulationStep draftSimulationStep, SimulationConditions conditions) {
         draftSimulationStep.getCells().forEach(this::setDefaultMark);
         draftSimulationStep.getCells().forEach(this::applyRules);
         draftSimulationStep.getCells().forEach(this::propagate);

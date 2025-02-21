@@ -39,7 +39,6 @@ public class ScenarioController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("id", scenario.getId());
-        response.put("conditions", scenario.getConditions());
         response.put("simulation", scenario.getSimulation());
         return response;
     }

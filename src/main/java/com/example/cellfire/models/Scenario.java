@@ -9,14 +9,13 @@ public final class Scenario {
     private final CellCoordinates startCoordinates;
     private final Instant startDate;
     private final String algorithm;
-    private final ScenarioConditions conditions;
-    private final Simulation simulation = new Simulation();
+    private final Simulation simulation;
 
-    public Scenario(String algorithm, CellCoordinates startCoordinates, Instant startDate, ScenarioConditions conditions) {
+    public Scenario(String algorithm, CellCoordinates startCoordinates, Instant startDate, SimulationConditions conditions) {
         this.algorithm = algorithm;
         this.startCoordinates = startCoordinates;
         this.startDate = startDate;
-        this.conditions = conditions;
+        this.simulation = new Simulation(conditions);
     }
 
     public String getId() {
@@ -37,10 +36,6 @@ public final class Scenario {
 
     public String getAlgorithm() {
         return algorithm;
-    }
-
-    public ScenarioConditions getConditions() {
-        return conditions;
     }
 
     public Simulation getSimulation() {

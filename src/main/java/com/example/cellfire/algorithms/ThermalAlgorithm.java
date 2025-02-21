@@ -78,7 +78,7 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     @Override
-    public void refine(SimulationStep draftSimulationStep, ScenarioConditions conditions) {
+    public void refine(SimulationStep draftSimulationStep, SimulationConditions conditions) {
         draftSimulationStep.getCells().forEach((cell) -> {
             burnFuel(cell, conditions);
         });
@@ -86,7 +86,7 @@ public final class ThermalAlgorithm implements Algorithm {
         draftSimulationStep.getCells().forEach(this::wasteHeat);
     }
 
-    private void burnFuel(Cell cell, ScenarioConditions conditions) {
+    private void burnFuel(Cell cell, SimulationConditions conditions) {
         // FIXME: Do not ignore weather.
         float burnedFraction = (float)calculateBurnedFraction(cell, conditions);
         float energy = (float)calculateCombustionEnergy(cell, burnedFraction);
@@ -148,12 +148,12 @@ public final class ThermalAlgorithm implements Algorithm {
         return energyEmission * cell.getState().getFuel() * burnedFraction;
     }
 
-    private double calculateBurnedFraction(Cell cell, ScenarioConditions conditions) {
+    private double calculateBurnedFraction(Cell cell, SimulationConditions conditions) {
         double phaseDuration = ModelSettings.STEP_DURATION.toSeconds();
         return Math.min(1, calculateCombustionRate(cell, conditions) * phaseDuration);
     }
 
-    private double calculateCombustionRate(Cell cell, ScenarioConditions conditions) {
+    private double calculateCombustionRate(Cell cell, SimulationConditions conditions) {
         if (cell.getState().getFuel() == 0 || cell.getState().getHeat() <= conditions.getIgnitionTemperature()
                 || cell.getWeather().getAirTemperature() <= 0) {
             return 0;

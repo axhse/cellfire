@@ -6,8 +6,7 @@ export class ScenarioService {
       startCoordinates,
       startDate,
       step: 0,
-      simulation: { steps: [] },
-      conditions: { ignitionTemperature: 280 },
+      simulation: { steps: [], conditions: { ignitionTemperature: 280 } },
     };
     scenario.simulation.steps.push(produceDemoSimulationStep(scenario, 0));
     return scenario;
