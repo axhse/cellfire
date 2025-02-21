@@ -3,42 +3,79 @@ package com.example.cellfire.algorithms;
 import com.example.cellfire.models.Domain;
 import com.example.cellfire.models.ModelSettings;
 import com.example.cellfire.models.*;
-import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
-@Service
 public final class ThermalAlgorithm implements Algorithm {
     // -- Combustion --
     /**
      * Varies from 150k to 250k.
      */
-    public static double COMBUSTION_RATE = 7.0;
-    public static double ENERGY_EMISSION = 10000.0;
+    public static final double DEFAULT_COMBUSTION_RATE = 7.0;
+    public static final double DEFAULT_ENERGY_EMISSION = 10000.0;
 
     /**
      * 1-2.
      */
-    public static double AIR_HUMIDITY_EFFECT = 1.5;
+    public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 1.5;
 
     /**
      * += 3.
      * 3.5 in some research.
      */
-    public static double SLOPE_EFFECT = 1.5;
+    public static final double DEFAULT_SLOPE_EFFECT = 1.5;
 
     /**
      * 0.1-0.3.
      * 0.13 in some research.
      */
-    public static double WIND_EFFECT = 0.15;
+    public static final double DEFAULT_WIND_EFFECT = 0.15;
 
     // -- Heat exchange --
-    public static double CONVECTION_RATE = 0.3;
-    public static double RADIATION_RATE = 2 * Math.pow(10, -11);
+    public static final double DEFAULT_CONVECTION_RATE = 0.3;
+    public static final double DEFAULT_RADIATION_RATE = 2 * Math.pow(10, -11);
 
     // -- Sizing --
-    public static double DISTANCE_EFFECT = 1.0 / 200;
+    public static final double DEFAULT_DISTANCE_EFFECT = 1.0 / 200;
+
+    private final double combustionRate;
+    private final double energyEmission;
+    private final double airHumidityEffect;
+    private final double slopeEffect;
+    private final double windEffect;
+    private final double convectionRate;
+    private final double radiationRate;
+    private final double distanceEffect;
+
+    public ThermalAlgorithm(
+            double combustionRate, double energyEmission, double airHumidityEffect, double slopeEffect,
+            double windEffect, double convectionRate, double radiationRate, double distanceEffect) {
+        this.combustionRate = combustionRate;
+        this.energyEmission = energyEmission;
+        this.airHumidityEffect = airHumidityEffect;
+        this.slopeEffect = slopeEffect;
+        this.windEffect = windEffect;
+        this.convectionRate = convectionRate;
+        this.radiationRate = radiationRate;
+        this.distanceEffect = distanceEffect;
+    }
+
+    public ThermalAlgorithm() {
+        this(DEFAULT_COMBUSTION_RATE,
+            DEFAULT_ENERGY_EMISSION,
+            DEFAULT_AIR_HUMIDITY_EFFECT,
+            DEFAULT_SLOPE_EFFECT,
+            DEFAULT_WIND_EFFECT,
+            DEFAULT_CONVECTION_RATE,
+            DEFAULT_RADIATION_RATE,
+            DEFAULT_DISTANCE_EFFECT
+        );
+    }
+
+    public ThermalAlgorithm(double... parameters) {
+        this(parameters[0], parameters[1], parameters[2], parameters[3],
+                parameters[4], parameters[5], parameters[6], parameters[7]);
+    }
 
     @Override
     public void refine(Forecast draftForecast, ScenarioConditions conditions) {
@@ -74,8 +111,9 @@ public final class ThermalAlgorithm implements Algorithm {
         int neighbourIndex = 0;
         for (Cell neighbour : cell.iterateNeighbors()) {
             averageDistance = calculateAverageDistance(cell.getCoordinates(), neighbour.getCoordinates());
-            double distanceEffect = calculateDistanceEffect(cell, neighbour);
-            proximity[neighbourIndex++] = distanceEffect / averageDistance * ModelSettings.GRID_SCALE / DISTANCE_EFFECT;
+            double environmentalEffect = calculateEnvironmentalEffect(cell, neighbour);
+            proximity[neighbourIndex++] = environmentalEffect / averageDistance
+                    * ModelSettings.GRID_SCALE / distanceEffect;
         }
         double totalProximity = Arrays.stream(proximity).sum();
 
@@ -97,17 +135,17 @@ public final class ThermalAlgorithm implements Algorithm {
     public void wasteHeat(Cell cell) {
         double heat = cell.getFire().getHeat();
         double absoluteTemperature = toAbsoluteTemperature(heat);
-        double optimum = Math.pow((1 - CONVECTION_RATE) / 4 / RADIATION_RATE, 1.0 / 3);
+        double optimum = Math.pow((1 - convectionRate) / 4 / radiationRate, 1.0 / 3);
         if (absoluteTemperature > optimum) {
             heat -= absoluteTemperature - optimum;
         }
-        heat -= CONVECTION_RATE * (heat - cell.getFactors().getAirTemperature())
-                + RADIATION_RATE * Math.pow(toAbsoluteTemperature(heat), 4);
+        heat -= convectionRate * (heat - cell.getFactors().getAirTemperature())
+                + radiationRate * Math.pow(toAbsoluteTemperature(heat), 4);
         cell.getFire().setHeat((float)heat);
     }
 
     private double calculateCombustionEnergy(Cell cell, double burnedFraction) {
-        return ENERGY_EMISSION * cell.getFire().getFuel() * burnedFraction;
+        return energyEmission * cell.getFire().getFuel() * burnedFraction;
     }
 
     private double calculateBurnedFraction(Cell cell, ScenarioConditions conditions) {
@@ -121,8 +159,8 @@ public final class ThermalAlgorithm implements Algorithm {
             return 0;
         }
         double firePower = -conditions.getActivationEnergy() / Domain.UNIVERSAL_GAS_CONSTANT / toAbsoluteTemperature(cell.getFire().getHeat());
-        double airHumidityEffect = Math.exp(-AIR_HUMIDITY_EFFECT * cell.getFactors().getAirHumidity());
-        return airHumidityEffect * COMBUSTION_RATE * Math.exp(firePower);
+        double airHumidityFactor = Math.exp(-airHumidityEffect * cell.getFactors().getAirHumidity());
+        return airHumidityFactor * combustionRate * Math.exp(firePower);
     }
 
     private double calculateAverageDistance(CellCoordinates first, CellCoordinates second) {
@@ -134,7 +172,7 @@ public final class ThermalAlgorithm implements Algorithm {
         return Math.sqrt(distanceX * distanceX + distanceY * distanceY);
     }
 
-    private double calculateDistanceEffect(Cell cell, Cell otherCell) {
+    private double calculateEnvironmentalEffect(Cell cell, Cell otherCell) {
         return calculateSlopeEffect(cell, otherCell) * calculateWindEffect(cell, otherCell);
     }
 
@@ -148,7 +186,7 @@ public final class ThermalAlgorithm implements Algorithm {
         double distanceY = Math.abs(cell.getCoordinates().getY() - otherCell.getCoordinates().getY());
         double distance = ModelSettings.CELL_HEIGHT * Math.sqrt(distanceX * distanceX + distanceY * distanceY);
         double slope = elevation / distance;
-        return Math.exp(SLOPE_EFFECT * slope);
+        return Math.exp(slopeEffect * slope);
     }
 
     private double calculateWindEffect(Cell cell, Cell otherCell) {
@@ -157,7 +195,7 @@ public final class ThermalAlgorithm implements Algorithm {
         double windX = cell.getFactors().getWindX();
         double windY = cell.getFactors().getWindX();
         double windSpeed = (windX * vectorX + windY * vectorY) / Math.sqrt(vectorX * vectorX + vectorY * vectorY);
-        return Math.exp(WIND_EFFECT * windSpeed);
+        return Math.exp(windEffect * windSpeed);
     }
 
     private void setEmittedEnergy(float energy, Cell cell) {

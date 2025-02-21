@@ -1,8 +1,9 @@
 package com.example.cellfire.tuner;
 
+import com.example.cellfire.algorithms.Algorithm;
+import com.example.cellfire.algorithms.ThermalAlgorithm;
 import com.example.cellfire.tuner.cases.TuneCase;
 
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -29,17 +30,21 @@ public final class Experiment {
     public void run() {
         for (int iterationIndex = 0; iterationIndex < iterationQuantity; iterationIndex++) {
             int n = iterationIndex;
-            List<Integer> parameterValueIndices = new ArrayList<>();
             List<Double> caseScores = new ArrayList<>();
+            List<Double> parameterValues = new ArrayList<>();
+            List<Integer> parameterValueIndices = new ArrayList<>();
             for (ModelParameter parameter : parameters) {
                 int parameterValueIndex = n % parameter.getRange().size();
                 double parameterValue = parameter.getRange().get(parameterValueIndex);
-                parameter.setValue(parameterValue);
+                parameterValues.add(parameterValue);
                 parameterValueIndices.add(parameterValueIndex);
                 n /= parameter.getRange().size();
             }
+            Algorithm algorithm = new ThermalAlgorithm(
+                    parameterValues.stream().mapToDouble(Double::doubleValue).toArray()
+            );
             for (TuneCase tuneCase : tuneCases) {
-                double score = tuneCase.evaluate();
+                double score = tuneCase.evaluate(algorithm);
                 caseScores.add(score);
                 if (score < 0 && isFastToFail) {
                     break;
@@ -55,7 +60,7 @@ public final class Experiment {
         System.out.println(styledText(name, TextStyle.BOLD, TextStyle.CYAN));
 
         System.out.println();
-        Iteration bestIteration = iterations.stream().max(Experiment::compareIterations).get();
+        Iteration bestIteration = iterations.stream().max(Experiment::compareIterations).orElseThrow();
         if (bestIteration.isFailed()) {
             System.out.print(styledText("Failures: ", TextStyle.RED));
             System.out.println(styledText(Integer.toString(bestIteration.getFailureCount()), TextStyle.BOLD, TextStyle.RED));
@@ -83,6 +88,9 @@ public final class Experiment {
         System.out.println(styledText("Parameters", TextStyle.BOLD, TextStyle.PURPLE));
         for (int parameterIndex = 0; parameterIndex < parameters.size(); parameterIndex++) {
             ModelParameter parameter = parameters.get(parameterIndex);
+            if (parameter.getRange().size() == 1) {
+                continue;
+            }
             double value = parameter.getRange().get(bestIteration.getParameterValueIndices().get(parameterIndex));
             System.out.print(styledText(parameter.getFieldName(), TextStyle.PURPLE));
             System.out.println("    " + styledText(formatValue(value), TextStyle.BOLD, TextStyle.BLUE));
@@ -93,15 +101,18 @@ public final class Experiment {
         for (int parameterIndex = 0; parameterIndex < parameters.size(); parameterIndex++) {
             ModelParameter parameter = parameters.get(parameterIndex);
             int rangeSize = parameter.getRange().size();
+            if (rangeSize == 1) {
+                continue;
+            }
             int[] counts = new int[rangeSize];
             for (Iteration iteration : iterations) {
                 if (!iteration.isFailed()) {
                     counts[iteration.getParameterValueIndices().get(parameterIndex)]++;
                 }
             }
-            var maxCount = Arrays.stream(counts).max().getAsInt();
+            int maxCount = Arrays.stream(counts).max().orElseThrow();
             int totalCount = Arrays.stream(counts).sum();
-            String valueLine = "  ";
+            System.out.print(styledText(parameter.getFieldName() + "  ", TextStyle.PURPLE));
             for (int valueIndex = 0; valueIndex < rangeSize; valueIndex++) {
                 int colorStyle = counts[valueIndex] == maxCount ? TextStyle.GREEN : TextStyle.YELLOW;
                 if (valueIndex == 0 || valueIndex == rangeSize - 1) {
@@ -114,10 +125,11 @@ public final class Experiment {
                 if (counts[valueIndex] > 0) {
                     text += styledText("(%d%%)".formatted(100 * counts[valueIndex] / totalCount), TextStyle.BOLD, TextStyle.GRAY);
                 }
-                valueLine += text;
+                System.out.print(text);
+                if (valueIndex == rangeSize - 1) {
+                    System.out.println();
+                }
             }
-            System.out.print(styledText(parameter.getFieldName(), TextStyle.PURPLE));
-            System.out.println(valueLine);
         }
     }
 
@@ -147,9 +159,11 @@ public final class Experiment {
     }
 
     private static String styledText(String text, int... styles) {
+        StringBuilder textBuilder = new StringBuilder(text);
         for (int style : styles) {
-            text = "\u001B[%dm".formatted(style) + text + "\u001B[0m";
+            textBuilder = new StringBuilder("\u001B[%dm".formatted(style) + textBuilder + "\u001B[0m");
         }
+        text = textBuilder.toString();
         return text;
     }
 
@@ -177,28 +191,16 @@ public final class Experiment {
     }
 
     public static final class ModelParameter {
-        private final Class<?> fieldClass;
         private final String fieldName;
         private final List<Double> range;
 
-        public ModelParameter(Class<?> fieldClass, String fieldName, List<Double> range) {
-            this.fieldClass = fieldClass;
+        public ModelParameter(String fieldName, List<Double> range) {
             this.fieldName = fieldName;
             this.range = range;
         }
 
         public List<Double> getRange() {
             return range;
-        }
-
-        public void setValue(Double value) {
-            try {
-                Field field = fieldClass.getDeclaredField(this.fieldName);
-                field.setAccessible(true);
-                field.setDouble(null, value);
-            } catch (NoSuchFieldException | IllegalAccessException exception) {
-                throw new IllegalArgumentException(exception);
-            }
         }
 
         public String getFieldName() {

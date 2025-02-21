@@ -14,15 +14,17 @@ import java.time.Instant;
 public class ForecastService {
     private final TerrainService terrainService;
     private final WeatherService weatherService;
-    private final ThermalAlgorithm thermalAlgorithm;
-    private final ProbabilisticAlgorithm probabilisticAlgorithm;
+    private final Algorithm algorithm;
 
-    @Autowired
-    public ForecastService(TerrainService terrainService, WeatherService weatherService, ThermalAlgorithm thermalAlgorithm, ProbabilisticAlgorithm probabilisticAlgorithm) {
+    public ForecastService(TerrainService terrainService, WeatherService weatherService, Algorithm algorithm) {
         this.terrainService = terrainService;
         this.weatherService = weatherService;
-        this.thermalAlgorithm = thermalAlgorithm;
-        this.probabilisticAlgorithm = probabilisticAlgorithm;
+        this.algorithm = algorithm;
+    }
+
+    @Autowired
+    public ForecastService(TerrainService terrainService, WeatherService weatherService) {
+        this(terrainService, weatherService, new ThermalAlgorithm());
     }
 
     public Scenario startScenario(String algorithm, CellCoordinates startCoordinates, Instant startDate) {
@@ -126,15 +128,12 @@ public class ForecastService {
         scenario.getForecastLog().getForecasts().add(draftForecast);
     }
 
+    // TODO: Remove
     private Algorithm selectAlgorithm(Scenario scenario) {
-        String algorithmName = scenario.getAlgorithm();
-        if (algorithmName.equals(Scenario.Algorithm.THERMAL)) {
-            return thermalAlgorithm;
+        if (scenario.getAlgorithm().equals(Scenario.Algorithm.PROBABILISTIC)) {
+            return new ProbabilisticAlgorithm();
         }
-        if (algorithmName.equals(Scenario.Algorithm.PROBABILISTIC)) {
-            return probabilisticAlgorithm;
-        }
-        return thermalAlgorithm;
+        return algorithm;
     }
 
     private ScenarioConditions determineConditions(CellCoordinates startCoordinates) {

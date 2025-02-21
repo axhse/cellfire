@@ -1,11 +1,9 @@
 package com.example.cellfire.algorithms;
 
 import com.example.cellfire.models.*;
-import org.springframework.stereotype.Service;
 
 import java.util.Random;
 
-@Service
 public final class ProbabilisticAlgorithm implements Algorithm {
     private static final Random random = new Random();
 
@@ -45,9 +43,6 @@ public final class ProbabilisticAlgorithm implements Algorithm {
             if (neighbour.getFire().getHeat() == ModelSettings.INITIAL_HEAT || neighbour.getFire().getFuel() == 0) {
                 continue;
             }
-            var density = (1 + calculateFuelDensityEffect(neighbour));
-            var wind = calculateWindEffect(cell, neighbour);
-            var slope = calculateSlopeEffect(cell, neighbour);
             double probability = BASIC_PROBABILITY * 1.4 * (1 + calculateFuelDensityEffect(neighbour))
                     * calculateWindEffect(cell, neighbour)
                     * calculateSlopeEffect(cell, neighbour);

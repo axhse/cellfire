@@ -4,12 +4,9 @@ package com.example.cellfire.tuner.cases;
 import com.example.cellfire.algorithms.Algorithm;
 import com.example.cellfire.models.Cell;
 import com.example.cellfire.models.Scenario;
-import com.example.cellfire.services.TerrainService;
-import com.example.cellfire.services.WeatherService;
+import com.example.cellfire.services.ForecastService;
 import com.example.cellfire.tuner.services.UniformTerrainService;
 import com.example.cellfire.tuner.services.UniformWeatherService;
-
-import java.util.List;
 
 public final class ResilientForestBurnsUnderModerateFactors extends TuneCase {
     private static final byte FOREST_TYPE = 1;
@@ -19,24 +16,31 @@ public final class ResilientForestBurnsUnderModerateFactors extends TuneCase {
     private static final double WIND_X = 4;
     private static final double WIND_Y = 1;
 
-    public ResilientForestBurnsUnderModerateFactors(Algorithm algorithm, double weight, boolean isObligatory) {
-        super(algorithm, weight, isObligatory);
+    public ResilientForestBurnsUnderModerateFactors(double weight, boolean isObligatory) {
+        super(weight, isObligatory);
     }
 
-    public ResilientForestBurnsUnderModerateFactors(Algorithm algorithm, double weight) {
-        super(algorithm, weight);
+    public ResilientForestBurnsUnderModerateFactors(double weight) {
+        super(weight);
     }
 
-    public ResilientForestBurnsUnderModerateFactors(Algorithm algorithm) {
-        super(algorithm);
+    public ResilientForestBurnsUnderModerateFactors() {
+        super();
     }
 
     @Override
-    public double evaluate(Scenario scenario) {
+    protected double score(Algorithm algorithm) {
+        ForecastService forecastService = new ForecastService(
+                new UniformTerrainService(FOREST_TYPE, FUEL, 0),
+                new UniformWeatherService(AIR_TEMPERATURE, AIR_HUMIDITY, WIND_X, WIND_Y),
+                algorithm
+        );
+        Scenario scenario = startScenario(forecastService, algorithm);
+
         int limitSteps = 10;
-        this.forecastService.forecast(scenario, limitSteps);
+        forecastService.forecast(scenario, limitSteps);
         for (int step = 2; step <= limitSteps; step++) {
-            this.forecastService.forecast(scenario, step);
+            forecastService.forecast(scenario, step);
             int damagedCellCount = 0;
             for (Cell cell : scenario.getForecastLog().getForecasts().get(step).getCells()) {
                 if (cell.getFire().getIsDamaged()) {
@@ -48,15 +52,5 @@ public final class ResilientForestBurnsUnderModerateFactors extends TuneCase {
             }
         }
         return -1;
-    }
-
-    @Override
-    protected TerrainService createTerrainService() {
-        return new UniformTerrainService(FOREST_TYPE, FUEL, 0);
-    }
-
-    @Override
-    protected WeatherService createWeatherService() {
-        return new UniformWeatherService(AIR_TEMPERATURE, AIR_HUMIDITY, WIND_X, WIND_Y);
     }
 }

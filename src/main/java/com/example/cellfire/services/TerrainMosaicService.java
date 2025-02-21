@@ -7,7 +7,7 @@ import com.example.cellfire.models.CellCoordinates;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TerrainMapService implements TerrainService {
+public class TerrainMosaicService implements TerrainService {
     private final Mosaic elevationMap = ResourceLoader.loadElevationMap();
     private final Mosaic forestTypeClusterMap = ResourceLoader.loadForestTypeClusterMap();
     private final Mosaic canopyHeightMap = ResourceLoader.loadCanopyHeightMap();
@@ -37,13 +37,13 @@ public class TerrainMapService implements TerrainService {
     @Override
     public double getIgnitionTemperature(CellCoordinates coordinates) {
         byte forestType = forestTypeClusterMap.at(coordinates, (byte) 0);
-        return TerrainMapService.determineIgnitionTemperature(forestType);
+        return TerrainMosaicService.determineIgnitionTemperature(forestType);
     }
 
     @Override
     public double getActivationEnergy(CellCoordinates coordinates) {
         byte forestType = forestTypeClusterMap.at(coordinates, (byte) 0);
-        return TerrainMapService.determineActivationEnergy(forestType);
+        return TerrainMosaicService.determineActivationEnergy(forestType);
     }
 
     @Override
