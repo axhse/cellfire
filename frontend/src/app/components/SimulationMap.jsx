@@ -30,7 +30,7 @@ const INITIAL_MAP_CENTER = [49, 37.5];
 const INITIAL_MAP_ZOOM = 12;
 
 const LAYER_OPACITY = 0.6;
-const LAYER_PARAMS = {
+const LAYER_STYLE = {
   boundaries: {
     sparseFuel: 0,
     denseFuel: 1,
@@ -254,16 +254,15 @@ export class SimulationMap extends Component {
     this.controls.layerSource.clear();
 
     const startCellFeature = new Feature({
-      geometry: createCellFigure(this.scenario.startCoordinates),
+      geometry: createRectangle(this.scenario.startCoordinates),
     });
-    const startCellStyle = new Style({
-      stroke: new Stroke({ color: [255, 0, 0, 0.3], width: 3 }),
-    });
-    startCellFeature.setStyle(startCellStyle);
+    startCellFeature.setStyle(
+      new Style({ stroke: new Stroke({ color: [255, 0, 0, 0.3], width: 3 }) })
+    );
     this.controls.layerSource.addFeature(startCellFeature);
 
-    for (const cell of this.scenario.simulation.steps[this.scenario.step]
-      .cells) {
+    const simulation = this.scenario.simulation;
+    for (const cell of simulation.steps[this.scenario.step].cells) {
       if (
         !cell.state.isDamaged &&
         cell.state.heat < cell.weather.airTemperature + SIGNIFICANT_OVERHEAT
@@ -271,13 +270,9 @@ export class SimulationMap extends Component {
         continue;
       }
       const feature = new Feature({
-        geometry: createCellFigure(cell.coordinates),
+        geometry: createRectangle(cell.coordinates),
       });
-      const style = new Style({
-        fill: this.createCellFiller(cell),
-      });
-      feature.setStyle(style);
-
+      feature.setStyle(new Style({ fill: this.createCellFiller(cell) }));
       this.controls.layerSource.addFeature(feature);
     }
   }
@@ -290,45 +285,45 @@ export class SimulationMap extends Component {
     let topColor;
     if (this.controls.layer === Layer.Fire) {
       value = cell.state.heat;
-      let ignitionTemperature = this.scenario.conditions.ignitionTemperature;
+      const ignitionTemperature = this.scenario.conditions.ignitionTemperature;
       if (value > ignitionTemperature) {
         bottomBoundary = ignitionTemperature;
-        topBoundary = LAYER_PARAMS.boundaries.peakFlameTemperature;
-        bottomColor = LAYER_PARAMS.colors.weakFlame;
-        topColor = LAYER_PARAMS.colors.strongFlame;
+        topBoundary = LAYER_STYLE.boundaries.peakFlameTemperature;
+        bottomColor = LAYER_STYLE.colors.weakFlame;
+        topColor = LAYER_STYLE.colors.strongFlame;
       } else {
-        bottomBoundary = LAYER_PARAMS.boundaries.zeroTemperature;
+        bottomBoundary = LAYER_STYLE.boundaries.zeroTemperature;
         topBoundary = ignitionTemperature;
         if (cell.state.isDamaged) {
-          bottomColor = LAYER_PARAMS.colors.coal;
+          bottomColor = LAYER_STYLE.colors.coal;
         } else {
-          bottomColor = LAYER_PARAMS.colors.vegetation;
+          bottomColor = LAYER_STYLE.colors.vegetation;
         }
-        topColor = LAYER_PARAMS.colors.weakFlame;
+        topColor = LAYER_STYLE.colors.weakFlame;
       }
     }
     if (this.controls.layer === Layer.Fuel) {
       value = cell.state.fuel;
-      bottomBoundary = LAYER_PARAMS.boundaries.sparseFuel;
-      topBoundary = LAYER_PARAMS.boundaries.denseFuel;
-      bottomColor = LAYER_PARAMS.colors.sparseFuel;
-      topColor = LAYER_PARAMS.colors.denseFuel;
+      bottomBoundary = LAYER_STYLE.boundaries.sparseFuel;
+      topBoundary = LAYER_STYLE.boundaries.denseFuel;
+      bottomColor = LAYER_STYLE.colors.sparseFuel;
+      topColor = LAYER_STYLE.colors.denseFuel;
     }
     if (this.controls.layer === Layer.Elevation) {
       value = cell.weather.elevation;
-      bottomBoundary = LAYER_PARAMS.boundaries.noElevation;
-      topBoundary = LAYER_PARAMS.boundaries.peakElevation;
-      bottomColor = LAYER_PARAMS.colors.ground;
-      topColor = LAYER_PARAMS.colors.mountain;
+      bottomBoundary = LAYER_STYLE.boundaries.noElevation;
+      topBoundary = LAYER_STYLE.boundaries.peakElevation;
+      bottomColor = LAYER_STYLE.colors.ground;
+      topColor = LAYER_STYLE.colors.mountain;
     }
-    if (this.controls.layer === Layer.WindSpeed) {
+    if (this.controls.layer === Layer.Wind) {
       value = Math.sqrt(
         Math.pow(cell.weather.windX, 2) + Math.pow(cell.weather.windY, 2)
       );
-      bottomBoundary = LAYER_PARAMS.boundaries.noWind;
-      topBoundary = LAYER_PARAMS.boundaries.intenseWind;
-      bottomColor = LAYER_PARAMS.colors.calm;
-      topColor = LAYER_PARAMS.colors.storm;
+      bottomBoundary = LAYER_STYLE.boundaries.noWind;
+      topBoundary = LAYER_STYLE.boundaries.intenseWind;
+      bottomColor = LAYER_STYLE.colors.calm;
+      topColor = LAYER_STYLE.colors.storm;
     }
 
     const gradient = calculateGradient(value, bottomBoundary, topBoundary);
@@ -347,21 +342,15 @@ export class SimulationMap extends Component {
   updateSimulationInfo() {}
 }
 
-const Algorithm = {
-  Thermal: 'thermal',
-  Probabilistic: 'probabilistic',
-};
+const Algorithm = { Thermal: 'thermal', Probabilistic: 'probabilistic' };
 
-const PointerMode = {
-  Regular: 'regular',
-  Lighter: 'lighter',
-};
+const PointerMode = { Regular: 'regular', Lighter: 'lighter' };
 
 const Layer = {
   Fire: 'fire',
   Fuel: 'fuel',
   Elevation: 'elevation',
-  WindSpeed: 'wind',
+  Wind: 'wind',
 };
 
 class SimulationMapControls {
@@ -463,7 +452,7 @@ function calculateDamagedArea(scenario) {
   return damagedCellAreas.reduce((a1, a2) => a1 + a2, 0);
 }
 
-function createCellFigure(coordinates) {
+function createRectangle(coordinates) {
   const leftEdgeLon = coordinates.x / GRID_SCALE;
   const rightEdgeLon = (coordinates.x + 1) / GRID_SCALE;
   const bottomEdgeLat = coordinates.y / GRID_SCALE;
@@ -493,8 +482,8 @@ function fillLayerToggle(layer) {
       return '🌳 Fuel';
     case Layer.Elevation:
       return '⛰️ Elevation';
-    case Layer.WindSpeed:
-      return '🌀 Wind speed';
+    case Layer.Wind:
+      return '🌀 Wind';
   }
 }
 

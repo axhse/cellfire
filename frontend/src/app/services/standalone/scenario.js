@@ -53,8 +53,8 @@ function produceDemoCell(startCoordinates, offsetX, offsetY) {
   const airTemperature = (fuel * 40) % 40;
   const airHumidity = (Math.round(fuel * 100 + 1000) % 101) / 100;
   const elevation = (fuel * 200 + heat / 5 + 12402394) % 500;
-  const windX = Math.round(fuel * 100 + 1000) % 7;
-  const windY = Math.round(fuel * 123 + 12340) % 4;
+  const windX = (Math.round(fuel * 100 + 1002) % 15) - 7;
+  const windY = (Math.round(fuel * 123 + 12340) % 8) - 3;
   const isDamaged = (offsetX * 2 + offsetY * 5 + 7) % 20 < 10;
 
   return {
