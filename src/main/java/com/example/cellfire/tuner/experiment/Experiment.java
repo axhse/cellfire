@@ -27,7 +27,7 @@ public final class Experiment {
         List<ExperimentIteration> iterations = new ArrayList<>(iterationQuantity);
         for (int iterationIndex = 0; iterationIndex < iterationQuantity; iterationIndex++) {
             int n = iterationIndex;
-            List<Double> caseScores = new ArrayList<>();
+            List<TuneCase.ModelScore> caseScores = new ArrayList<>();
             List<Double> parameterValues = new ArrayList<>();
             List<Integer> parameterValueIndices = new ArrayList<>();
             for (ModelParameter parameter : tuneTask.getParameters()) {
@@ -41,9 +41,9 @@ public final class Experiment {
                     parameterValues.stream().mapToDouble(Double::doubleValue).toArray()
             );
             for (TuneCase tuneCase : tuneTask.getTuneCases()) {
-                double score = tuneCase.evaluate(algorithm);
-                caseScores.add(score);
-                if (score < 0 && isFastToFail) {
+                TuneCase.ModelScore modelScore = tuneCase.evaluate(algorithm);
+                caseScores.add(modelScore);
+                if (modelScore.isFailure() && isFastToFail) {
                     break;
                 }
             }
@@ -52,7 +52,7 @@ public final class Experiment {
         return new ExperimentResult(this, iterations);
     }
 
-    private int countIterations() {
+    public int countIterations() {
         int iterationQuantity = 1;
         for (ModelParameter parameter : tuneTask.getParameters()) {
             iterationQuantity *= parameter.getVariations().size();

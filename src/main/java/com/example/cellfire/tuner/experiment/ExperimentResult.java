@@ -31,28 +31,33 @@ public final class ExperimentResult {
             String formattedFailureCount = Integer.toString(bestIteration.countFailures());
             System.out.println(styledText(formattedFailureCount, TextStyle.BOLD, TextStyle.RED));
             for (int tuneCaseIndex = 0; tuneCaseIndex < bestIteration.getCaseScores().size(); tuneCaseIndex++) {
-                if (bestIteration.getCaseScores().get(tuneCaseIndex) < 0) {
-                    System.out.println(styledText(tuneCases.get(tuneCaseIndex).getName(), TextStyle.RED));
+                if (bestIteration.getCaseScores().get(tuneCaseIndex).isFailure()) {
+                    String title = tuneCases.get(tuneCaseIndex).getName() + "  ";
+                    System.out.print(styledText(title, TextStyle.CYAN));
+                    String description = bestIteration.getCaseScores().get(tuneCaseIndex).getDescription();
+                    System.out.println(styledText(description, TextStyle.RED));
                 }
             }
             System.out.println();
         }
-        System.out.print(styledText("Total score: ", TextStyle.BOLD, TextStyle.GREEN));
+        int scoreStyle = bestIteration.hasFailures() ? TextStyle.YELLOW : TextStyle.GREEN;
+        System.out.print(styledText("Total score: ", TextStyle.BOLD, scoreStyle));
         String formattedScore = String.format(Locale.US, "%.2f", bestIteration.countScore());
-        System.out.println(styledText(formattedScore, TextStyle.BOLD, TextStyle.GREEN, TextStyle.GREEN));
+        System.out.println(styledText(formattedScore, TextStyle.BOLD, scoreStyle));
         for (int tuneCaseIndex = 0; tuneCaseIndex < bestIteration.getCaseScores().size(); tuneCaseIndex++) {
-            double score = bestIteration.getCaseScores().get(tuneCaseIndex);
-            if (score < 0) {
+            TuneCase.ModelScore modelScore = bestIteration.getCaseScores().get(tuneCaseIndex);
+            if (modelScore.isFailure()) {
                 continue;
             }
-            int colorStyle = score > 0.2 ? TextStyle.GREEN : TextStyle.YELLOW;
-            formattedScore = String.format(Locale.US, "%.2f", score);
+            int colorStyle = modelScore.getScore() > 0.2 ? TextStyle.GREEN : TextStyle.YELLOW;
+            formattedScore = String.format(Locale.US, "%.2f", modelScore.getScore());
             System.out.print(styledText(formattedScore, TextStyle.BOLD, colorStyle));
-            System.out.println(styledText("  " + tuneCases.get(tuneCaseIndex).getName(), TextStyle.CYAN));
+            String tuneCaseName = tuneCases.get(tuneCaseIndex).getName();
+            System.out.println(styledText("  " + tuneCaseName, TextStyle.CYAN));
         }
         System.out.println();
 
-        if (bestIteration.hasFailures()) {
+        if (bestIteration.hasFailures() || experiment.countIterations() == 1) {
             return;
         }
         System.out.println(styledText("Parameters", TextStyle.BOLD, TextStyle.PURPLE));
@@ -106,6 +111,9 @@ public final class ExperimentResult {
     }
 
     private static String formatValue(double value) {
+        if (value < 0.0001 || 10000000 <= value) {
+            return String.format(Locale.US, "%.1e", value);
+        }
         if (10 <= Math.abs(value)) {
             int factor = 1;
             long n = Math.abs(Math.round(value));
@@ -115,7 +123,8 @@ public final class ExperimentResult {
             }
             return String.valueOf(Math.round(value) / factor * factor);
         }
-        BigDecimal decimal = new BigDecimal(value).setScale(1, RoundingMode.HALF_UP);
+        int scale = 1 - (int) Math.floor(Math.log10(value));
+        BigDecimal decimal = new BigDecimal(value).setScale(scale, RoundingMode.HALF_UP);
         return decimal.stripTrailingZeros().toPlainString();
     }
 

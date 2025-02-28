@@ -27,7 +27,7 @@ const LAYER_STYLE = {
     noElevation: 0,
     peakElevation: 2000,
     zeroTemperature: 0,
-    peakFlameTemperature: 1300,
+    peakFlameTemperature: 900,
     noWind: 0,
     intenseWind: 10,
   },

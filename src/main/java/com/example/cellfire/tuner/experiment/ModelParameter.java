@@ -7,11 +7,11 @@ public final class ModelParameter {
     public static final String COMBUSTION_RATE = "combustionRate";
     public static final String ENERGY_EMISSION = "energyEmission";
     public static final String AIR_HUMIDITY_EFFECT = "airHumidityEffect";
-    public static final String DEFAULT_SLOPE_EFFECT = "slopeEffect";
-    public static final String DEFAULT_WIND_EFFECT = "windEffect";
-    public static final String DEFAULT_CONVECTION_RATE = "convectionRate";
-    public static final String DEFAULT_RADIATION_RATE = "radiationRate";
-    public static final String DEFAULT_DISTANCE_EFFECT = "distanceEffect";
+    public static final String SLOPE_EFFECT = "slopeEffect";
+    public static final String WIND_EFFECT = "windEffect";
+    public static final String DISTANCE_EFFECT = "distanceEffect";
+    public static final String HEAT_REGULATION_DURATION = "heatRegulationDuration";
+    public static final String RADIATION_PREVALENCE = "radiationPrevalence";
 
     private final String name;
     private final List<Double> variations;
@@ -21,9 +21,9 @@ public final class ModelParameter {
         this.variations = List.of(fixedValue);
     }
 
-    public ModelParameter(String name, double minValue, double maxValue, int valueSteps) {
+    public ModelParameter(String name, List<Double> variations) {
         this.name = name;
-        this.variations = createRange(minValue, maxValue, valueSteps);
+        this.variations = variations;
     }
 
     public String getName() {
@@ -38,13 +38,36 @@ public final class ModelParameter {
         return variations;
     }
 
-    private static List<Double> createRange(double min, double max, int steps) {
-        if (max <= min || steps == 1) {
-            return List.of(min);
-        }
+    public static List<Double> linRange(double min, double max, int steps) {
+        return createRange(min, max, steps, false);
+    }
+
+    public static List<Double> linRange(double unit, double min, double max, int steps) {
+        return linRange(unit * min, unit * max, steps);
+    }
+
+    public static List<Double> logRange(double min, double max, int steps) {
+        return createRange(min, max, steps, true);
+    }
+
+    public static List<Double> logRange(double unit, double min, double max, int steps) {
+        return logRange(unit * min, unit * max, steps);
+    }
+
+    private static List<Double> createRange(double min, double max, int steps, boolean logarithmic) {
+        assert min < max && steps > 1;
+        assert !logarithmic || min > 0;
+
         List<Double> values = new ArrayList<>();
+        double value;
+        steps -= 1;
         for (int i = 0; i <= steps; i++) {
-            values.add(min + (max - min) / steps * i);
+            if (logarithmic) {
+                value = min * Math.pow(max / min, 1.0 * i / steps);
+            } else {
+                value = min + (max - min) * i / steps;
+            }
+            values.add(value);
         }
         return values;
     }

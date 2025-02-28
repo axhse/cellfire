@@ -1,6 +1,7 @@
 package com.example.cellfire.tuner.cases;
 
 import com.example.cellfire.algorithms.Algorithm;
+import com.example.cellfire.data.ForestConditions;
 import com.example.cellfire.models.Cell;
 import com.example.cellfire.models.Simulation;
 import com.example.cellfire.services.Simulator;
@@ -8,7 +9,7 @@ import com.example.cellfire.tuner.services.UniformTerrainService;
 import com.example.cellfire.tuner.services.UniformWeatherService;
 
 public final class ResilientForestBurnsUnderModerateFactors extends TuneCase {
-    private static final byte FOREST_TYPE = 1;
+    private static final byte FOREST_TYPE = ForestConditions.ForestType.EVERGREEN_NEEDLE_LEAF;
     private static final double FUEL = 1;
     private static final double AIR_TEMPERATURE = 30;
     private static final double AIR_HUMIDITY = 0.1;
@@ -23,12 +24,16 @@ public final class ResilientForestBurnsUnderModerateFactors extends TuneCase {
         super(weight);
     }
 
+    public ResilientForestBurnsUnderModerateFactors(boolean isObligatory) {
+        super(isObligatory);
+    }
+
     public ResilientForestBurnsUnderModerateFactors() {
         super();
     }
 
     @Override
-    protected double score(Algorithm algorithm) {
+    protected ModelScore score(Algorithm algorithm) {
         Simulator simulator = new Simulator(
                 new UniformTerrainService(FOREST_TYPE, FUEL, 0),
                 new UniformWeatherService(AIR_TEMPERATURE, AIR_HUMIDITY, WIND_X, WIND_Y),
@@ -46,9 +51,9 @@ public final class ResilientForestBurnsUnderModerateFactors extends TuneCase {
                 }
             }
             if (9 <= damagedCellCount) {
-                return 1;
+                return ModelScore.victory();
             }
         }
-        return -1;
+        return ModelScore.failure("Resilient forest never burns.");
     }
 }

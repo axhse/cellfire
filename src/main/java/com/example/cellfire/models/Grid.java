@@ -5,6 +5,12 @@ import com.google.maps.model.LatLng;
 
 public final class Grid {
     /**
+     * Earth equatorial circumference: 40 075 km.
+     * Earth polar circumference: 39 930  km.
+     */
+    private static final double EARTH_CIRCUMFERENCE = 40_000_000;
+
+    /**
      * Cell size of 1/{@code scale}° for both latitude and longitude
      * corresponds with height ≈110/{@code scale} km and width ≈110/{@code scale} km near the equator.
      */
@@ -14,7 +20,7 @@ public final class Grid {
 
     public Grid(int scale) {
         this.scale = scale;
-        cellHeight = Domain.EARTH_CIRCUMFERENCE / 360 / scale;
+        cellHeight = EARTH_CIRCUMFERENCE / 360 / scale;
     }
 
     public int getScale() {

@@ -13,32 +13,32 @@ public abstract class TuneCase {
     private final boolean isObligatory;
 
     public TuneCase(double weight, boolean isObligatory) {
+        assert 0 <= weight;
         this.weight = weight;
-        this.isObligatory = isObligatory;
+        this.isObligatory = isObligatory && weight != 0;
     }
 
     public TuneCase(double weight) {
         this(weight, true);
     }
 
+    public TuneCase(boolean isObligatory) {
+        this(1, isObligatory);
+    }
+
     public TuneCase() {
-        this(1);
+        this(true);
     }
 
     public String getName() {
         return this.getClass().getSimpleName();
     }
 
-    public final double evaluate(Algorithm algorithm) {
-        if (weight == 0) {
-            return 0;
-        }
-        double score = score(algorithm);
-        score = score < 0 ? (this.isObligatory ? -1 : 0) : Math.min(1, score);
-        return score * this.weight;
+    public final ModelScore evaluate(Algorithm algorithm) {
+        return ModelScore.weight(score(algorithm), weight, isObligatory);
     }
 
-    protected abstract double score(Algorithm algorithm);
+    protected abstract ModelScore score(Algorithm algorithm);
 
     protected Simulation startDefaultSimulation(Simulator simulator, Algorithm algorithm) {
         String algorithmName = algorithm instanceof ThermalAlgorithm
@@ -48,5 +48,52 @@ public abstract class TuneCase {
         Simulation simulation = simulator.createDefaultSimulation(startPoint, startTime, algorithmName);
         simulator.startSimulation(simulation);
         return simulation;
+    }
+
+    public static final class ModelScore {
+        private final double score;
+        private final String description;
+
+        private ModelScore(double score, String description) {
+            assert score == -1 || 0 <= score && score <= 1;
+            this.score = score;
+            this.description = description;
+        }
+
+        public boolean isFailure() {
+            return score == -1;
+        }
+
+        public boolean isSuccess() {
+            return !isFailure();
+        }
+
+        public double getScore() {
+            return score;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public static ModelScore victory() {
+            return success(1);
+        }
+
+        public static ModelScore success(double score) {
+            return new ModelScore(score, null);
+        }
+
+        public static ModelScore failure(String description) {
+            return new ModelScore(-1, description);
+        }
+
+        private static ModelScore weight(ModelScore modelScore, double weight, boolean isObligatory) {
+            double score = modelScore.getScore();
+            if (!isObligatory && score == -1) {
+                score = 0;
+            }
+            return new ModelScore(score * weight, modelScore.getDescription());
+        }
     }
 }
