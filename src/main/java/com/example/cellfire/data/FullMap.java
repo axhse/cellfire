@@ -1,6 +1,6 @@
 package com.example.cellfire.data;
 
-import com.example.cellfire.models.CellCoordinates;
+import com.google.maps.model.LatLng;
 
 public final class FullMap extends MapFragment {
     public FullMap(byte[][] data, int scale) {
@@ -8,7 +8,7 @@ public final class FullMap extends MapFragment {
     }
 
     @Override
-    public boolean has(CellCoordinates coordinates) {
+    public boolean has(LatLng point) {
         return true;
     }
 }

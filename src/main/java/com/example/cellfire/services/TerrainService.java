@@ -1,13 +1,13 @@
 package com.example.cellfire.services;
 
-import com.example.cellfire.models.CellCoordinates;
+import com.google.maps.model.LatLng;
 
 public interface TerrainService {
-    double getIgnitionTemperature(CellCoordinates coordinates);
+    double getIgnitionTemperature(LatLng point);
 
-    double getActivationEnergy(CellCoordinates coordinates);
+    double getActivationEnergy(LatLng point);
 
-    double getFuel(CellCoordinates coordinates);
+    double getFuel(LatLng point);
 
-    double getElevation(CellCoordinates coordinates);
+    double getElevation(LatLng point);
 }

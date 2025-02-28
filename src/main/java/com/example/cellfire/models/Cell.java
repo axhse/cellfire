@@ -7,17 +7,17 @@ import java.util.Iterator;
 public final class Cell {
     @JsonIgnore
     private final Cell[] vicinity = new Cell[9];
-    private final CellCoordinates coordinates;
+    private final Coordinates coordinates;
     private final CellState state;
     private final Weather weather;
 
-    public Cell(CellCoordinates coordinates, CellState state, Weather weather) {
+    public Cell(Coordinates coordinates, CellState state, Weather weather) {
         this.coordinates = coordinates;
         this.state = state;
         this.weather = weather;
     }
 
-    public CellCoordinates getCoordinates() {
+    public Coordinates getCoordinates() {
         return coordinates;
     }
 

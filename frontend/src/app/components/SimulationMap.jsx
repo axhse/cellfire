@@ -10,20 +10,10 @@ import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature';
 import Control from 'ol/control/Control';
 
-import {
-  TimePeriod,
-  GRID_SCALE,
-  STEP_DURATION,
-  LIMIT_STEPS,
-  SIGNIFICANT_OVERHEAT,
-} from '../domain/definitions';
+import { simulator } from '../services/registry';
 
-import {
-  calculateCellArea,
-  getCurrentDate,
-  toCellCoordinates,
-} from '../domain/logic';
-import { scenarioService } from '../services/registry';
+const EARTH_CIRCUMFERENCE = 40000000;
+const SIGNIFICANT_OVERHEAT = 30;
 
 // const INITIAL_MAP_CENTER = [37.6173, 55.7558];
 const INITIAL_MAP_CENTER = [49, 37.5];
@@ -59,7 +49,7 @@ export class SimulationMap extends Component {
   constructor() {
     super();
     this.controls = new SimulationMapControls();
-    this.scenario = undefined;
+    this.simulation = undefined;
     this.initializeMap();
   }
 
@@ -77,7 +67,7 @@ export class SimulationMap extends Component {
 
     map.addLayer(new TileLayer({ source: new OSM() }));
     map.addLayer(new VectorLayer({ source: this.controls.layerSource }));
-    map.addControl(this.createScenarioControl());
+    map.addControl(this.createSimulationControl());
     map.addControl(this.createTimelineControl());
     map.addControl(this.createInfoControl());
     map.addControl(this.createLayerControl());
@@ -92,9 +82,9 @@ export class SimulationMap extends Component {
     map.on('singleclick', (event) => this.handleMapClick(event));
   }
 
-  createScenarioControl() {
+  createSimulationControl() {
     const container = document.createElement('div');
-    container.id = 'control-container-scenario';
+    container.id = 'control-container-simulation';
     container.className = 'ol-unselectable ol-control';
 
     const header = document.createElement('label');
@@ -145,9 +135,10 @@ export class SimulationMap extends Component {
       addControlButton(
         container,
         () => this.navigateTimeline(stepShift),
-        `${describeTimePeriod(stepShift, false)}`,
-        titleTimelineButton(stepShift),
-        'control-inline-button timeline'
+        '',
+        '',
+        'control-inline-button timeline',
+        `stepShifter${stepShift}`
       );
     }
 
@@ -203,7 +194,7 @@ export class SimulationMap extends Component {
         container,
         () => {
           this.controls.switchLayer(layer);
-          this.displaySimulation();
+          this.updateMap();
         },
         fillLayerToggle(layer),
         titleLayerToggle(layer),
@@ -219,58 +210,55 @@ export class SimulationMap extends Component {
     if (this.controls.pointerMode !== PointerMode.Lighter) {
       return;
     }
-    if (this.scenario !== undefined) {
-      scenarioService.removeScenario(this.scenario);
+    if (this.simulation !== undefined) {
+      simulator.removeSimulation(this.simulation);
     }
     this.controls.setPointerMode(PointerMode.Regular);
-    const startCoordinates = toCellCoordinates(toLonLat(event.coordinate));
-    this.scenario = await scenarioService.createScenario(
-      startCoordinates,
-      getCurrentDate(),
+    this.simulation = await simulator.createSimulation(
+      toLonLat(event.coordinate),
       this.controls.algorithm
     );
-    this.displaySimulation();
-    this.controls.enterSimulation(this.scenario);
+    this.simulation.step = 0;
+    this.updateMap();
+    this.controls.enterSimulation(this.simulation);
   }
 
   async navigateTimeline(stepShift) {
     const newStep = Math.min(
-      LIMIT_STEPS,
-      Math.max(0, this.scenario.step + stepShift)
+      this.simulation.limitDurationSteps,
+      Math.max(0, this.simulation.step + stepShift)
     );
-    this.scenario.step = newStep;
-    await scenarioService.simulateScenario(this.scenario, newStep);
-    this.displaySimulation();
-    this.controls.updateTimeline(this.scenario);
-    this.controls.updateInformation(this.scenario);
+    this.simulation.step = newStep;
+    await simulator.progressSimulation(this.simulation, newStep);
+    this.updateMap();
   }
 
-  displaySimulation() {
+  updateMap() {
     this.updateSimulationCells();
-    this.updateSimulationInfo();
+    this.controls.updateTimeline(this.simulation);
+    this.controls.updateInformation(this.simulation);
   }
 
   updateSimulationCells() {
     this.controls.layerSource.clear();
 
     const startCellFeature = new Feature({
-      geometry: createRectangle(this.scenario.startCoordinates),
+      geometry: this.createRectangle(this.simulation.startCoordinates),
     });
     startCellFeature.setStyle(
       new Style({ stroke: new Stroke({ color: [255, 0, 0, 0.3], width: 3 }) })
     );
     this.controls.layerSource.addFeature(startCellFeature);
 
-    const simulation = this.scenario.simulation;
-    for (const cell of simulation.steps[this.scenario.step].cells) {
+    for (const cell of this.simulation.steps[this.simulation.step].cells) {
       if (
-        !cell.state.isDamaged &&
+        !cell.state.damaged &&
         cell.state.heat < cell.weather.airTemperature + SIGNIFICANT_OVERHEAT
       ) {
         continue;
       }
       const feature = new Feature({
-        geometry: createRectangle(cell.coordinates),
+        geometry: this.createRectangle(cell.coordinates),
       });
       feature.setStyle(new Style({ fill: this.createCellFiller(cell) }));
       this.controls.layerSource.addFeature(feature);
@@ -286,7 +274,7 @@ export class SimulationMap extends Component {
     if (this.controls.layer === Layer.Fire) {
       value = cell.state.heat;
       const ignitionTemperature =
-        this.scenario.simulation.conditions.ignitionTemperature;
+        this.simulation.conditions.ignitionTemperature;
       if (value > ignitionTemperature) {
         bottomBoundary = ignitionTemperature;
         topBoundary = LAYER_STYLE.boundaries.peakFlameTemperature;
@@ -295,7 +283,7 @@ export class SimulationMap extends Component {
       } else {
         bottomBoundary = LAYER_STYLE.boundaries.zeroTemperature;
         topBoundary = ignitionTemperature;
-        if (cell.state.isDamaged) {
+        if (cell.state.damaged) {
           bottomColor = LAYER_STYLE.colors.coal;
         } else {
           bottomColor = LAYER_STYLE.colors.vegetation;
@@ -317,7 +305,7 @@ export class SimulationMap extends Component {
       bottomColor = LAYER_STYLE.colors.ground;
       topColor = LAYER_STYLE.colors.mountain;
     }
-    if (this.controls.layer === Layer.Wind) {
+    if (this.controls.layer === Layer.WindSpeed) {
       value = Math.sqrt(
         Math.pow(cell.weather.windX, 2) + Math.pow(cell.weather.windY, 2)
       );
@@ -340,7 +328,23 @@ export class SimulationMap extends Component {
     return new Fill({ color: `rgba(${color})` });
   }
 
-  updateSimulationInfo() {}
+  createRectangle(coordinates) {
+    const gridScale = this.simulation.grid.scale;
+    const leftEdgeLon = coordinates.x / gridScale;
+    const rightEdgeLon = (coordinates.x + 1) / gridScale;
+    const bottomEdgeLat = coordinates.y / gridScale;
+    const topEdgeLat = (coordinates.y + 1) / gridScale;
+
+    return new Polygon([
+      [
+        fromLonLat([leftEdgeLon, topEdgeLat]),
+        fromLonLat([rightEdgeLon, topEdgeLat]),
+        fromLonLat([rightEdgeLon, bottomEdgeLat]),
+        fromLonLat([leftEdgeLon, bottomEdgeLat]),
+        fromLonLat([leftEdgeLon, topEdgeLat]),
+      ],
+    ]);
+  }
 }
 
 const Algorithm = { Thermal: 'thermal', Probabilistic: 'probabilistic' };
@@ -351,7 +355,7 @@ const Layer = {
   Fire: 'fire',
   Fuel: 'fuel',
   Elevation: 'elevation',
-  Wind: 'wind',
+  WindSpeed: 'windSpeed',
 };
 
 class SimulationMapControls {
@@ -397,9 +401,11 @@ class SimulationMapControls {
     }
   }
 
-  setPeriod(steps) {
-    document.getElementById('label-period').innerHTML =
-      describeTimePeriod(steps);
+  setPeriod(steps, stepDurationMs) {
+    document.getElementById('label-period').innerHTML = describeTimePeriod(
+      steps,
+      stepDurationMs
+    );
   }
 
   setDate(dateLabelId, dateTitle, date) {
@@ -411,29 +417,31 @@ class SimulationMapControls {
     this.setDate('label-current-date', 'Current', date);
   }
 
-  setDamagedArea(scenario) {
-    const damagedArea = Math.round(calculateDamagedArea(scenario) / 10000);
+  setDamagedArea(damagedArea) {
     document.getElementById('label-damaged-area').innerHTML =
-      `Damaged area: ${damagedArea} ha`;
+      `Damaged area: ${Math.round(damagedArea / 10000)} ha`;
   }
 
-  updateTimeline(scenario) {
-    this.setPeriod(scenario.step);
+  updateTimeline(simulation) {
+    this.setPeriod(simulation.step, simulation.stepDurationMs);
     this.setCurrentDate(
-      new Date(scenario.startDate.valueOf() + scenario.step * STEP_DURATION)
+      new Date(
+        simulation.startDate.valueOf() +
+          simulation.step * simulation.stepDurationMs
+      )
     );
   }
 
-  updateInformation(scenario) {
-    this.setDamagedArea(scenario);
+  updateInformation(simulation) {
+    this.setDamagedArea(estimateDamagedArea(simulation));
   }
 
-  enterSimulation(scenario) {
+  enterSimulation(simulation) {
     document.getElementById('label-active-algorithm').innerHTML =
-      `Active algorithm: ${titleAlgorithm(scenario.algorithm)}`;
-    this.setDate('label-start-date', 'Start', scenario.startDate);
-    this.updateTimeline(scenario);
-    this.updateInformation(scenario);
+      `Active algorithm: ${titleAlgorithm(simulation.algorithm)}`;
+    this.setDate('label-start-date', 'Start', simulation.startDate);
+    this.updateTimeline(simulation);
+    this.updateInformation(simulation);
     for (const controlName of ['timeline', 'info', 'layer']) {
       switchElementClass(
         document.getElementById('control-container-' + controlName),
@@ -441,33 +449,34 @@ class SimulationMapControls {
         false
       );
     }
+    for (const stepShift of [-10, -1, 1, 10]) {
+      const stepShifter = document.getElementById(`stepShifter${stepShift}`);
+      stepShifter.innerHTML = `${describeTimePeriod(stepShift, simulation.stepDurationMs, false)}`;
+      stepShifter.title = titleTimelineButton(
+        stepShift,
+        simulation.stepDurationMs
+      );
+    }
   }
 }
 
-function calculateDamagedArea(scenario) {
-  const cells = scenario.simulation.steps[scenario.step].cells;
-  const damagedCells = cells.filter((cell) => cell.state.isDamaged);
+function estimateDamagedArea(simulation) {
+  const cells = simulation.steps[simulation.step].cells;
+  const damagedCells = cells.filter((cell) => cell.state.damaged);
   const damagedCellAreas = damagedCells.map((cell) =>
-    calculateCellArea(cell.coordinates)
+    estimateCellArea(simulation.grid.scale, cell.coordinates)
   );
   return damagedCellAreas.reduce((a1, a2) => a1 + a2, 0);
 }
 
-function createRectangle(coordinates) {
-  const leftEdgeLon = coordinates.x / GRID_SCALE;
-  const rightEdgeLon = (coordinates.x + 1) / GRID_SCALE;
-  const bottomEdgeLat = coordinates.y / GRID_SCALE;
-  const topEdgeLat = (coordinates.y + 1) / GRID_SCALE;
+function estimateCellArea(gridScale, coordinates) {
+  const cellHeight = EARTH_CIRCUMFERENCE / 360 / gridScale;
+  const lat = fromCellCoordinates(gridScale, coordinates)[1];
+  return cellHeight * cellHeight * Math.cos(lat * (Math.PI / 180));
+}
 
-  return new Polygon([
-    [
-      fromLonLat([leftEdgeLon, topEdgeLat]),
-      fromLonLat([rightEdgeLon, topEdgeLat]),
-      fromLonLat([rightEdgeLon, bottomEdgeLat]),
-      fromLonLat([leftEdgeLon, bottomEdgeLat]),
-      fromLonLat([leftEdgeLon, topEdgeLat]),
-    ],
-  ]);
+function fromCellCoordinates(gridScale, coordinates) {
+  return [(coordinates.x + 0.5) / gridScale, (coordinates.y + 0.5) / gridScale];
 }
 
 function calculateGradient(value, bottomBoundary, topBoundary) {
@@ -483,8 +492,8 @@ function fillLayerToggle(layer) {
       return '🌳 Fuel';
     case Layer.Elevation:
       return '⛰️ Elevation';
-    case Layer.Wind:
-      return '🌀 Wind';
+    case Layer.WindSpeed:
+      return '🌀 Wind speed';
   }
 }
 
@@ -496,29 +505,26 @@ function titleLayerToggle(layer) {
   return `Display ${layer} layer`;
 }
 
-function titleTimelineButton(steps) {
-  return `${steps < 0 ? 'Rewind' : 'Advance'} simulation by ${describeTimePeriod(steps).slice(2)}`;
+function titleTimelineButton(steps, stepDurationMs) {
+  return `${steps < 0 ? 'Rewind' : 'Advance'} simulation by ${describeTimePeriod(steps, stepDurationMs).slice(2)}`;
 }
 
-function describeTimePeriod(steps, verbose = true) {
+function describeTimePeriod(steps, stepDurationMs, verbose = true) {
   const sign = steps < 0 ? -1 : 1;
   steps *= sign;
-  let duration = steps * STEP_DURATION;
+  let duration = steps * stepDurationMs;
   let description = '';
   let sections = 0;
   [
-    [verbose ? 'day' : 'd', TimePeriod.days],
-    [verbose ? 'hour' : 'h', TimePeriod.hours],
-    [verbose ? 'minute' : 'm', TimePeriod.minutes],
+    [verbose ? 'day' : 'd', 24 * 60],
+    [verbose ? 'hour' : 'h', 60],
+    [verbose ? 'minute' : 'm', 1],
   ].forEach((periodItem) => {
     const periodName = periodItem[0];
-    const period = periodItem[1];
-    if (
-      period(1) <= duration ||
-      (sections === 0 && period === TimePeriod.minutes)
-    ) {
-      const amount = Math.floor(duration / period(1));
-      duration -= amount * period(1);
+    const period = periodItem[1] * 60 * 1000;
+    if (period <= duration || (sections === 0 && periodName[0] === 'm')) {
+      const amount = Math.floor(duration / period);
+      duration -= amount * period;
       sections += 1;
       description += ` ${amount}${verbose ? ' ' : ''}${periodName}${verbose && amount !== 1 ? 's' : ''}`;
     }
@@ -552,7 +558,7 @@ function switchElementClass(element, className, isWanted) {
 }
 
 function formatDate(date) {
-  return `${date.getFullYear()}-${make2digit(date.getMonth())}-${make2digit(date.getDate())} ${make2digit(date.getHours())}:${make2digit(date.getMinutes())}`;
+  return `${date.getFullYear()}-${make2digit(date.getMonth() + 1)}-${make2digit(date.getDate())} ${make2digit(date.getHours())}:${make2digit(date.getMinutes())}`;
 }
 
 function make2digit(n) {

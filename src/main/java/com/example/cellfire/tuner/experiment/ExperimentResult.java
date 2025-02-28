@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-public class ExperimentResult {
+public final class ExperimentResult {
     private final Experiment experiment;
     private final List<ExperimentIteration> iterations;
 

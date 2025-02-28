@@ -1,0 +1,68 @@
+package com.example.cellfire.models;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.maps.model.LatLng;
+
+public final class Grid {
+    /**
+     * Cell size of 1/{@code scale}° for both latitude and longitude
+     * corresponds with height ≈110/{@code scale} km and width ≈110/{@code scale} km near the equator.
+     */
+    private final int scale;
+    @JsonIgnore
+    private final double cellHeight;
+
+    public Grid(int scale) {
+        this.scale = scale;
+        cellHeight = Domain.EARTH_CIRCUMFERENCE / 360 / scale;
+    }
+
+    public int getScale() {
+        return scale;
+    }
+
+    @JsonIgnore
+    public double getCellHeight() {
+        return cellHeight;
+    }
+
+    public Coordinates fromLatLng(LatLng latLng) {
+        long x = Math.round(latLng.lng * scale - 0.5);
+        long y = Math.round(latLng.lat * scale - 0.5);
+        if (x == 180L * scale || x + 1 == -180L * scale) {
+            x = -180L * scale;
+        }
+        if (y == 90L * scale) {
+            y = 90L * scale - 1;
+        }
+        if (y + 1 == -90L * scale) {
+            y = -90L * scale;
+        }
+        return new Coordinates((int) x, (int) y);
+    }
+
+    public LatLng toLatLng(Coordinates coordinates) {
+        return new LatLng((coordinates.getY() + 0.5) / scale, (coordinates.getX() + 0.5) / scale);
+    }
+
+    public Coordinates getNeighbour(Coordinates coordinates, int offsetX, int offsetY) {
+        assert -1 <= offsetX && offsetX <= 1 && -1 <= offsetY && offsetY <= 1;
+        int x = coordinates.getX() + offsetX;
+        int y = coordinates.getY() + offsetY;
+        if (y < -90 * scale) {
+            y = -180 * scale - y - 1;
+            x += 180 * scale;
+        }
+        if (90 * scale <= y) {
+            y = 180 * scale - y - 1;
+            x += 180 * scale;
+        }
+        if (x < -180 * scale) {
+            x += 360 * scale;
+        }
+        if (180 * scale <= x) {
+            x -= 360 * scale;
+        }
+        return new Coordinates(x, y);
+    }
+}

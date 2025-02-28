@@ -1,9 +1,8 @@
 package com.example.cellfire.tuner.cases;
 
-
 import com.example.cellfire.algorithms.Algorithm;
 import com.example.cellfire.models.Cell;
-import com.example.cellfire.models.Scenario;
+import com.example.cellfire.models.Simulation;
 import com.example.cellfire.services.Simulator;
 import com.example.cellfire.tuner.services.UniformTerrainService;
 import com.example.cellfire.tuner.services.UniformWeatherService;
@@ -35,14 +34,14 @@ public final class ResilientForestBurnsUnderModerateFactors extends TuneCase {
                 new UniformWeatherService(AIR_TEMPERATURE, AIR_HUMIDITY, WIND_X, WIND_Y),
                 algorithm
         );
-        Scenario scenario = createAndStartScenario(simulator, algorithm);
+        Simulation simulation = startDefaultSimulation(simulator, algorithm);
 
         int limitSteps = 10;
         for (int step = 2; step <= limitSteps; step++) {
-            simulator.simulate(scenario, step);
+            simulator.progressSimulation(simulation, step);
             int damagedCellCount = 0;
-            for (Cell cell : scenario.getSimulation().getSteps().get(step).getCells()) {
-                if (cell.getState().getIsDamaged()) {
+            for (Cell cell : simulation.getSteps().get(step).getCells()) {
+                if (cell.getState().isDamaged()) {
                     damagedCellCount++;
                 }
             }

@@ -3,11 +3,11 @@ package com.example.cellfire.services;
 import com.example.cellfire.models.ModelSettings;
 import com.example.cellfire.data.ResourceLoader;
 import com.example.cellfire.data.Mosaic;
-import com.example.cellfire.models.CellCoordinates;
+import com.google.maps.model.LatLng;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MosaicTerrainService implements TerrainService {
+public final class MosaicTerrainService implements TerrainService {
     private final Mosaic elevationMap = ResourceLoader.loadElevationMap();
     private final Mosaic forestTypeClusterMap = ResourceLoader.loadForestTypeClusterMap();
     private final Mosaic canopyHeightMap = ResourceLoader.loadCanopyHeightMap();
@@ -35,27 +35,27 @@ public class MosaicTerrainService implements TerrainService {
     }
 
     @Override
-    public double getIgnitionTemperature(CellCoordinates coordinates) {
-        byte forestType = forestTypeClusterMap.at(coordinates, (byte) 0);
+    public double getIgnitionTemperature(LatLng point) {
+        byte forestType = forestTypeClusterMap.at(point, (byte) 0);
         return MosaicTerrainService.determineIgnitionTemperature(forestType);
     }
 
     @Override
-    public double getActivationEnergy(CellCoordinates coordinates) {
-        byte forestType = forestTypeClusterMap.at(coordinates, (byte) 0);
+    public double getActivationEnergy(LatLng point) {
+        byte forestType = forestTypeClusterMap.at(point, (byte) 0);
         return MosaicTerrainService.determineActivationEnergy(forestType);
     }
 
     @Override
-    public double getFuel(CellCoordinates coordinates) {
-        double canopyHeight = canopyHeightMap.at(coordinates, (byte)0);
+    public double getFuel(LatLng point) {
+        double canopyHeight = canopyHeightMap.at(point, (byte) 0);
         double fuel = calculateFuel(canopyHeight);
         return fuel < ModelSettings.SIGNIFICANT_FUEL ? 0 : fuel;
     }
 
     @Override
-    public double getElevation(CellCoordinates coordinates) {
-        double elevation = elevationMap.at(coordinates, (byte)0);
+    public double getElevation(LatLng point) {
+        double elevation = elevationMap.at(point, (byte) 0);
         return elevation * 6400 / 255;
     }
 

@@ -1,8 +1,7 @@
 package com.example.cellfire.algorithms;
 
-import com.example.cellfire.models.SimulationStep;
-import com.example.cellfire.models.SimulationConditions;
+import com.example.cellfire.models.Simulation;
 
 public interface Algorithm {
-    void refine(SimulationStep draftSimulationStep, SimulationConditions conditions);
+    void refineDraftStep(Simulation.Step draftStep, Simulation simulation);
 }

@@ -37,7 +37,7 @@ public final class ThermalAlgorithmTuner {
                 List.of(
                         new ModelParameter(ModelParameter.COMBUSTION_RATE, 5, 9, 10),
                         new ModelParameter(ModelParameter.ENERGY_EMISSION, 10000 * 0.5, 10000 * 20, 10),
-                        new ModelParameter(ModelParameter.AIR_HUMIDITY_EFFECT, 0.5, 5, 20)                )
+                        new ModelParameter(ModelParameter.AIR_HUMIDITY_EFFECT, 0.5, 5, 20))
         );
     }
 }

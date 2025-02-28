@@ -13,21 +13,23 @@ public final class ProbabilisticAlgorithm implements Algorithm {
     private static final double WIND_COS_EFFECT = 0.131;
 
     @Override
-    public void refine(SimulationStep draftSimulationStep, SimulationConditions conditions) {
-        draftSimulationStep.getCells().forEach(this::setDefaultMark);
-        draftSimulationStep.getCells().forEach(this::applyRules);
-        draftSimulationStep.getCells().forEach(this::propagate);
+    public void refineDraftStep(Simulation.Step draftStep, Simulation simulation) {
+        draftStep.getCells().forEach(this::setDefaultMark);
+        draftStep.getCells().forEach((cell) -> {
+            applyRules(cell, simulation);
+        });
+        draftStep.getCells().forEach(this::propagate);
     }
 
     private void setDefaultMark(Cell cell) {
         cell.setTwin(new Cell(null, new CellState(0, 0), null));
     }
 
-    private void applyRules(Cell cell) {
+    private void applyRules(Cell cell, Simulation simulation) {
         if (cell.getState().getFuel() == 0 || cell.getState().getHeat() != ModelSettings.INITIAL_HEAT) {
             return;
         }
-        propagateFireToNeighbours(cell);
+        propagateFireToNeighbours(cell, simulation);
         cell.getState().setHeat(0);
         cell.getState().setFuel(0);
     }
@@ -38,14 +40,14 @@ public final class ProbabilisticAlgorithm implements Algorithm {
         }
     }
 
-    private void propagateFireToNeighbours(Cell cell) {
+    private void propagateFireToNeighbours(Cell cell, Simulation simulation) {
         for (Cell neighbour : cell.iterateNeighbors()) {
             if (neighbour.getState().getHeat() == ModelSettings.INITIAL_HEAT || neighbour.getState().getFuel() == 0) {
                 continue;
             }
             double probability = BASIC_PROBABILITY * 1.4 * (1 + calculateFuelDensityEffect(neighbour))
                     * calculateWindEffect(cell, neighbour)
-                    * calculateSlopeEffect(cell, neighbour);
+                    * calculateSlopeEffect(simulation.getGrid(), cell, neighbour);
             probability = Math.min(1, probability);
             if (random.nextDouble() < probability) {
                 neighbour.getTwin().getState().setHeat(ModelSettings.INITIAL_HEAT);
@@ -67,15 +69,15 @@ public final class ProbabilisticAlgorithm implements Algorithm {
         return -1;
     }
 
-    private double calculateSlopeEffect(Cell cell, Cell otherCell) {
+    private double calculateSlopeEffect(Grid grid, Cell cell, Cell otherCell) {
         double elevation = otherCell.getWeather().getElevation() - cell.getWeather().getElevation();
         if (elevation == 0) {
             return 1;
         }
-        double localCos = Math.cos(Math.toRadians(cell.getCoordinates().toGeoPoint().lat));
+        double localCos = Math.cos(Math.toRadians(grid.toLatLng(cell.getCoordinates()).lat));
         double distanceX = Math.abs(cell.getCoordinates().getX() - otherCell.getCoordinates().getX()) * localCos;
         double distanceY = Math.abs(cell.getCoordinates().getY() - otherCell.getCoordinates().getY());
-        double distance = ModelSettings.CELL_HEIGHT * Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+        double distance = grid.getCellHeight() * Math.sqrt(distanceX * distanceX + distanceY * distanceY);
         double slope = elevation / distance;
         return Math.exp(SLOPE_EFFECT * slope);
     }

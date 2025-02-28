@@ -15,7 +15,7 @@ public final class CellState {
         this(heat, fuel, false);
     }
 
-    public boolean getIsDamaged() {
+    public boolean isDamaged() {
         return isDamaged;
     }
 

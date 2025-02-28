@@ -1,9 +1,9 @@
-let scenarioService;
+let simulator;
 
 if (process.env.REACT_APP_BUILD_NAME === 'standalone') {
-  scenarioService = new (require('./standalone/scenario').ScenarioService)();
+  simulator = new (require('./standalone/simulator').Simulator)();
 } else {
-  scenarioService = new (require('./integrated/scenario').ScenarioService)();
+  simulator = new (require('./integrated/simulator').Simulator)();
 }
 
-export { scenarioService };
+export { simulator };

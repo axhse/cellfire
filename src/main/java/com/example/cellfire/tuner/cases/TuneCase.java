@@ -2,9 +2,9 @@ package com.example.cellfire.tuner.cases;
 
 import com.example.cellfire.algorithms.Algorithm;
 import com.example.cellfire.algorithms.ThermalAlgorithm;
-import com.example.cellfire.models.CellCoordinates;
-import com.example.cellfire.models.Scenario;
+import com.example.cellfire.models.Simulation;
 import com.example.cellfire.services.Simulator;
+import com.google.maps.model.LatLng;
 
 import java.time.Instant;
 
@@ -40,17 +40,13 @@ public abstract class TuneCase {
 
     protected abstract double score(Algorithm algorithm);
 
-    protected CellCoordinates getStartCoordinates() {
-        return new CellCoordinates(0, 0);
-    }
-
-    protected Scenario createAndStartScenario(Simulator simulator, Algorithm algorithm) {
+    protected Simulation startDefaultSimulation(Simulator simulator, Algorithm algorithm) {
         String algorithmName = algorithm instanceof ThermalAlgorithm
-                ? Scenario.Algorithm.THERMAL : Scenario.Algorithm.PROBABILISTIC;
-        // FIXME: round to step duration.
+                ? Simulation.Algorithm.THERMAL : Simulation.Algorithm.PROBABILISTIC;
+        LatLng startPoint = new LatLng(0, 0);
         Instant startTime = Instant.now();
-        Scenario scenario = simulator.createScenario(algorithmName, getStartCoordinates(), startTime);
-        simulator.startScenario(scenario);
-        return scenario;
+        Simulation simulation = simulator.createDefaultSimulation(startPoint, startTime, algorithmName);
+        simulator.startSimulation(simulation);
+        return simulation;
     }
 }

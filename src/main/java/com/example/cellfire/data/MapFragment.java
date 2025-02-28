@@ -1,7 +1,6 @@
 package com.example.cellfire.data;
 
-import com.example.cellfire.models.ModelSettings;
-import com.example.cellfire.models.CellCoordinates;
+import com.google.maps.model.LatLng;
 
 public class MapFragment {
     private final byte[][] data;
@@ -20,20 +19,15 @@ public class MapFragment {
         this.height = height;
     }
 
-    public boolean has(CellCoordinates coordinates) {
-        int cellX = coordinates.getX();
-        int cellY = coordinates.getY();
-        int scaleFactor = ModelSettings.GRID_SCALE;
-        return x * scaleFactor <= cellX && cellX < (x + width) * scaleFactor
-                && y * scaleFactor <= cellY && cellY < (y + height) * scaleFactor;
+    public boolean has(LatLng point) {
+        int valueX = (int)Math.round((point.lng - x) * scale);
+        int valueY = (int)Math.round((point.lat - y) * scale);
+        return 0 <= valueX && valueX < width * scale && 0 <= valueY && valueY < height * scale;
     }
 
-    public byte at(CellCoordinates coordinates) {
-        int cellX = coordinates.getX();
-        int cellY = coordinates.getY();
-        int scaleFactor = ModelSettings.GRID_SCALE;
-        int valueX = (cellX - x * scaleFactor) * scale / scaleFactor;
-        int valueY = (cellY - y * scaleFactor) * scale / scaleFactor;
+    public byte at(LatLng point) {
+        int valueX = (int)Math.round((point.lng - x) * scale);
+        int valueY = (int)Math.round((point.lat - y) * scale);
         return data[valueX][valueY];
     }
 }

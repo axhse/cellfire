@@ -1,8 +1,8 @@
 package com.example.cellfire.tuner.services;
 
-import com.example.cellfire.models.CellCoordinates;
 import com.example.cellfire.services.MosaicTerrainService;
 import com.example.cellfire.services.TerrainService;
+import com.google.maps.model.LatLng;
 
 public final class UniformTerrainService implements TerrainService {
     private final byte forestType;
@@ -16,22 +16,22 @@ public final class UniformTerrainService implements TerrainService {
     }
 
     @Override
-    public double getIgnitionTemperature(CellCoordinates coordinates) {
+    public double getIgnitionTemperature(LatLng point) {
         return MosaicTerrainService.determineIgnitionTemperature(this.forestType);
     }
 
     @Override
-    public double getActivationEnergy(CellCoordinates coordinates) {
+    public double getActivationEnergy(LatLng point) {
         return MosaicTerrainService.determineActivationEnergy(this.forestType);
     }
 
     @Override
-    public double getFuel(CellCoordinates coordinates) {
+    public double getFuel(LatLng point) {
         return this.fuel;
     }
 
     @Override
-    public double getElevation(CellCoordinates coordinates) {
+    public double getElevation(LatLng point) {
         return this.elevation;
     }
 }

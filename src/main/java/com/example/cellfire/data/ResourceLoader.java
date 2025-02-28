@@ -38,8 +38,7 @@ public final class ResourceLoader {
             for (int xi = 0; xi < width * scale; xi++) {
                 System.arraycopy(bytes, height * scale * xi, data[xi], 0, height * scale);
             }
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             throw new IllegalArgumentException("Cannot read resource bytes.");
         }
         return data;

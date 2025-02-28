@@ -144,7 +144,7 @@ label.hidden {
   border: 4px solid var(--map-border-color);
 }
 
-#control-container-scenario {
+#control-container-simulation {
   position: absolute;
   bottom: 10px;
   left: 10px;

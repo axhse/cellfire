@@ -1,7 +1,7 @@
 package com.example.cellfire.tuner.services;
 
-import com.example.cellfire.models.CellCoordinates;
 import com.example.cellfire.services.WeatherService;
+import com.google.maps.model.LatLng;
 
 import java.time.Instant;
 
@@ -20,22 +20,22 @@ public final class UniformWeatherService implements WeatherService {
     }
 
     @Override
-    public double getAirTemperature(CellCoordinates coordinates, Instant date) {
+    public double getAirTemperature(LatLng point, Instant date) {
         return this.airTemperature;
     }
 
     @Override
-    public double getAirHumidity(CellCoordinates coordinates, Instant date) {
+    public double getAirHumidity(LatLng point, Instant date) {
         return this.airHumidity;
     }
 
     @Override
-    public double getWindX(CellCoordinates coordinates, Instant date) {
+    public double getWindX(LatLng point, Instant date) {
         return this.windX;
     }
 
     @Override
-    public double getWindY(CellCoordinates coordinates, Instant date) {
+    public double getWindY(LatLng point, Instant date) {
         return this.windY;
     }
 }

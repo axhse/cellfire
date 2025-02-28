@@ -1,6 +1,6 @@
 package com.example.cellfire.data;
 
-import com.example.cellfire.models.CellCoordinates;
+import com.google.maps.model.LatLng;
 
 import java.util.List;
 
@@ -11,19 +11,19 @@ public class Mosaic {
         this.fragments = fragments;
     }
 
-    public byte at(CellCoordinates coordinates) {
+    public byte at(LatLng point) {
         for (MapFragment fragment : fragments) {
-            if (fragment.has(coordinates)) {
-                return fragment.at(coordinates);
+            if (fragment.has(point)) {
+                return fragment.at(point);
             }
         }
-        throw new IllegalArgumentException("Mosaic has no value for (%d, %d).".formatted(coordinates.getX(), coordinates.getY()));
+        throw new IllegalArgumentException("Mosaic has no value for (%s).".formatted(point));
     }
 
-    public byte at(CellCoordinates coordinates, byte defaultValue) {
+    public byte at(LatLng point, byte defaultValue) {
         for (MapFragment fragment : fragments) {
-            if (fragment.has(coordinates)) {
-                return fragment.at(coordinates);
+            if (fragment.has(point)) {
+                return fragment.at(point);
             }
         }
         return defaultValue;

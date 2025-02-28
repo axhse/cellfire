@@ -1,15 +1,15 @@
 package com.example.cellfire.services;
 
-import com.example.cellfire.models.CellCoordinates;
+import com.google.maps.model.LatLng;
 
 import java.time.Instant;
 
 public interface WeatherService {
-    double getAirTemperature(CellCoordinates coordinates, Instant date);
+    double getAirTemperature(LatLng point, Instant date);
 
-    double getAirHumidity(CellCoordinates coordinates, Instant date);
+    double getAirHumidity(LatLng point, Instant date);
 
-    double getWindX(CellCoordinates coordinates, Instant date);
+    double getWindX(LatLng point, Instant date);
 
-    double getWindY(CellCoordinates coordinates, Instant date);
+    double getWindY(LatLng point, Instant date);
 }

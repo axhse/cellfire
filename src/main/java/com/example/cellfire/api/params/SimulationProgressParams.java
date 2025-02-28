@@ -1,11 +1,11 @@
 package com.example.cellfire.api.params;
 
-public final class SimulationParams extends ScenarioIdParams {
+public final class SimulationProgressParams extends SimulationIdParams {
     private final int startStep;
     private final int endStep;
 
-    public SimulationParams(String scenarioId, int startStep, int endStep) {
-        super(scenarioId);
+    public SimulationProgressParams(String simulationId, int startStep, int endStep) {
+        super(simulationId);
         this.startStep = startStep;
         this.endStep = endStep;
     }

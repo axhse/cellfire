@@ -1,6 +1,6 @@
 package com.example.cellfire.data;
 
-import com.example.cellfire.models.CellCoordinates;
+import com.google.maps.model.LatLng;
 
 import java.util.List;
 
@@ -9,11 +9,13 @@ public final class SmoothMosaic extends Mosaic {
         super(fragments);
     }
 
-    public byte at(CellCoordinates coordinates) {
+    @Override
+    public byte at(LatLng point) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
-    public byte at(CellCoordinates coordinates, byte defaultValue) {
+    @Override
+    public byte at(LatLng point, byte defaultValue) {
         throw new UnsupportedOperationException("Not implemented");
     }
 }
