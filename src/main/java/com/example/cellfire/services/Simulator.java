@@ -117,7 +117,7 @@ public final class Simulator {
                     if (offsetX == 0 && offsetY == 0 || cell.getNeighbor(offsetX, offsetY) != null) {
                         continue;
                     }
-                    Coordinates neighborCoordinates = grid.getNeighbour(cell.getCoordinates(), offsetX, offsetY);
+                    Coordinates neighborCoordinates = grid.getNeighbor(cell.getCoordinates(), offsetX, offsetY);
                     LatLng neighborPoint = grid.toLatLng(neighborCoordinates);
                     float fuel = (float) terrainService.getFuel(neighborPoint);
                     Weather weather = determineWeather(neighborPoint, date);

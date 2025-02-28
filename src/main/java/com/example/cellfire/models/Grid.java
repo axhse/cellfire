@@ -51,7 +51,7 @@ public final class Grid {
         return new LatLng((coordinates.getY() + 0.5) / scale, (coordinates.getX() + 0.5) / scale);
     }
 
-    public Coordinates getNeighbour(Coordinates coordinates, int offsetX, int offsetY) {
+    public Coordinates getNeighbor(Coordinates coordinates, int offsetX, int offsetY) {
         assert -1 <= offsetX && offsetX <= 1 && -1 <= offsetY && offsetY <= 1;
         int x = coordinates.getX() + offsetX;
         int y = coordinates.getY() + offsetY;

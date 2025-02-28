@@ -108,11 +108,11 @@ public final class ThermalAlgorithm implements Algorithm {
         Grid grid = simulation.getGrid();
         double averageDistance = estimateAverageDistance(grid, cell.getCoordinates(), cell.getCoordinates());
         proximity[8] = 1.0 / averageDistance;
-        int neighbourIndex = 0;
-        for (Cell neighbour : cell.iterateNeighbors()) {
-            averageDistance = estimateAverageDistance(grid, cell.getCoordinates(), neighbour.getCoordinates());
-            double environmentalEffect = calculateEnvironmentalEffect(grid, cell, neighbour);
-            proximity[neighbourIndex++] = environmentalEffect / averageDistance
+        int neighborIndex = 0;
+        for (Cell neighbor : cell.iterateNeighbors()) {
+            averageDistance = estimateAverageDistance(grid, cell.getCoordinates(), neighbor.getCoordinates());
+            double environmentalEffect = calculateEnvironmentalEffect(grid, cell, neighbor);
+            proximity[neighborIndex++] = environmentalEffect / averageDistance
                     * simulation.getGrid().getScale() / distanceEffect;
         }
         double totalProximity = Arrays.stream(proximity).sum();
@@ -120,11 +120,11 @@ public final class ThermalAlgorithm implements Algorithm {
         double emittedEnergy = getEmittedEnergy(cell);
         double heat = cell.getState().getHeat() + emittedEnergy * proximity[8] / totalProximity;
         cell.getState().setHeat((float) heat);
-        neighbourIndex = 0;
-        for (Cell neighbour : cell.iterateNeighbors()) {
-            heat = neighbour.getState().getHeat() + emittedEnergy * proximity[neighbourIndex] / totalProximity;
-            neighbour.getState().setHeat((float) heat);
-            neighbourIndex++;
+        neighborIndex = 0;
+        for (Cell neighbor : cell.iterateNeighbors()) {
+            heat = neighbor.getState().getHeat() + emittedEnergy * proximity[neighborIndex] / totalProximity;
+            neighbor.getState().setHeat((float) heat);
+            neighborIndex++;
         }
     }
 

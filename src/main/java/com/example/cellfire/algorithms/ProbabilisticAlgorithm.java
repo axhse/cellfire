@@ -29,7 +29,7 @@ public final class ProbabilisticAlgorithm implements Algorithm {
         if (cell.getState().getFuel() == 0 || cell.getState().getHeat() != ModelSettings.INITIAL_HEAT) {
             return;
         }
-        propagateFireToNeighbours(cell, simulation);
+        propagateFireToNeighbors(cell, simulation);
         cell.getState().setHeat(0);
         cell.getState().setFuel(0);
     }
@@ -40,17 +40,17 @@ public final class ProbabilisticAlgorithm implements Algorithm {
         }
     }
 
-    private void propagateFireToNeighbours(Cell cell, Simulation simulation) {
-        for (Cell neighbour : cell.iterateNeighbors()) {
-            if (neighbour.getState().getHeat() == ModelSettings.INITIAL_HEAT || neighbour.getState().getFuel() == 0) {
+    private void propagateFireToNeighbors(Cell cell, Simulation simulation) {
+        for (Cell neighbor : cell.iterateNeighbors()) {
+            if (neighbor.getState().getHeat() == ModelSettings.INITIAL_HEAT || neighbor.getState().getFuel() == 0) {
                 continue;
             }
-            double probability = BASIC_PROBABILITY * 1.4 * (1 + calculateFuelDensityEffect(neighbour))
-                    * calculateWindEffect(cell, neighbour)
-                    * calculateSlopeEffect(simulation.getGrid(), cell, neighbour);
+            double probability = BASIC_PROBABILITY * 1.4 * (1 + calculateFuelDensityEffect(neighbor))
+                    * calculateWindEffect(cell, neighbor)
+                    * calculateSlopeEffect(simulation.getGrid(), cell, neighbor);
             probability = Math.min(1, probability);
             if (random.nextDouble() < probability) {
-                neighbour.getTwin().getState().setHeat(ModelSettings.INITIAL_HEAT);
+                neighbor.getTwin().getState().setHeat(ModelSettings.INITIAL_HEAT);
             }
         }
     }

@@ -79,7 +79,7 @@ public final class GridTests {
     void testPositiveCoordinatesNeighbor() {
         Assertions.assertEquals(
                 new Coordinates(-1, 0),
-                new Grid(10).getNeighbour(new Coordinates(0, 1), -1, -1)
+                new Grid(10).getNeighbor(new Coordinates(0, 1), -1, -1)
         );
     }
 
@@ -87,7 +87,7 @@ public final class GridTests {
     void testNegativeCoordinatesNeighbor() {
         Assertions.assertEquals(
                 new Coordinates(0, -54),
-                new Grid(10).getNeighbour(new Coordinates(-1, -55), 1, 1)
+                new Grid(10).getNeighbor(new Coordinates(-1, -55), 1, 1)
         );
     }
 
@@ -95,7 +95,7 @@ public final class GridTests {
     void testRightOverlap() {
         Assertions.assertEquals(
                 new Coordinates(-1800, 124),
-                new Grid(10).getNeighbour(new Coordinates(1799, 123), 1, 1)
+                new Grid(10).getNeighbor(new Coordinates(1799, 123), 1, 1)
         );
     }
 
@@ -103,7 +103,7 @@ public final class GridTests {
     void testLeftOverlap() {
         Assertions.assertEquals(
                 new Coordinates(1799, -124),
-                new Grid(10).getNeighbour(new Coordinates(-1800, -123), -1, -1)
+                new Grid(10).getNeighbor(new Coordinates(-1800, -123), -1, -1)
         );
     }
 
@@ -111,7 +111,7 @@ public final class GridTests {
     void testTopOverlap() {
         Assertions.assertEquals(
                 new Coordinates(1, 899),
-                new Grid(10).getNeighbour(new Coordinates(-1800, 899), 1, 1)
+                new Grid(10).getNeighbor(new Coordinates(-1800, 899), 1, 1)
         );
     }
 
@@ -119,7 +119,7 @@ public final class GridTests {
     void testBottomOverlap() {
         Assertions.assertEquals(
                 new Coordinates(1799, -900),
-                new Grid(10).getNeighbour(new Coordinates(0, -900), -1, -1)
+                new Grid(10).getNeighbor(new Coordinates(0, -900), -1, -1)
         );
     }
 }
