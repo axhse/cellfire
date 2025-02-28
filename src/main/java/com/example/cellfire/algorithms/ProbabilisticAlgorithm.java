@@ -86,7 +86,7 @@ public final class ProbabilisticAlgorithm implements Algorithm {
         double vectorX = otherCell.getCoordinates().getX() - cell.getCoordinates().getX();
         double vectorY = otherCell.getCoordinates().getY() - cell.getCoordinates().getY();
         double windX = cell.getWeather().getWindX();
-        double windY = cell.getWeather().getWindX();
+        double windY = cell.getWeather().getWindY();
         double windSpeed = Math.sqrt(windX * windX + windY * windY);
         if (windSpeed == 0) {
             return 1;

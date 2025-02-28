@@ -202,7 +202,7 @@ public final class ThermalAlgorithm implements Algorithm {
         double vectorX = otherCell.getCoordinates().getX() - cell.getCoordinates().getX();
         double vectorY = otherCell.getCoordinates().getY() - cell.getCoordinates().getY();
         double windX = cell.getWeather().getWindX();
-        double windY = cell.getWeather().getWindX();
+        double windY = cell.getWeather().getWindY();
         double windSpeed = (windX * vectorX + windY * vectorY) / Math.sqrt(vectorX * vectorX + vectorY * vectorY);
         return Math.exp(windEffect * windSpeed);
     }

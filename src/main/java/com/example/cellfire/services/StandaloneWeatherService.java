@@ -19,11 +19,11 @@ public final class StandaloneWeatherService implements WeatherService {
 
     @Override
     public double getWindX(LatLng point, Instant date) {
-        return 1;
+        return 5;
     }
 
     @Override
     public double getWindY(LatLng point, Instant date) {
-        return 3;
+        return -2;
     }
 }
