@@ -22,7 +22,7 @@ public final class ProbabilisticAlgorithm implements Algorithm {
     }
 
     private void setDefaultMark(Cell cell) {
-        cell.setTwin(new Cell(null, new CellState(0, 0), null));
+        cell.setTwin(new Cell(null, new CellState(0, 0, false), null));
     }
 
     private void applyRules(Cell cell, Simulation simulation) {

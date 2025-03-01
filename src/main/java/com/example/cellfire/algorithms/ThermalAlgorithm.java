@@ -83,7 +83,7 @@ public final class ThermalAlgorithm implements Algorithm {
 
     private void burnFuel(Cell cell, Simulation simulation) {
         if (cell.getState().getFuel() == 0
-                || cell.getState().getHeat() <= simulation.getConditions().getIgnitionTemperature()
+                || cell.getState().getHeat() < simulation.getConditions().getIgnitionTemperature()
                 || cell.getWeather().getAirTemperature() <= 0) {
             return;
         }
@@ -216,7 +216,7 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     private void setEmittedEnergy(float energy, Cell cell) {
-        cell.setTwin(new Cell(null, new CellState(energy, 0), null));
+        cell.setTwin(new Cell(null, new CellState(energy, 0, false), null));
     }
 
     private float getEmittedEnergy(Cell cell) {

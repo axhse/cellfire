@@ -52,7 +52,7 @@ public final class Simulator {
         Simulation.Step initialStep = new Simulation.Step();
         simulation.getSteps().add(initialStep);
         float fuel = (float) terrainService.getFuel(startPoint);
-        CellState cellState = new CellState(ModelSettings.INITIAL_HEAT, fuel);
+        CellState cellState = new CellState(ModelSettings.INITIAL_HEAT, fuel, true);
         Weather weather = determineWeather(startPoint, simulation.getStartDate());
         Cell initialCell = new Cell(startCoordinates, cellState, weather);
         initialStep.getCells().add(initialCell);
@@ -124,7 +124,7 @@ public final class Simulator {
                     if (weather.equals(cell.getWeather())) {
                         weather = cell.getWeather();
                     }
-                    CellState cellState = new CellState(weather.getAirTemperature(), fuel);
+                    CellState cellState = new CellState(weather.getAirTemperature(), fuel, false);
                     Cell neighbor = new Cell(neighborCoordinates, cellState, weather);
 
                     // neighbor.setNeighbor(-offsetX, -offsetY, cell);

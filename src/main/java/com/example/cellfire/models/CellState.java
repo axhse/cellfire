@@ -11,10 +11,6 @@ public final class CellState {
         this.isDamaged = isDamaged;
     }
 
-    public CellState(float heat, float fuel) {
-        this(heat, fuel, false);
-    }
-
     public boolean isDamaged() {
         return isDamaged;
     }
