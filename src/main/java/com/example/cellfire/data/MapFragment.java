@@ -20,14 +20,14 @@ public class MapFragment {
     }
 
     public boolean has(LatLng point) {
-        int valueX = (int)Math.round((point.lng - x) * scale);
-        int valueY = (int)Math.round((point.lat - y) * scale);
+        int valueX = (int) Math.round((point.lng - x) * scale - 0.5);
+        int valueY = (int) Math.round((point.lat - y) * scale - 0.5);
         return 0 <= valueX && valueX < width * scale && 0 <= valueY && valueY < height * scale;
     }
 
     public byte at(LatLng point) {
-        int valueX = (int)Math.round((point.lng - x) * scale);
-        int valueY = (int)Math.round((point.lat - y) * scale);
+        int valueX = (int) Math.round((point.lng - x) * scale - 0.5);
+        int valueY = (int) Math.round((point.lat - y) * scale - 0.5);
         return data[valueX][valueY];
     }
 }
