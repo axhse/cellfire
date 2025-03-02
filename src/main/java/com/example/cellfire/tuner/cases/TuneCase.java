@@ -93,7 +93,10 @@ public abstract class TuneCase {
             if (!isObligatory && score == -1) {
                 score = 0;
             }
-            return new ModelScore(score * weight, modelScore.getDescription());
+            if (score > 0) {
+                score *= weight;
+            }
+            return new ModelScore(score, modelScore.getDescription());
         }
     }
 }
