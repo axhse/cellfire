@@ -26,7 +26,7 @@ public final class GridTests {
     }
 
     @Test
-    void testOverlappedRightCoordinatesFromLatLng() {
+    void testRightWraparoundCoordinatesFromLatLng() {
         Coordinates coordinates = new Grid(10).fromLatLng(new LatLng(0, 180));
         Assertions.assertEquals(new Coordinates(-1800, 0), coordinates);
     }
@@ -92,15 +92,7 @@ public final class GridTests {
     }
 
     @Test
-    void testRightOverlap() {
-        Assertions.assertEquals(
-                new Coordinates(-1800, 124),
-                new Grid(10).getNeighbor(new Coordinates(1799, 123), 1, 1)
-        );
-    }
-
-    @Test
-    void testLeftOverlap() {
+    void testLeftWraparound() {
         Assertions.assertEquals(
                 new Coordinates(1799, -124),
                 new Grid(10).getNeighbor(new Coordinates(-1800, -123), -1, -1)
@@ -108,7 +100,15 @@ public final class GridTests {
     }
 
     @Test
-    void testTopOverlap() {
+    void testRightWraparound() {
+        Assertions.assertEquals(
+                new Coordinates(-1800, 124),
+                new Grid(10).getNeighbor(new Coordinates(1799, 123), 1, 1)
+        );
+    }
+
+    @Test
+    void testTopWraparound() {
         Assertions.assertEquals(
                 new Coordinates(1, 899),
                 new Grid(10).getNeighbor(new Coordinates(-1800, 899), 1, 1)
@@ -116,10 +116,18 @@ public final class GridTests {
     }
 
     @Test
-    void testBottomOverlap() {
+    void testBottomWraparound() {
         Assertions.assertEquals(
                 new Coordinates(1799, -900),
                 new Grid(10).getNeighbor(new Coordinates(0, -900), -1, -1)
+        );
+    }
+
+    @Test
+    void testTopRightWraparound() {
+        Assertions.assertEquals(
+                new Coordinates(0, 899),
+                new Grid(10).getNeighbor(new Coordinates(1799, 899), 1, 1)
         );
     }
 }

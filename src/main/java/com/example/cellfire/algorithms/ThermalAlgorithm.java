@@ -15,7 +15,7 @@ public final class ThermalAlgorithm implements Algorithm {
      * += 3.
      * 3.5 in some research.
      */
-    public static final double DEFAULT_SLOPE_EFFECT = 1.5;
+    public static final double DEFAULT_SLOPE_EFFECT = 3;
     /**
      * 0.1-0.3.
      * 0.13 in some research.

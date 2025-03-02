@@ -10,8 +10,8 @@ import java.util.List;
 public final class ResourceLoader {
     public static Mosaic loadElevationMap() {
         List<MapFragment> fragments = new ArrayList<>();
-        fragments.add(loadMapFragment("Elevation", 120, 48, 36, 3));
-        fragments.add(loadFullMap("Elevation", 30));
+        fragments.add(loadMapSmoothFragment("Elevation", 120, 48, 36, 3));
+        fragments.add(loadFullSmoothMap("Elevation", 30));
         return new Mosaic(fragments);
     }
 
@@ -53,9 +53,23 @@ public final class ResourceLoader {
         return loadMapFragment(name, scale, x, y, size, size);
     }
 
-    private static FullMap loadFullMap(String name, int scale) {
+    private static MapFragment loadMapSmoothFragment(String name, int scale, int x, int y, int width, int height) {
+        byte[][] data = loadFragmentData(name, scale, x, y, width, height);
+        return new MapSmoothFragment(data, scale, x, y, width, height);
+    }
+
+    private static MapFragment loadMapSmoothFragment(String name, int scale, int x, int y, int size) {
+        return loadMapSmoothFragment(name, scale, x, y, size, size);
+    }
+
+    private static MapFragment loadFullMap(String name, int scale) {
         byte[][] data = loadFragmentData(name, scale, -180, -90, 360, 180);
         return new FullMap(data, scale);
+    }
+
+    private static MapFragment loadFullSmoothMap(String name, int scale) {
+        byte[][] data = loadFragmentData(name, scale, -180, -90, 360, 180);
+        return new FullSmoothMap(data, scale);
     }
 
     private static String buildResourceFileName(int scale, int x, int y, int width, int height) {

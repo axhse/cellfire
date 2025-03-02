@@ -3,12 +3,12 @@ package com.example.cellfire.data;
 import com.google.maps.model.LatLng;
 
 public class MapFragment {
-    private final byte[][] data;
-    private final int scale;
-    private final int x;
-    private final int y;
-    private final int width;
-    private final int height;
+    protected final byte[][] data;
+    protected final int scale;
+    protected final int x;
+    protected final int y;
+    protected final int width;
+    protected final int height;
 
     public MapFragment(byte[][] data, int scale, int x, int y, int width, int height) {
         this.data = data;
