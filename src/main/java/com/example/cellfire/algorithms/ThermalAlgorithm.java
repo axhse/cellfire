@@ -88,9 +88,13 @@ public final class ThermalAlgorithm implements Algorithm {
             return;
         }
         double combustionRate = calculateCombustionRate(cell, simulation.getConditions());
-        float burnedFraction = (float) calculateBurnedFraction(combustionRate, simulation);
+        double burnedFraction = calculateBurnedFraction(combustionRate, simulation);
+        if (burnedFraction > 1) {
+            combustionRate /= burnedFraction;
+            burnedFraction = 1;
+        }
         float energy = (float) calculateCombustionEnergy(cell, combustionRate);
-        float fuel = cell.getState().getFuel() * (1 - burnedFraction);
+        float fuel = cell.getState().getFuel() * (1 - (float) burnedFraction);
         if (fuel < ModelSettings.SIGNIFICANT_FUEL) {
             fuel = 0;
         }
@@ -161,8 +165,7 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     private double calculateBurnedFraction(double combustionRate, Simulation simulation) {
-        double stepDuration = simulation.getStepDuration().toSeconds();
-        return Math.min(1, combustionRate * stepDuration);
+        return combustionRate * simulation.getStepDuration().toSeconds();
     }
 
     private double calculateCombustionRate(Cell cell, Simulation.Conditions conditions) {
