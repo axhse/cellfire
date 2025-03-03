@@ -66,7 +66,7 @@ public final class Simulator {
 
     public void progressSimulation(Simulation simulation, int endStep) {
         synchronized (simulation.getId()) {
-            while (!simulation.hasStep(endStep)) {
+            while (!simulation.hasStep(endStep) && simulation.getSteps().size() <= simulation.getLimitDurationSteps()) {
                 Simulation.Step draftStep = createDraftStep(simulation);
                 selectAlgorithm(simulation).refineDraftStep(draftStep, simulation);
                 for (Cell cell : draftStep.getCells()) {
