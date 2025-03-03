@@ -5,6 +5,8 @@ import com.example.cellfire.models.*;
 import java.util.Random;
 
 public final class ProbabilisticAlgorithm implements Algorithm {
+    private static final float INITIAL_HEAT = 1000;
+
     private static final Random random = new Random();
 
     private static final double BASIC_PROBABILITY = 0.58 / 3;
@@ -26,7 +28,7 @@ public final class ProbabilisticAlgorithm implements Algorithm {
     }
 
     private void applyRules(Cell cell, Simulation simulation) {
-        if (cell.getState().getFuel() == 0 || cell.getState().getHeat() != ModelSettings.INITIAL_HEAT) {
+        if (cell.getState().getFuel() == 0 || cell.getState().getHeat() != INITIAL_HEAT) {
             return;
         }
         propagateFireToNeighbors(cell, simulation);
@@ -35,14 +37,14 @@ public final class ProbabilisticAlgorithm implements Algorithm {
     }
 
     private void propagate(Cell cell) {
-        if (cell.getTwin().getState().getHeat() == ModelSettings.INITIAL_HEAT) {
-            cell.getState().setHeat(ModelSettings.INITIAL_HEAT);
+        if (cell.getTwin().getState().getHeat() == INITIAL_HEAT) {
+            cell.getState().setHeat(INITIAL_HEAT);
         }
     }
 
     private void propagateFireToNeighbors(Cell cell, Simulation simulation) {
         for (Cell neighbor : cell.iterateNeighbors()) {
-            if (neighbor.getState().getHeat() == ModelSettings.INITIAL_HEAT || neighbor.getState().getFuel() == 0) {
+            if (neighbor.getState().getHeat() == INITIAL_HEAT || neighbor.getState().getFuel() == 0) {
                 continue;
             }
             double probability = BASIC_PROBABILITY * 1.4 * (1 + calculateFuelDensityEffect(neighbor))
@@ -50,7 +52,7 @@ public final class ProbabilisticAlgorithm implements Algorithm {
                     * calculateSlopeEffect(simulation.getGrid(), cell, neighbor);
             probability = Math.min(1, probability);
             if (random.nextDouble() < probability) {
-                neighbor.getTwin().getState().setHeat(ModelSettings.INITIAL_HEAT);
+                neighbor.getTwin().getState().setHeat(INITIAL_HEAT);
             }
         }
     }

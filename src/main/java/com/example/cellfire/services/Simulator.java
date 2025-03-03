@@ -15,6 +15,12 @@ import java.util.Map;
 
 @Service
 public final class Simulator {
+    private static final int DEFAULT_GRID_SCALE = 200;
+    private static final Duration DEFAULT_STEP_DURATION = Duration.ofMinutes(30);
+    private static final Duration DEFAULT_LIMIT_DURATION = Duration.ofDays(7);
+    private static final float INITIAL_HEAT = 1000;
+    private static final float SIGNIFICANT_FUEL = 0.01F;
+
     private final TerrainService terrainService;
     private final WeatherService weatherService;
     private final Algorithm algorithm;
@@ -41,11 +47,8 @@ public final class Simulator {
     }
 
     public Simulation createDefaultSimulation(LatLng startPoint, Instant startDate, String algorithm) {
-        Grid grid = new Grid(ModelSettings.DEFAULT_GRID_SCALE);
-        return createSimulation(
-                grid, startPoint, ModelSettings.DEFAULT_STEP_DURATION,
-                ModelSettings.DEFAULT_LIMIT_DURATION, startDate, algorithm
-        );
+        Grid grid = new Grid(DEFAULT_GRID_SCALE);
+        return createSimulation(grid, startPoint, DEFAULT_STEP_DURATION, DEFAULT_LIMIT_DURATION, startDate, algorithm);
     }
 
     public void startSimulation(Simulation simulation) {
@@ -53,8 +56,8 @@ public final class Simulator {
         LatLng startPoint = simulation.getGrid().toLatLng(startCoordinates);
         Simulation.Step initialStep = new Simulation.Step();
         simulation.getSteps().add(initialStep);
-        float fuel = (float) terrainService.getFuel(startPoint);
-        CellState initialState = new CellState(ModelSettings.INITIAL_HEAT, fuel, true);
+        float fuel = determineFuel(startPoint);
+        CellState initialState = new CellState(INITIAL_HEAT, fuel, true);
         Weather weather = determineWeather(startPoint, simulation.getStartDate());
         Cell initialCell = new Cell(startCoordinates, initialState, weather);
         initialStep.getCells().add(initialCell);
@@ -64,6 +67,11 @@ public final class Simulator {
         while (!simulation.hasStep(endStep)) {
             Simulation.Step draftStep = createDraftStep(simulation);
             selectAlgorithm(simulation).refineDraftStep(draftStep, simulation);
+            for (Cell cell : draftStep.getCells()) {
+                if (cell.getState().getFuel() < SIGNIFICANT_FUEL) {
+                    cell.getState().setFuel(0);
+                }
+            }
             simulation.getSteps().add(draftStep);
         }
     }
@@ -122,7 +130,7 @@ public final class Simulator {
                     }
                     Coordinates neighborCoordinates = grid.getNeighbor(cell.getCoordinates(), offsetX, offsetY);
                     LatLng neighborPoint = grid.toLatLng(neighborCoordinates);
-                    float fuel = (float) terrainService.getFuel(neighborPoint);
+                    float fuel = determineFuel(neighborPoint);
                     Weather weather = determineWeather(neighborPoint, date);
                     if (weather.equals(cell.getWeather())) {
                         weather = cell.getWeather();
@@ -173,5 +181,13 @@ public final class Simulator {
                 (float) weatherService.getWindX(point, date),
                 (float) weatherService.getWindY(point, date)
         );
+    }
+
+    private float determineFuel(LatLng point) {
+        double fuel = terrainService.getFuel(point);
+        if (fuel < SIGNIFICANT_FUEL) {
+            fuel = 0;
+        }
+        return (float) fuel;
     }
 }

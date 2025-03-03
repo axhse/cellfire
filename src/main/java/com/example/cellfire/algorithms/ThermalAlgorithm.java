@@ -123,9 +123,6 @@ public final class ThermalAlgorithm implements Algorithm {
         }
         float energy = (float) calculateCombustionEnergy(cell, combustionRate);
         float fuel = cell.getState().getFuel() * (1 - (float) burnedFraction);
-        if (fuel < ModelSettings.SIGNIFICANT_FUEL) {
-            fuel = 0;
-        }
         setEmittedEnergy(energy, cell);
         cell.getState().setFuel(fuel);
     }
