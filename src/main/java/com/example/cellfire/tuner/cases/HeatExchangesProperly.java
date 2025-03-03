@@ -1,11 +1,11 @@
 package com.example.cellfire.tuner.cases;
 
 import com.example.cellfire.algorithms.Algorithm;
-import com.example.cellfire.algorithms.ThermalAlgorithm;
 import com.example.cellfire.models.Cell;
 import com.example.cellfire.models.CellState;
 import com.example.cellfire.models.Coordinates;
 import com.example.cellfire.models.Weather;
+import com.example.cellfire.tuner.experiment.TuneCase;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

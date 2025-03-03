@@ -3,6 +3,7 @@ package com.example.cellfire.tuner.cases;
 import com.example.cellfire.algorithms.Algorithm;
 import com.example.cellfire.data.ForestConditions;
 import com.example.cellfire.models.*;
+import com.example.cellfire.tuner.experiment.TuneCase;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

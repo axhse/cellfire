@@ -2,8 +2,6 @@ package com.example.cellfire.tuner.experiment;
 
 import com.example.cellfire.algorithms.Algorithm;
 import com.example.cellfire.algorithms.ThermalAlgorithm;
-import com.example.cellfire.tuner.cases.TuneCase;
-import com.example.cellfire.tuner.TuneTask;
 
 import java.util.ArrayList;
 import java.util.List;

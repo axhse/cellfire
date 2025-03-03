@@ -5,6 +5,7 @@ import com.example.cellfire.data.ForestConditions;
 import com.example.cellfire.models.Cell;
 import com.example.cellfire.models.Simulation;
 import com.example.cellfire.services.Simulator;
+import com.example.cellfire.tuner.experiment.TuneCase;
 import com.example.cellfire.tuner.services.UniformTerrainService;
 import com.example.cellfire.tuner.services.UniformWeatherService;
 

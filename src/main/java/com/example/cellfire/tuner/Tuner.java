@@ -6,10 +6,11 @@ import com.example.cellfire.tuner.cases.HeatExchangesProperly;
 import com.example.cellfire.tuner.cases.ResilientForestBurnsUnderModerateFactors;
 import com.example.cellfire.tuner.experiment.Experiment;
 import com.example.cellfire.tuner.experiment.ModelParameter;
+import com.example.cellfire.tuner.experiment.TuneTask;
 
 import java.util.List;
 
-public final class ThermalAlgorithmTuner {
+public final class Tuner {
     public void run() {
         new Experiment(true, createTask()).run().print();
     }

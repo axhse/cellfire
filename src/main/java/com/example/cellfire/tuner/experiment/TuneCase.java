@@ -1,4 +1,4 @@
-package com.example.cellfire.tuner.cases;
+package com.example.cellfire.tuner.experiment;
 
 import com.example.cellfire.algorithms.Algorithm;
 import com.example.cellfire.algorithms.ThermalAlgorithm;
