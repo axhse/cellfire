@@ -17,9 +17,7 @@ public final class ProbabilisticAlgorithm implements Algorithm {
     @Override
     public void refineDraftStep(Simulation.Step draftStep, Simulation simulation) {
         draftStep.getCells().forEach(this::setDefaultMark);
-        draftStep.getCells().forEach((cell) -> {
-            applyRules(cell, simulation);
-        });
+        draftStep.getCells().forEach((cell) -> applyRules(cell, simulation));
         draftStep.getCells().forEach(this::propagate);
     }
 

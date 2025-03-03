@@ -116,7 +116,7 @@ public final class Simulation {
 
     // TODO: Remove.
     public static final class Algorithm {
-        public static String THERMAL = "thermal";
-        public static String PROBABILISTIC = "probabilistic";
+        public static final String THERMAL = "thermal";
+        public static final String PROBABILISTIC = "probabilistic";
     }
 }

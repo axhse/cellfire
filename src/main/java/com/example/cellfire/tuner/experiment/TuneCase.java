@@ -6,8 +6,6 @@ import com.example.cellfire.models.Simulation;
 import com.example.cellfire.services.Simulator;
 import com.google.maps.model.LatLng;
 
-import java.time.Instant;
-
 public abstract class TuneCase {
     private final double weight;
     private final boolean isObligatory;
