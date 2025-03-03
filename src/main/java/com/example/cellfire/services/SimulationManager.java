@@ -10,6 +10,8 @@ import java.util.List;
 
 @Service
 public final class SimulationManager {
+    private static final Duration SIMULATION_LIFETIME = Duration.ofHours(1);
+
     private final List<Simulation> simulations = new ArrayList<>();
 
     public Simulation getSimulation(String id) {
@@ -30,6 +32,8 @@ public final class SimulationManager {
     }
 
     public void revise() {
-        simulations.removeIf(simulation -> Duration.between(simulations.get(0).getCreationDate(), Instant.now()).compareTo(ServiceSettings.SIMULATION_LIFETIME) > 0);
+        simulations.removeIf(simulation -> Duration.between(
+                simulations.get(0).getCreationDate(), Instant.now()).compareTo(SIMULATION_LIFETIME) > 0
+        );
     }
 }

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public final class Simulator {
@@ -52,9 +54,9 @@ public final class Simulator {
         Simulation.Step initialStep = new Simulation.Step();
         simulation.getSteps().add(initialStep);
         float fuel = (float) terrainService.getFuel(startPoint);
-        CellState cellState = new CellState(ModelSettings.INITIAL_HEAT, fuel, true);
+        CellState initialState = new CellState(ModelSettings.INITIAL_HEAT, fuel, true);
         Weather weather = determineWeather(startPoint, simulation.getStartDate());
-        Cell initialCell = new Cell(startCoordinates, cellState, weather);
+        Cell initialCell = new Cell(startCoordinates, initialState, weather);
         initialStep.getCells().add(initialCell);
     }
 
@@ -103,9 +105,10 @@ public final class Simulator {
             }
         });
 
-        draftStep.getCells().forEach(cell -> {
-            cell.setTwin(null);
-        });
+        draftStep.getCells().forEach(cell -> cell.setTwin(null));
+
+        Map<Coordinates, Cell> draftCellMap = new HashMap<>(draftStep.getCells().size());
+        draftStep.getCells().forEach(cell -> draftCellMap.put(cell.getCoordinates(), cell));
 
         lastStep.getCells().forEach(previousCell -> {
             Cell cell = previousCell.getTwin();
@@ -124,22 +127,22 @@ public final class Simulator {
                     if (weather.equals(cell.getWeather())) {
                         weather = cell.getWeather();
                     }
-                    CellState cellState = new CellState(weather.getAirTemperature(), fuel, false);
-                    Cell neighbor = new Cell(neighborCoordinates, cellState, weather);
+                    CellState neighborState = new CellState(weather.getAirTemperature(), fuel, false);
+                    Cell neighbor = new Cell(neighborCoordinates, neighborState, weather);
 
-                    // neighbor.setNeighbor(-offsetX, -offsetY, cell);
-                    // cell.setNeighbor(offsetX, offsetY, neighbor);
-                    // TODO: optimize
-                    draftStep.getCells().forEach(otherCell -> {
-                        int distanceX = otherCell.getCoordinates().getX() - neighbor.getCoordinates().getX();
-                        int distanceY = otherCell.getCoordinates().getY() - neighbor.getCoordinates().getY();
-                        if (Math.abs(distanceX) <= 1 && Math.abs(distanceY) <= 1) {
-                            neighbor.setNeighbor(distanceX, distanceY, otherCell);
-                            otherCell.setNeighbor(-distanceX, -distanceY, neighbor);
+                    for (int dX = -1; dX <= 1; dX++) {
+                        for (int dY = -1; dY <= 1; dY++) {
+                            Coordinates otherCoordinates = grid.getNeighbor(neighborCoordinates, dX, dY);
+                            if (draftCellMap.containsKey(otherCoordinates)) {
+                                Cell otherCell = draftCellMap.get(otherCoordinates);
+                                neighbor.setNeighbor(dX, dY, otherCell);
+                                otherCell.setNeighbor(-dX, -dY, neighbor);
+                            }
                         }
-                    });
+                    }
 
                     draftStep.getCells().add(neighbor);
+                    draftCellMap.put(neighbor.getCoordinates(), neighbor);
                 }
             }
         });

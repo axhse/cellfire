@@ -75,7 +75,7 @@ public final class FuelCombustsWithReasonableRate extends TuneCase {
         return ModelScore.victory();
     }
 
-    private Cell createCell(float heat, float airHumidity) {
+    private static Cell createCell(float heat, float airHumidity) {
         return new Cell(
                 new Coordinates(0, 0),
                 new CellState(heat, 0, true),

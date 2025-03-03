@@ -13,8 +13,7 @@ public abstract class TuneCase {
     private final boolean isObligatory;
 
     public TuneCase(double weight, boolean isObligatory) {
-        assert 0 <= weight;
-        this.weight = weight;
+        this.weight = Math.max(0, weight);
         this.isObligatory = isObligatory && weight != 0;
     }
 
@@ -40,7 +39,7 @@ public abstract class TuneCase {
 
     protected abstract ModelScore score(Algorithm algorithm);
 
-    protected Simulation startDefaultSimulation(Simulator simulator, Algorithm algorithm) {
+    protected static Simulation startDefaultSimulation(Simulator simulator, Algorithm algorithm) {
         String algorithmName = algorithm instanceof ThermalAlgorithm
                 ? Simulation.Algorithm.THERMAL : Simulation.Algorithm.PROBABILISTIC;
         LatLng startPoint = new LatLng(0, 0);
@@ -55,8 +54,7 @@ public abstract class TuneCase {
         private final String description;
 
         private ModelScore(double score, String description) {
-            assert score == -1 || 0 <= score && score <= 1;
-            this.score = score;
+            this.score = Math.max(-1, Math.min(1, score));
             this.description = description;
         }
 

@@ -79,7 +79,7 @@ public final class HeatExchangesProperly extends TuneCase {
         return ModelScore.victory();
     }
 
-    private Cell createCell(float heat) {
+    private static Cell createCell(float heat) {
         return new Cell(
                 new Coordinates(0, 0),
                 new CellState(heat, 0, true),

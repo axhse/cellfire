@@ -72,12 +72,8 @@ public final class ThermalAlgorithm implements Algorithm {
 
     @Override
     public void refineDraftStep(Simulation.Step draftStep, Simulation simulation) {
-        draftStep.getCells().forEach((cell) -> {
-            burnFuel(cell, simulation);
-        });
-        draftStep.getCells().forEach((cell) -> {
-            transferEnergy(cell, simulation);
-        });
+        draftStep.getCells().forEach((cell) -> burnFuel(cell, simulation));
+        draftStep.getCells().forEach((cell) -> transferEnergy(cell, simulation));
         draftStep.getCells().forEach(this::regulateHeat);
     }
 

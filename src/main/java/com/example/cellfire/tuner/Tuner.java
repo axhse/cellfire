@@ -1,9 +1,6 @@
 package com.example.cellfire.tuner;
 
-import com.example.cellfire.tuner.cases.FlammableForestDoesNotBurnUnderHumidAir;
-import com.example.cellfire.tuner.cases.FuelCombustsWithReasonableRate;
-import com.example.cellfire.tuner.cases.HeatExchangesProperly;
-import com.example.cellfire.tuner.cases.ResilientForestBurnsUnderModerateFactors;
+import com.example.cellfire.tuner.cases.*;
 import com.example.cellfire.tuner.experiment.Experiment;
 import com.example.cellfire.tuner.experiment.ModelParameter;
 import com.example.cellfire.tuner.experiment.TuneTask;
@@ -16,7 +13,7 @@ public final class Tuner {
     }
 
     private TuneTask createTask() {
-        return validateDefault();
+        return tuneDraftStepCreationAlgorithm();
     }
 
     private TuneTask validateDefault() {
@@ -28,6 +25,16 @@ public final class Tuner {
                         new FlammableForestDoesNotBurnUnderHumidAir(),
                         new ResilientForestBurnsUnderModerateFactors()
                 ),
+                List.of()
+        );
+    }
+
+    private TuneTask tuneDraftStepCreationAlgorithm() {
+        return new TuneTask(
+                "Draft step creation algorithm",
+                List.of(new DraftStepCreatesQuickly(
+                        DraftStepCreatesQuickly.CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_HASHMAP
+                )),
                 List.of()
         );
     }
