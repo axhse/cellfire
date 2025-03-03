@@ -55,13 +55,16 @@ public final class Simulator {
     public void startSimulation(Simulation simulation) {
         Coordinates startCoordinates = simulation.getStartCoordinates();
         LatLng startPoint = simulation.getGrid().toLatLng(startCoordinates);
-        Simulation.Step initialStep = new Simulation.Step();
-        simulation.getSteps().add(initialStep);
+
         float fuel = determineFuel(startPoint);
         CellState initialState = new CellState(INITIAL_HEAT, fuel, true);
         Weather weather = determineWeather(startPoint, simulation.getStartDate());
+
         Cell initialCell = new Cell(startCoordinates, initialState, weather);
+
+        Simulation.Step initialStep = new Simulation.Step();
         initialStep.getCells().add(initialCell);
+        simulation.getSteps().add(initialStep);
     }
 
     public void progressSimulation(Simulation simulation, int endStep) {
@@ -104,11 +107,7 @@ public final class Simulator {
         lastStep.getCells().forEach(cell -> {
             for (int offsetX = -1; offsetX <= 1; offsetX++) {
                 for (int offsetY = -1; offsetY <= 1; offsetY++) {
-                    if (offsetX == 0 && offsetY == 0) {
-                        continue;
-                    }
-                    Cell neighbor = cell.getNeighbor(offsetX, offsetY);
-                    if (neighbor == null) {
+                    if (offsetX == 0 && offsetY == 0 || cell.getNeighbor(offsetX, offsetY) == null) {
                         continue;
                     }
                     cell.getTwin().setNeighbor(offsetX, offsetY, cell.getNeighbor(offsetX, offsetY).getTwin());
@@ -132,6 +131,10 @@ public final class Simulator {
                         continue;
                     }
                     Coordinates neighborCoordinates = grid.getNeighbor(cell.getCoordinates(), offsetX, offsetY);
+                    if (cell.getCoordinates().getY() == neighborCoordinates.getY() && offsetY != 0) {
+                        // Cells neighboring through the poles are not expected.
+                        continue;
+                    }
                     LatLng neighborPoint = grid.toLatLng(neighborCoordinates);
                     float fuel = determineFuel(neighborPoint);
                     Weather weather = determineWeather(neighborPoint, date);

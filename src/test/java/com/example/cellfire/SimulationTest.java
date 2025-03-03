@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class SimulationManagerTest {
+public final class SimulationTest {
     @Test
     public void testAdditionToManager() {
         SimulationManager manager = new SimulationManager();
@@ -184,6 +184,24 @@ public final class SimulationManagerTest {
         }
     }
 
+    @Test
+    public void testPolarNeighboringCells() {
+        Simulator simulator = createSimulator();
+        Simulation simulation = simulator.createDefaultSimulation(
+                new LatLng(-90 + 0.00001, 0),
+                Simulation.Algorithm.THERMAL
+        );
+
+        simulator.startSimulation(simulation);
+        simulator.progressSimulation(simulation, 1);
+
+        Assertions.assertEquals(6, simulation.getSteps().get(1).getCells().size());
+
+        for (Cell cell : simulation.getSteps().get(1).getCells()) {
+            Assertions.assertTrue(-1 <= cell.getCoordinates().getX() && cell.getCoordinates().getX() <= 1);
+        }
+    }
+
     private static Simulator createSimulator() {
         return new Simulator(
                 new UniformTerrainService((byte) 1, 10, 0),
@@ -194,7 +212,7 @@ public final class SimulationManagerTest {
 
     private static Simulation createSimulation() {
         return createSimulator().createDefaultSimulation(
-                new LatLng(0, -180 + 0.1 / 123),
+                new LatLng(0, -180 + 0.00001),
                 Simulation.Algorithm.THERMAL
         );
     }
