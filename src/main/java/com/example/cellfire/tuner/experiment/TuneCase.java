@@ -43,8 +43,7 @@ public abstract class TuneCase {
         String algorithmName = algorithm instanceof ThermalAlgorithm
                 ? Simulation.Algorithm.THERMAL : Simulation.Algorithm.PROBABILISTIC;
         LatLng startPoint = new LatLng(0, 0);
-        Instant startTime = Instant.now();
-        Simulation simulation = simulator.createDefaultSimulation(startPoint, startTime, algorithmName);
+        Simulation simulation = simulator.createDefaultSimulation(startPoint, algorithmName);
         simulator.startSimulation(simulation);
         return simulation;
     }

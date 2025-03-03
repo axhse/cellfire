@@ -53,16 +53,12 @@ public final class Grid {
 
     public Coordinates getNeighbor(Coordinates coordinates, int offsetX, int offsetY) {
         assert -1 <= offsetX && offsetX <= 1 && -1 <= offsetY && offsetY <= 1;
-        int x = coordinates.getX() + offsetX;
         int y = coordinates.getY() + offsetY;
-        if (y < -90 * scale) {
-            y = -180 * scale - y - 1;
-            x += 180 * scale;
+        if (y < -90 * scale || 90 * scale <= y) {
+            y = (y < 0 ? -1 : 1) * 180 * scale - y - 1;
+            offsetX = 180 * scale - offsetX;
         }
-        if (90 * scale <= y) {
-            y = 180 * scale - y - 1;
-            x += 180 * scale;
-        }
+        int x = coordinates.getX() + offsetX;
         if (x < -180 * scale) {
             x += 360 * scale;
         }

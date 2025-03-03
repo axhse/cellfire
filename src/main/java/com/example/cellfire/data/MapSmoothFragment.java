@@ -13,21 +13,21 @@ public class MapSmoothFragment extends MapFragment {
                 (Math.floor(point.lat * scale) + 0.5) / scale,
                 (Math.floor(point.lng * scale) + 0.5) / scale
         );
-        int[] dxValues = Math.abs(point.lng - center.lng) < 0.05 / scale ? new int[]{0} : new int[]{-1, 1};
-        int[] dyValues = Math.abs(point.lat - center.lat) < 0.05 / scale ? new int[]{0} : new int[]{-1, 1};
-        if (dxValues.length + dyValues.length == 2) {
+        int[] dLngValues = Math.abs(point.lng - center.lng) < 0.05 / scale ? new int[]{0} : new int[]{-1, 1};
+        int[] dLatValues = Math.abs(point.lat - center.lat) < 0.05 / scale ? new int[]{0} : new int[]{-1, 1};
+        if (dLngValues.length + dLatValues.length == 2) {
             return super.at(point);
         }
         double value = 0;
         double weight = 0;
-        for (int dx : dxValues) {
-            for (int dy : dyValues) {
-                LatLng referencePoint = getReferencePoint(point, dx, dy);
+        for (int dLng : dLngValues) {
+            for (int dLat : dLatValues) {
+                LatLng referencePoint = getReferencePoint(point, dLng, dLat);
                 if (!has(referencePoint)) {
                     continue;
                 }
-                double distanceLat = dy * (center.lat - point.lat);
-                double distanceLng = dx * (center.lng - point.lng);
+                double distanceLat = dLat * (center.lat - point.lat);
+                double distanceLng = dLng * (center.lng - point.lng);
                 if (distanceLat < 0) {
                     distanceLat += 1.0 / scale;
                 }
@@ -35,28 +35,21 @@ public class MapSmoothFragment extends MapFragment {
                     distanceLng += 1.0 / scale;
                 }
                 distanceLng *= Math.cos(Math.toRadians(point.lat));
-                var v = super.at(referencePoint);
-                var d = Math.sqrt(distanceLat * distanceLat + distanceLng * distanceLng);
                 double referenceWeight = 1 / Math.sqrt(distanceLat * distanceLat + distanceLng * distanceLng);
                 weight += referenceWeight;
                 value += referenceWeight * super.at(referencePoint);
             }
         }
-        var x = value / weight;
         return (byte) Math.round(value / weight);
     }
 
-    private LatLng getReferencePoint(LatLng point, int dx, int dy) {
-        double lat = point.lat + 0.5 * dy / scale;
-        double lng = point.lng + 0.5 * dx / scale;
-        if (lat < -90) {
-            lat = -180 - lat;
-            lng += 180;
+    private LatLng getReferencePoint(LatLng point, int dLng, int dLat) {
+        double lat = point.lat + 0.5 * dLat / scale;
+        if (lat < -90 || 90 <= lat) {
+            lat = (lat < 0 ? -1 : 1) * 180 - lat;
+            dLng = 360 * scale - dLng;
         }
-        if (90 <= lat) {
-            lat = 180 - lat;
-            lng += 180;
-        }
+        double lng = point.lng + 0.5 * dLng / scale;
         if (lng < -180) {
             lng += 360;
         }

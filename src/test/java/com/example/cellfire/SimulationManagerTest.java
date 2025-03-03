@@ -1,20 +1,23 @@
 package com.example.cellfire;
 
+import com.example.cellfire.algorithms.ThermalAlgorithm;
+import com.example.cellfire.models.Cell;
 import com.example.cellfire.models.Coordinates;
-import com.example.cellfire.models.Grid;
 import com.example.cellfire.models.Simulation;
 import com.example.cellfire.services.SimulationManager;
+import com.example.cellfire.services.Simulator;
+import com.example.cellfire.tuner.services.UniformTerrainService;
+import com.example.cellfire.tuner.services.UniformWeatherService;
+import com.google.maps.model.LatLng;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class SimulationManagerTest {
     @Test
-    void testSimulationAddition() {
+    public void testAdditionToManager() {
         SimulationManager manager = new SimulationManager();
 
         List<Simulation> simulations = new ArrayList<>();
@@ -30,7 +33,7 @@ public final class SimulationManagerTest {
     }
 
     @Test
-    void testSimulationRemoval() {
+    public void testRemovalFromManager() {
         SimulationManager manager = new SimulationManager();
 
         List<Simulation> simulations = new ArrayList<>();
@@ -53,7 +56,7 @@ public final class SimulationManagerTest {
     }
 
     @Test
-    void testManagerOverflow() {
+    public void testManagerOverflow() {
         SimulationManager manager = new SimulationManager();
         Simulation simulation;
 
@@ -74,7 +77,7 @@ public final class SimulationManagerTest {
     }
 
     @Test
-    void testManagerOverflowAccessed() {
+    public void testManagerOverflowAccessed() {
         SimulationManager manager = new SimulationManager();
         Simulation simulation;
 
@@ -100,7 +103,7 @@ public final class SimulationManagerTest {
     }
 
     @Test
-    void testManagerOverflowAllAccessed() {
+    public void testManagerOverflowAllAccessed() {
         SimulationManager manager = new SimulationManager();
         Simulation simulation;
 
@@ -132,9 +135,67 @@ public final class SimulationManagerTest {
         Assertions.assertEquals(simulation, manager.findSimulation(simulation.getId()));
     }
 
+    @Test
+    public void testSimulationSteps() {
+        Simulator simulator = createSimulator();
+        Simulation simulation = createSimulation();
+
+        Assertions.assertEquals(0, simulation.getSteps().size());
+
+        simulator.startSimulation(simulation);
+        Assertions.assertEquals(1, simulation.getSteps().size());
+
+        simulator.progressSimulation(simulation, 4);
+        Assertions.assertEquals(5, simulation.getSteps().size());
+
+        simulator.progressSimulation(simulation, 6);
+        Assertions.assertEquals(7, simulation.getSteps().size());
+    }
+
+    @Test
+    public void testSimulationStepCells() {
+        Simulator simulator = createSimulator();
+        Simulation simulation = createSimulation();
+
+        simulator.startSimulation(simulation);
+        simulator.progressSimulation(simulation, 2);
+
+        Assertions.assertEquals(1, simulation.getSteps().get(0).getCells().size());
+        Assertions.assertEquals(9, simulation.getSteps().get(1).getCells().size());
+        Assertions.assertEquals(25, simulation.getSteps().get(2).getCells().size());
+
+        for (Cell cell : simulation.getSteps().get(2).getCells()) {
+            for (int dX = -1; dX <= 1; dX++) {
+                for (int dY = -1; dY <= 1; dY++) {
+                    if (dX == 0 && dY == 0 || cell.getNeighbor(dX, dY) == null) {
+                        continue;
+                    }
+                    Coordinates expectedCoordinates = simulation.getGrid().getNeighbor(cell.getCoordinates(), dX, dY);
+                    Cell neighbor = cell.getNeighbor(dX, dY);
+
+                    Assertions.assertNotEquals(cell, neighbor);
+                    Assertions.assertNotEquals(cell.getCoordinates(), neighbor.getCoordinates());
+                    Assertions.assertEquals(expectedCoordinates, neighbor.getCoordinates());
+
+                    Cell twin = neighbor.getNeighbor(-dX, -dY);
+                    Assertions.assertEquals(cell, twin);
+                }
+            }
+        }
+    }
+
+    private static Simulator createSimulator() {
+        return new Simulator(
+                new UniformTerrainService((byte) 1, 10, 0),
+                new UniformWeatherService(10000, 0, 0, 0),
+                new ThermalAlgorithm()
+        );
+    }
+
     private static Simulation createSimulation() {
-        return new Simulation(new Grid(0), new Coordinates(0, 0), Duration.ofDays(1),
-                Duration.ofDays(1), Instant.now(), new Simulation.Conditions(0, 0),
-                Simulation.Algorithm.THERMAL);
+        return createSimulator().createDefaultSimulation(
+                new LatLng(0, -180 + 0.1 / 123),
+                Simulation.Algorithm.THERMAL
+        );
     }
 }

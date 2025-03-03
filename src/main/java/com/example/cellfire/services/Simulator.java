@@ -46,8 +46,9 @@ public final class Simulator {
         );
     }
 
-    public Simulation createDefaultSimulation(LatLng startPoint, Instant startDate, String algorithm) {
+    public Simulation createDefaultSimulation(LatLng startPoint, String algorithm) {
         Grid grid = new Grid(DEFAULT_GRID_SCALE);
+        Instant startDate = Instant.now();
         return createSimulation(grid, startPoint, DEFAULT_STEP_DURATION, DEFAULT_LIMIT_DURATION, startDate, algorithm);
     }
 

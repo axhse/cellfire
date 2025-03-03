@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 public final class MapFragmentTests {
     @Test
-    void testMapFragmentBoundaries() {
+    public void testMapFragmentBoundaries() {
         byte[][] data = new byte[7 * 2][7 * 3];
         for (int x = 0; x < 7 * 2; x++) {
             for (int y = 0; y < 7 * 3; y++) {
@@ -41,7 +41,7 @@ public final class MapFragmentTests {
     }
 
     @Test
-    void testSmoothFragmentValuesNearCenters() {
+    public void testSmoothFragmentValuesNearCenters() {
         byte[][] data = new byte[7 * 2][7 * 3];
         for (int x = 0; x < 7 * 2; x++) {
             for (int y = 0; y < 7 * 3; y++) {
@@ -74,7 +74,7 @@ public final class MapFragmentTests {
     }
 
     @Test
-    void testSmoothFragmentSkewedValues() {
+    public void testSmoothFragmentSkewedValues() {
         byte[][] data = new byte[3 * 2][3 * 2];
         for (int x = 0; x < 3 * 2; x++) {
             for (int y = 0; y < 3 * 2; y++) {
@@ -117,7 +117,7 @@ public final class MapFragmentTests {
     }
 
     @Test
-    void testSmoothFragmentBoundaryValues() {
+    public void testSmoothFragmentBoundaryValues() {
         byte[][] data = new byte[3 * 2][3 * 2];
         for (int x = 0; x < 3 * 2; x++) {
             for (int y = 0; y < 3 * 2; y++) {
@@ -150,7 +150,7 @@ public final class MapFragmentTests {
     }
 
     @Test
-    void testSmoothFragmentLeftWraparound() {
+    public void testSmoothFragmentLeftWraparound() {
         byte[][] data = new byte[3 * 360][3 * 180];
         data[0][3 * 123] = 71;
         data[3 * 360 - 1][3 * 123] = 36;
@@ -162,7 +162,7 @@ public final class MapFragmentTests {
     }
 
     @Test
-    void testSmoothFragmentRightWraparound() {
+    public void testSmoothFragmentRightWraparound() {
         byte[][] data = new byte[3 * 360][3 * 180];
         data[0][3 * 123] = 71;
         data[3 * 360 - 1][3 * 123] = 36;
@@ -174,7 +174,7 @@ public final class MapFragmentTests {
     }
 
     @Test
-    void testSmoothFragmentTopWraparound() {
+    public void testSmoothFragmentTopWraparound() {
         byte[][] data = new byte[3 * 360][3 * 180];
         data[3 * 234][3 * 180 - 1] = 71;
         data[3 * (234 - 180)][3 * 180 - 1] = 36;
@@ -186,7 +186,19 @@ public final class MapFragmentTests {
     }
 
     @Test
-    void testSmoothFragmentBottomWraparound() {
+    public void testSmoothFragmentTopSkewedWraparound() {
+        byte[][] data = new byte[3 * 360][3 * 180];
+        data[0][3 * 180 - 1] = 71;
+        data[3 * 360 - 1][3 * 180 - 1] = 36;
+        MapFragment fragment = new FullSmoothMap(data, 3);
+
+        byte expectedValue = (byte) Math.round(0.4 * (71 + 36) / 2);
+        LatLng point = new LatLng(90 - 0.1 / 3, -0.25 / 3);
+        Assertions.assertEquals(expectedValue, fragment.at(point));
+    }
+
+    @Test
+    public void testSmoothFragmentBottomWraparound() {
         byte[][] data = new byte[3 * 360][3 * 180];
         data[3 * 123][0] = 71;
         data[3 * (123 + 180)][0] = 36;
@@ -198,7 +210,7 @@ public final class MapFragmentTests {
     }
 
     @Test
-    void testSmoothFragmentTopRightWraparound() {
+    public void testSmoothFragmentTopRightWraparound() {
         byte[][] data = new byte[3 * 360][3 * 180];
         data[3 * 360 - 1][3 * 180 - 1] = 10;
         data[0][3 * 180 - 1] = 24;

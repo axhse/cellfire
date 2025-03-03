@@ -3,11 +3,7 @@ export class Simulator {
     const response = await fetch('/simulation/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        startLonLat,
-        startDateMs: new Date().valueOf(),
-        algorithm,
-      }),
+      body: JSON.stringify({ startLonLat, algorithm }),
     });
 
     if (response.ok) {

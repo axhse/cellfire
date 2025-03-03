@@ -86,6 +86,7 @@ public final class ThermalAlgorithm implements Algorithm {
 
     private static double estimateAverageDistance(Grid grid, Coordinates first, Coordinates second) {
         double localCos = Math.cos(Math.toRadians(grid.toLatLng(first).lat));
+        // Cells neighboring through the poles are not expected.
         double distanceX = Math.abs(first.getX() - second.getX()) * localCos;
         double distanceY = Math.abs(first.getY() - second.getY());
         distanceX += distanceX == 0 ? 0.5 * localCos : 0;
