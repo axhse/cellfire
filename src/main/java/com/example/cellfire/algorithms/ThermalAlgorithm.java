@@ -3,11 +3,9 @@ package com.example.cellfire.algorithms;
 import com.example.cellfire.models.*;
 
 import java.util.Arrays;
+import java.util.List;
 
 public final class ThermalAlgorithm implements Algorithm {
-    /**
-     * Varies from 150k to 250k.
-     */
     public static final double DEFAULT_COMBUSTION_RATE = 31;
     public static final double DEFAULT_ENERGY_EMISSION = 4.7 * Math.pow(10, 7);
     public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 4.4;
@@ -72,9 +70,43 @@ public final class ThermalAlgorithm implements Algorithm {
 
     @Override
     public void refineDraftStep(Simulation.Step draftStep, Simulation simulation) {
-        draftStep.getCells().forEach((cell) -> burnFuel(cell, simulation));
-        draftStep.getCells().forEach((cell) -> transferEnergy(cell, simulation));
+        List<Cell> burningCells = draftStep.getCells().stream()
+                .filter(cell -> isBurningCell(cell, simulation))
+                .toList();
+        burningCells.forEach((cell) -> burnFuel(cell, simulation));
+        burningCells.forEach((cell) -> transferEnergy(cell, simulation));
         draftStep.getCells().forEach(this::regulateHeat);
+    }
+
+    private static boolean isBurningCell(Cell cell, Simulation simulation) {
+        return cell.getState().getFuel() > 0
+                && simulation.getConditions().getIgnitionTemperature() <= cell.getState().getHeat()
+                && cell.getWeather().getAirTemperature() > 0;
+    }
+
+    private static double estimateAverageDistance(Grid grid, Coordinates first, Coordinates second) {
+        double localCos = Math.cos(Math.toRadians(grid.toLatLng(first).lat));
+        double distanceX = Math.abs(first.getX() - second.getX()) * localCos;
+        double distanceY = Math.abs(first.getY() - second.getY());
+        distanceX += distanceX == 0 ? 0.5 * localCos : 0;
+        distanceY += distanceY == 0 ? 0.5 : 0;
+        return Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+    }
+
+    private static double toKelvin(double celsiusTemperature) {
+        return celsiusTemperature + CELSIUS_ZERO_TEMPERATURE;
+    }
+
+    private static double toCelsius(double kelvinTemperature) {
+        return kelvinTemperature - CELSIUS_ZERO_TEMPERATURE;
+    }
+
+    private static void setEmittedEnergy(float energy, Cell cell) {
+        cell.setTwin(new Cell(null, new CellState(energy, 0, false), null));
+    }
+
+    private static float getEmittedEnergy(Cell cell) {
+        return cell.getTwin().getState().getHeat();
     }
 
     private void burnFuel(Cell cell, Simulation simulation) {
@@ -84,7 +116,7 @@ public final class ThermalAlgorithm implements Algorithm {
             return;
         }
         double combustionRate = calculateCombustionRate(cell, simulation.getConditions());
-        double burnedFraction = calculateBurnedFraction(combustionRate, simulation);
+        double burnedFraction = combustionRate * simulation.getStepDuration().toSeconds();
         if (burnedFraction > 1) {
             combustionRate /= burnedFraction;
             burnedFraction = 1;
@@ -99,11 +131,6 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     private void transferEnergy(Cell cell, Simulation simulation) {
-        float energy = getEmittedEnergy(cell);
-        if (energy == 0) {
-            return;
-        }
-
         double[] proximity = new double[9];
         Grid grid = simulation.getGrid();
         double averageDistance = estimateAverageDistance(grid, cell.getCoordinates(), cell.getCoordinates());
@@ -160,24 +187,11 @@ public final class ThermalAlgorithm implements Algorithm {
         return energyEmission * combustionRate * cell.getState().getFuel();
     }
 
-    private double calculateBurnedFraction(double combustionRate, Simulation simulation) {
-        return combustionRate * simulation.getStepDuration().toSeconds();
-    }
-
     private double calculateCombustionRate(Cell cell, Simulation.Conditions conditions) {
         double firePower = -conditions.getActivationEnergy()
                 / UNIVERSAL_GAS_CONSTANT / toKelvin(cell.getState().getHeat());
         double airHumidityInfluence = Math.exp(-airHumidityEffect * cell.getWeather().getAirHumidity());
         return airHumidityInfluence * combustionRate * Math.exp(firePower);
-    }
-
-    private double estimateAverageDistance(Grid grid, Coordinates first, Coordinates second) {
-        double localCos = Math.cos(Math.toRadians(grid.toLatLng(first).lat));
-        double distanceX = Math.abs(first.getX() - second.getX()) * localCos;
-        double distanceY = Math.abs(first.getY() - second.getY());
-        distanceX += distanceX == 0 ? 0.5 * localCos : 0;
-        distanceY += distanceY == 0 ? 0.5 : 0;
-        return Math.sqrt(distanceX * distanceX + distanceY * distanceY);
     }
 
     private double calculateEnvironmentalEffect(Grid grid, Cell cell, Cell otherCell) {
@@ -204,24 +218,5 @@ public final class ThermalAlgorithm implements Algorithm {
         double windY = cell.getWeather().getWindY();
         double windSpeed = (windX * vectorX + windY * vectorY) / Math.sqrt(vectorX * vectorX + vectorY * vectorY);
         return Math.exp(windEffect * windSpeed);
-    }
-
-    private double toKelvin(double celsiusTemperature) {
-        return celsiusTemperature + CELSIUS_ZERO_TEMPERATURE;
-    }
-
-    private double toCelsius(double kelvinTemperature) {
-        return kelvinTemperature - CELSIUS_ZERO_TEMPERATURE;
-    }
-
-    private void setEmittedEnergy(float energy, Cell cell) {
-        cell.setTwin(new Cell(null, new CellState(energy, 0, false), null));
-    }
-
-    private float getEmittedEnergy(Cell cell) {
-        if (cell.getTwin() == null) {
-            return 0;
-        }
-        return cell.getTwin().getState().getHeat();
     }
 }
