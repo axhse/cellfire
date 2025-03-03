@@ -12,8 +12,6 @@ public final class Simulation {
     private final List<Step> steps = new ArrayList<>();
     private final String id = UUID.randomUUID().toString();
     @JsonIgnore
-    private final Instant creationDate = Instant.now();
-    @JsonIgnore
     private final Instant startDate;
     @JsonIgnore
     private final Duration stepDuration;
@@ -29,7 +27,7 @@ public final class Simulation {
         this.grid = grid;
         this.startCoordinates = startCoordinates;
         this.stepDuration = stepDuration;
-        this.limitDurationSteps = (int)(limitDuration.toSeconds() / stepDuration.toSeconds());
+        this.limitDurationSteps = (int) (limitDuration.toSeconds() / stepDuration.toSeconds());
         this.startDate = roundStartDate(startDate, stepDuration);
         this.conditions = conditions;
         this.algorithm = algorithm;
@@ -50,11 +48,6 @@ public final class Simulation {
 
     public String getId() {
         return id;
-    }
-
-    @JsonIgnore
-    public Instant getCreationDate() {
-        return creationDate;
     }
 
     @JsonIgnore

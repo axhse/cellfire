@@ -48,7 +48,7 @@ public final class SimulationController {
     @PostMapping("/simulation/progress")
     public Map<String, Object> progressSimulation(@RequestBody SimulationProgressParams params) {
         Map<String, Object> response = new HashMap<>();
-        Simulation simulation = simulationManager.getSimulation(params.getSimulationId());
+        Simulation simulation = simulationManager.findSimulation(params.getSimulationId());
         if (simulation == null) {
             // TODO: return 4xx
             return response;

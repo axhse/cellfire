@@ -3,37 +3,42 @@ package com.example.cellfire.services;
 import com.example.cellfire.models.Simulation;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public final class SimulationManager {
-    private static final Duration SIMULATION_LIFETIME = Duration.ofHours(1);
+    private static final int SIMULATION_LIMIT_QUANTITY = 20;
 
     private final List<Simulation> simulations = new ArrayList<>();
+    private final Map<String, Instant> accessDates = new HashMap<>();
 
-    public Simulation getSimulation(String id) {
-        for (Simulation simulation : simulations) {
-            if (simulation.getId().equals(id)) {
-                return simulation;
+    public Simulation findSimulation(String id) {
+        synchronized (simulations) {
+            for (Simulation simulation : simulations) {
+                if (simulation.getId().equals(id)) {
+                    accessDates.put(simulation.getId(), Instant.now());
+                    return simulation;
+                }
             }
         }
         return null;
     }
 
     public void addSimulation(Simulation simulation) {
-        simulations.add(simulation);
+        synchronized (simulations) {
+            if (simulations.size() == SIMULATION_LIMIT_QUANTITY) {
+                simulations.sort(Comparator.comparing(s -> accessDates.get(s.getId())));
+                simulations.remove(0);
+            }
+            simulations.add(simulation);
+            accessDates.put(simulation.getId(), Instant.now());
+        }
     }
 
     public void removeSimulation(String id) {
-        simulations.removeIf(simulation -> simulation.getId().equals(id));
-    }
-
-    public void revise() {
-        simulations.removeIf(simulation -> Duration.between(
-                simulations.get(0).getCreationDate(), Instant.now()).compareTo(SIMULATION_LIFETIME) > 0
-        );
+        synchronized (simulations) {
+            simulations.removeIf(simulation -> simulation.getId().equals(id));
+        }
     }
 }
