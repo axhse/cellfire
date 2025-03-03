@@ -32,8 +32,8 @@ public final class SimulationController {
         Simulation simulation = simulator.createDefaultSimulation(
                 params.getStartPoint(), params.getStartDate(), params.getAlgorithm()
         );
-        simulationManager.addSimulation(simulation);
         simulator.startSimulation(simulation);
+        simulationManager.addSimulation(simulation);
 
         Map<String, Object> response = new HashMap<>();
         response.put("simulation", simulation);

@@ -63,16 +63,18 @@ public final class Simulator {
         initialStep.getCells().add(initialCell);
     }
 
-    public synchronized void progressSimulation(Simulation simulation, int endStep) {
-        while (!simulation.hasStep(endStep)) {
-            Simulation.Step draftStep = createDraftStep(simulation);
-            selectAlgorithm(simulation).refineDraftStep(draftStep, simulation);
-            for (Cell cell : draftStep.getCells()) {
-                if (cell.getState().getFuel() < SIGNIFICANT_FUEL) {
-                    cell.getState().setFuel(0);
+    public void progressSimulation(Simulation simulation, int endStep) {
+        synchronized (simulation.getId()) {
+            while (!simulation.hasStep(endStep)) {
+                Simulation.Step draftStep = createDraftStep(simulation);
+                selectAlgorithm(simulation).refineDraftStep(draftStep, simulation);
+                for (Cell cell : draftStep.getCells()) {
+                    if (cell.getState().getFuel() < SIGNIFICANT_FUEL) {
+                        cell.getState().setFuel(0);
+                    }
                 }
+                simulation.getSteps().add(draftStep);
             }
-            simulation.getSteps().add(draftStep);
         }
     }
 
