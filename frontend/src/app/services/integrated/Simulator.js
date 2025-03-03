@@ -13,7 +13,6 @@ export class Simulator {
         startDate: new Date(body.simulation.startDateMs),
       };
     }
-    // TODO: Handle errors?
   }
 
   async removeSimulation(simulation) {
@@ -24,24 +23,26 @@ export class Simulator {
     });
   }
 
-  async progressSimulation(simulation, step) {
-    if (step < simulation.steps.length) {
-      return;
+  async progressSimulation(simulation, endStep) {
+    if (endStep < simulation.steps.length) {
+      return true;
     }
+    const startStep = simulation.steps.length;
 
     const response = await fetch('/simulation/progress', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        simulationId: simulation.id,
-        startStep: simulation.steps.length,
-        endStep: step,
-      }),
+      body: JSON.stringify({ simulationId: simulation.id, startStep, endStep }),
     });
 
     if (response.ok) {
       const body = await response.json();
-      simulation.steps.push(...body.steps);
+      if (body.hasResult) {
+        simulation.steps.push(...body.steps);
+        return true;
+      }
     }
+
+    return false;
   }
 }

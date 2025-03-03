@@ -29,8 +29,8 @@ export class Simulator {
     return;
   }
 
-  async progressSimulation(simulation, step) {
-    while (simulation.steps.length <= step) {
+  async progressSimulation(simulation, endStep) {
+    while (simulation.steps.length <= endStep) {
       simulation.steps.push(
         produceDemoSimulationStep(simulation, simulation.steps.length)
       );

@@ -47,8 +47,8 @@ public final class SimulationController {
     public Map<String, Object> progressSimulation(@RequestBody SimulationProgressParams params) {
         Map<String, Object> response = new HashMap<>();
         Simulation simulation = simulationManager.findSimulation(params.getSimulationId());
+        response.put("hasResult", simulation != null);
         if (simulation == null) {
-            // TODO: return 4xx
             return response;
         }
         simulator.progressSimulation(simulation, params.getEndStep());
