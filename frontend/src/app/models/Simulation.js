@@ -26,24 +26,24 @@ export class Simulation {
     this.steps.push(...steps);
   }
 
-  getCurrentCells() {
-    return this.steps[this.timeline.currentTick].cells;
+  getSimulatedCells() {
+    return this.steps[this.timeline.simulatedTick].cells;
   }
 
   getSampleCells() {
     let unburnedCells = this.getUnburnedCells();
     if (unburnedCells.length === 0) {
-      return this.getCurrentCells();
+      return this.getSimulatedCells();
     }
     return unburnedCells;
   }
 
   getDamagedCells() {
-    return this.getCurrentCells().filter((cell) => cell.state.damaged);
+    return this.getSimulatedCells().filter((cell) => cell.state.damaged);
   }
 
   getUnburnedCells() {
-    return this.getCurrentCells().filter(
+    return this.getSimulatedCells().filter(
       (cell) =>
         !cell.state.damaged ||
         this.conditions.ignitionTemperature <= cell.state.heat

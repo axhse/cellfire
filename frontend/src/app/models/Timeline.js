@@ -3,17 +3,17 @@ export class Timeline {
     this.startDate = startDate;
     this.stepDurationMs = stepDurationMs;
     this.limitTicks = limitTicks;
-    this.currentTick = 0;
+    this.simulatedTick = 0;
   }
 
-  getCurrentPeriod() {
-    return this.currentTick * this.stepDurationMs;
+  getSimulatedPeriod() {
+    return this.simulatedTick * this.stepDurationMs;
   }
 
   navigate(deltaTicks) {
-    const wantedTick = this.currentTick + deltaTicks;
+    const wantedTick = this.simulatedTick + deltaTicks;
     const newTick = Math.min(this.limitTicks, Math.max(0, wantedTick));
-    this.currentTick = newTick;
+    this.simulatedTick = newTick;
     return newTick;
   }
 }

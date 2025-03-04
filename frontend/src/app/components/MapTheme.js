@@ -17,8 +17,8 @@ class Color {
   }
 }
 
-const INDICATOR_TEXT_OPACITY = 0.8;
-const INDICATOR_BACKGROUND_OPACITY = 0.3;
+const INDICATOR_TEXT_OPACITY = 1;
+const INDICATOR_BACKGROUND_OPACITY = 0.5;
 
 class IndicatorTextColor extends Color {
   constructor(r, g, b) {
@@ -64,20 +64,20 @@ const LAYER_COLORS = {
     max: new LayerColor(255, 0, 0),
   },
   burned: {
-    min: new LayerColor(0, 0, 0, LAYER_OPACITY / 1.6),
+    min: new LayerColor(0, 0, 0, LAYER_OPACITY / 1.5),
     max: WEAK_FLAME_COLOR,
   },
   fuel: {
-    min: new LayerColor(0, 0, 0, 0.1),
-    max: new LayerColor(0, 180, 30),
+    min: new LayerColor(200, 0, 255, 0.05),
+    max: new LayerColor(150, 0, 120),
   },
   elevation: {
-    min: new LayerColor(0, 0, 0, 0.1),
-    max: new LayerColor(50, 30, 0),
+    min: new LayerColor(0, 255, 200),
+    max: new LayerColor(255, 0, 0),
   },
   wind: {
-    min: new LayerColor(200, 200, 200, LAYER_OPACITY / 2),
-    max: new LayerColor(200, 0, 50),
+    min: new LayerColor(0, 200, 255, 0.05),
+    max: new LayerColor(255, 0, 0),
   },
 };
 
@@ -134,7 +134,7 @@ export class LayerGradients {
     this.burning = new Gradient(ignitionTemperature, 900, LAYER_COLORS.burning);
     this.burned = new Gradient(0, ignitionTemperature, LAYER_COLORS.burned);
     this.fuel = new Gradient(0, 1, LAYER_COLORS.fuel);
-    this.elevation = new Gradient(0, 6400, LAYER_COLORS.elevation);
+    this.elevation = new Gradient(0, 4500, LAYER_COLORS.elevation);
     this.wind = new Gradient(0, 10, LAYER_COLORS.wind);
   }
 }

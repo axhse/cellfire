@@ -67,11 +67,11 @@ export class MapToolbar {
   }
 
   updateTimelineControl(timeline) {
-    const currentPeriod = timeline.getCurrentPeriod();
-    setTimelinePeriod(currentPeriod);
+    const simulatedPeriod = timeline.getSimulatedPeriod();
+    setTimelinePeriod(simulatedPeriod);
     const startTs = timeline.startDate.valueOf();
-    const currentDate = new Date(startTs + currentPeriod);
-    setTimelineDate('label-current-date', 'Current', currentDate);
+    const simulatedDate = new Date(startTs + simulatedPeriod);
+    setTimelineDate('label-simulated-date', 'In-simulation', simulatedDate);
   }
 
   setPointerMode(pointerMode) {

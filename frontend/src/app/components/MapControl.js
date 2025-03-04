@@ -47,8 +47,11 @@ const INDICATORS_WITH_ICONS = [
 export function InfoControl() {
   const control = new MapControl('control-container-info', 'Information');
 
-  control.append(createLabel('label-active-algorithm', 'label-block first'));
-  control.append(createLabel('label-damaged-area', 'label-block'));
+  const textBlock = createContainer('', 'text-block first');
+  control.append(textBlock);
+
+  textBlock.appendChild(createLabel('label-active-algorithm', 'first'));
+  textBlock.appendChild(createLabel('label-damaged-area'));
 
   const indicatorPanel = createContainer('indicator-panel');
   control.append(indicatorPanel);
@@ -130,9 +133,12 @@ export function TimelineControl(tools) {
     isFirst = false;
   }
 
-  control.append(createLabel('label-start-date', 'label-block'));
-  control.append(createLabel('label-period', 'label-block'));
-  control.append(createLabel('label-current-date', 'label-block'));
+  const textBlock = createContainer('', 'text-block');
+  control.append(textBlock);
+
+  textBlock.appendChild(createLabel('label-start-date'));
+  textBlock.appendChild(createLabel('label-period'));
+  textBlock.appendChild(createLabel('label-simulated-date'));
 
   return control;
 }
@@ -199,7 +205,7 @@ function createControlContainer(containerId, isCoreControl) {
 }
 
 function createControlHeader(title) {
-  return createLabel('', 'control-header label-block', title);
+  return createLabel('', 'control-header', title);
 }
 
 function createControlBody() {

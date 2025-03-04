@@ -79,7 +79,7 @@ export class MapComponent extends Component {
   updateVectorLayer() {
     this.model.vectorSource.clear();
 
-    for (const cell of this.simulation.getCurrentCells()) {
+    for (const cell of this.simulation.getSimulatedCells()) {
       const significantHeat =
         cell.weather.airTemperature + SIGNIFICANT_OVERHEAT;
       if (!cell.state.damaged && cell.state.heat < significantHeat) {
