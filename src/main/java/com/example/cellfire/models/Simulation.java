@@ -1,6 +1,7 @@
 package com.example.cellfire.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.maps.model.LatLng;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -9,33 +10,22 @@ import java.util.List;
 import java.util.UUID;
 
 public final class Simulation {
-    private final List<Step> steps = new ArrayList<>();
     private final String id = UUID.randomUUID().toString();
-    @JsonIgnore
-    private final Instant startDate;
-    @JsonIgnore
-    private final Duration stepDuration;
-    private final int limitDurationSteps;
-    private final Grid grid;
-    private final Coordinates startCoordinates;
+    private final List<Step> steps = new ArrayList<>();
+    private final MarkedGrid grid;
+    private final Timeline timeline;
     private final Conditions conditions;
     private final String algorithm;
 
-    public Simulation(
-            Grid grid, Coordinates startCoordinates, Duration stepDuration, Duration limitDuration,
-            Instant startDate, Conditions conditions, String algorithm) {
+    public Simulation(MarkedGrid grid, Timeline timeline, Conditions conditions, String algorithm) {
         this.grid = grid;
-        this.startCoordinates = startCoordinates;
-        this.stepDuration = stepDuration;
-        this.limitDurationSteps = (int) (limitDuration.toSeconds() / stepDuration.toSeconds());
-        this.startDate = roundStartDate(startDate, stepDuration);
+        this.timeline = timeline;
         this.conditions = conditions;
         this.algorithm = algorithm;
     }
 
-    private static Instant roundStartDate(Instant startDate, Duration stepDuration) {
-        long duration = stepDuration.toSeconds();
-        return Instant.ofEpochSecond(startDate.getEpochSecond() / duration * duration);
+    public String getId() {
+        return id;
     }
 
     public boolean hasStep(int step) {
@@ -46,38 +36,12 @@ public final class Simulation {
         return steps;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    @JsonIgnore
-    public Instant getStartDate() {
-        return startDate;
-    }
-
-    public long getStartDateMs() {
-        return startDate.toEpochMilli();
-    }
-
-    @JsonIgnore
-    public Duration getStepDuration() {
-        return stepDuration;
-    }
-
-    public long getStepDurationMs() {
-        return stepDuration.toMillis();
-    }
-
-    public int getLimitDurationSteps() {
-        return limitDurationSteps;
-    }
-
-    public Grid getGrid() {
+    public MarkedGrid getGrid() {
         return grid;
     }
 
-    public Coordinates getStartCoordinates() {
-        return startCoordinates;
+    public Timeline getTimeline() {
+        return timeline;
     }
 
     public Conditions getConditions() {
@@ -86,6 +50,60 @@ public final class Simulation {
 
     public String getAlgorithm() {
         return algorithm;
+    }
+
+    public static final class MarkedGrid extends Grid {
+        private final Coordinates startCoordinates;
+
+        public MarkedGrid(int scale, LatLng startPoint) {
+            super(scale);
+            startCoordinates = fromLatLng(startPoint);
+        }
+
+        public Coordinates getStartCoordinates() {
+            return startCoordinates;
+        }
+    }
+
+    public static final class Timeline {
+        @JsonIgnore
+        private final Instant startDate;
+        @JsonIgnore
+        private final Duration stepDuration;
+        private final int limitTicks;
+
+        public Timeline(Instant startDate, Duration stepDuration, Duration limitDuration) {
+            this.startDate = roundStartDate(startDate, stepDuration);
+            this.stepDuration = stepDuration;
+            this.limitTicks = (int) (limitDuration.toSeconds() / stepDuration.toSeconds());
+        }
+
+        private static Instant roundStartDate(Instant startDate, Duration stepDuration) {
+            long duration = stepDuration.toSeconds();
+            return Instant.ofEpochSecond(startDate.getEpochSecond() / duration * duration);
+        }
+
+        @JsonIgnore
+        public Instant getStartDate() {
+            return startDate;
+        }
+
+        public long getStartDateMs() {
+            return startDate.toEpochMilli();
+        }
+
+        @JsonIgnore
+        public Duration getStepDuration() {
+            return stepDuration;
+        }
+
+        public long getStepDurationMs() {
+            return stepDuration.toMillis();
+        }
+
+        public int getLimitTicks() {
+            return limitTicks;
+        }
     }
 
     public static final class Step {
@@ -114,7 +132,6 @@ public final class Simulation {
         }
     }
 
-    // TODO: Remove.
     public static final class Algorithm {
         public static final String THERMAL = "thermal";
         public static final String PROBABILISTIC = "probabilistic";

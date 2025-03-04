@@ -8,3 +8,10 @@ export const Layer = {
   Elevation: 'elevation',
   Wind: 'wind',
 };
+
+export const Indicator = {
+  AirTemperature: 'air-temperature',
+  AirHumidity: 'air-humidity',
+  WindSpeed: 'wind-speed',
+  FuelDensity: 'fuel-density',
+};

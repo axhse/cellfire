@@ -1,3 +1,7 @@
+import { Grid } from '../../models/Grid';
+import { Simulation } from '../../models/Simulation';
+import { Timeline } from '../../models/Timeline';
+
 export class Simulator {
   async createSimulation(startLonLat, algorithm) {
     const response = await fetch('/simulation/create', {
@@ -8,10 +12,23 @@ export class Simulator {
 
     if (response.ok) {
       const body = await response.json();
-      return {
-        ...body.simulation,
-        startDate: new Date(body.simulation.startDateMs),
-      };
+      const params = body.simulation;
+
+      const grid = new Grid(params.grid.scale, params.grid.startCoordinates);
+      const timeline = new Timeline(
+        new Date(params.timeline.startDateMs),
+        params.timeline.stepDurationMs,
+        params.timeline.limitTicks
+      );
+      const simulation = new Simulation(
+        params.id,
+        grid,
+        timeline,
+        params.conditions,
+        params.algorithm
+      );
+      simulation.appendSteps(params.steps, 0);
+      return simulation;
     }
   }
 
@@ -23,22 +40,22 @@ export class Simulator {
     });
   }
 
-  async progressSimulation(simulation, endStep) {
-    if (endStep < simulation.steps.length) {
+  async progressSimulation(simulation, endTick) {
+    if (endTick < simulation.steps.length) {
       return true;
     }
-    const startStep = simulation.steps.length;
+    const startTick = simulation.steps.length;
 
     const response = await fetch('/simulation/progress', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ simulationId: simulation.id, startStep, endStep }),
+      body: JSON.stringify({ simulationId: simulation.id, startTick, endTick }),
     });
 
     if (response.ok) {
       const body = await response.json();
       if (body.hasResult) {
-        simulation.steps.push(...body.steps);
+        simulation.appendSteps(body.steps, startTick);
         return true;
       }
     }

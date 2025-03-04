@@ -3,7 +3,7 @@ package com.example.cellfire.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.maps.model.LatLng;
 
-public final class Grid {
+public class Grid {
     /**
      * Earth equatorial circumference: 40 075 km.
      * Earth polar circumference: 39 930  km.

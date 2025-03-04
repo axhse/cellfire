@@ -1,3 +1,5 @@
+import { Indicator } from '../models/Enumerations';
+
 class Color {
   constructor(r, g, b, a) {
     this.r = r;
@@ -6,8 +8,12 @@ class Color {
     this.a = a;
   }
 
+  rgba() {
+    return [this.r, this.g, this.b, this.a];
+  }
+
   css() {
-    return `rgba(${[this.r, this.g, this.b, this.a]})`;
+    return `rgba(${this.rgba()})`;
   }
 }
 
@@ -31,7 +37,7 @@ const INDICATOR_COLORS = {
     min: new IndicatorTextColor(0, 100, 0),
     max: new IndicatorTextColor(100, 0, 0),
   },
-  bg: {
+  background: {
     min: new IndicatorBackgroundColor(0, 255, 0),
     max: new IndicatorBackgroundColor(255, 0, 0),
   },
@@ -44,6 +50,8 @@ class LayerColor extends Color {
     super(r, g, b, a);
   }
 }
+
+export const START_RECTANGLE_STROKE_COLOR = new Color(255, 0, 0, 0.3);
 
 const WEAK_FLAME_COLOR = new LayerColor(255, 180, 0);
 const LAYER_COLORS = {
@@ -79,36 +87,48 @@ class Gradient {
     this.valueRange = maxValue - minValue;
     this.baseColor = colors.min;
     this.colorRange = new Color(
-      ...'rgba'.split('').map((p) => colors.max[p] - colors.min[p])
+      ...[0, 1, 2, 3].map((i) => colors.max.rgba()[i] - colors.min.rgba()[i])
     );
   }
 
-  for(value) {
+  forValue(value) {
     let gradient = (value - this.baseValue) / this.valueRange;
     gradient = Math.max(0, Math.min(1, gradient));
-    let rgba = 'rgba'
-      .split('')
-      .map((p) => this.baseColor[p] + this.colorRange[p] * gradient);
+    let rgba = [0, 1, 2, 3].map(
+      (i) => this.baseColor.rgba()[i] + this.colorRange.rgba()[i] * gradient
+    );
     rgba = [...rgba.slice(0, 3).map(Math.round), rgba[3]];
-
     return new Color(...rgba);
   }
 }
 
 export class IndicatorGradient {
-  constructor() {
-    this.airTemperatureText = new Gradient(0, 40, INDICATOR_COLORS.text);
-    this.airTemperatureBackground = new Gradient(0, 40, INDICATOR_COLORS.bg);
-    this.airHumidityText = new Gradient(100, 0, INDICATOR_COLORS.text);
-    this.airHumidityBackground = new Gradient(100, 0, INDICATOR_COLORS.bg);
-    this.windSpeedText = new Gradient(0, 10, INDICATOR_COLORS.text);
-    this.windSpeedBackground = new Gradient(0, 10, INDICATOR_COLORS.bg);
-    this.fuelDensityText = new Gradient(0, 1, INDICATOR_COLORS.text);
-    this.fuelDensityBackground = new Gradient(0, 1, INDICATOR_COLORS.bg);
+  constructor(minValue, maxValue) {
+    this.textGradient = new Gradient(minValue, maxValue, INDICATOR_COLORS.text);
+    this.backgroundGradient = new Gradient(
+      minValue,
+      maxValue,
+      INDICATOR_COLORS.background
+    );
+  }
+
+  textFor(value) {
+    return this.textGradient.forValue(value);
+  }
+
+  backgroundFor(value) {
+    return this.backgroundGradient.forValue(value);
   }
 }
 
-export class LayerGradient {
+export const INDICATOR_GRADIENTS = {
+  [Indicator.AirTemperature]: new IndicatorGradient(0, 40),
+  [Indicator.AirHumidity]: new IndicatorGradient(100, 0),
+  [Indicator.WindSpeed]: new IndicatorGradient(0, 10),
+  [Indicator.FuelDensity]: new IndicatorGradient(0, 1),
+};
+
+export class LayerGradients {
   constructor(ignitionTemperature) {
     this.intact = new Gradient(0, ignitionTemperature, LAYER_COLORS.intact);
     this.burning = new Gradient(ignitionTemperature, 900, LAYER_COLORS.burning);

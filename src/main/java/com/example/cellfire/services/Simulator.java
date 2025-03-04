@@ -37,28 +37,31 @@ public final class Simulator {
     }
 
     public Simulation createSimulation(
-            Grid grid, LatLng startPoint, Duration stepDuration,
+            int gridScale, LatLng startPoint, Duration stepDuration,
             Duration limitDuration, Instant startDate, String algorithm
     ) {
         return new Simulation(
-                grid, grid.fromLatLng(startPoint), stepDuration,
-                limitDuration, startDate, determineConditions(startPoint), algorithm
+                new Simulation.MarkedGrid(gridScale, startPoint),
+                new Simulation.Timeline(startDate, stepDuration, limitDuration),
+                determineConditions(startPoint),
+                algorithm
         );
     }
 
     public Simulation createDefaultSimulation(LatLng startPoint, String algorithm) {
-        Grid grid = new Grid(DEFAULT_GRID_SCALE);
-        Instant startDate = Instant.now();
-        return createSimulation(grid, startPoint, DEFAULT_STEP_DURATION, DEFAULT_LIMIT_DURATION, startDate, algorithm);
+        return createSimulation(
+                DEFAULT_GRID_SCALE, startPoint, DEFAULT_STEP_DURATION,
+                DEFAULT_LIMIT_DURATION, Instant.now(), algorithm
+        );
     }
 
     public void startSimulation(Simulation simulation) {
-        Coordinates startCoordinates = simulation.getStartCoordinates();
+        Coordinates startCoordinates = simulation.getGrid().getStartCoordinates();
         LatLng startPoint = simulation.getGrid().toLatLng(startCoordinates);
 
         float fuel = determineFuel(startPoint);
         CellState initialState = new CellState(INITIAL_HEAT, fuel, true);
-        Weather weather = determineWeather(startPoint, simulation.getStartDate());
+        Weather weather = determineWeather(startPoint, simulation.getTimeline().getStartDate());
 
         Cell initialCell = new Cell(startCoordinates, initialState, weather);
 
@@ -67,9 +70,10 @@ public final class Simulator {
         simulation.getSteps().add(initialStep);
     }
 
-    public void progressSimulation(Simulation simulation, int endStep) {
+    public void progressSimulation(Simulation simulation, int endTick) {
         synchronized (simulation.getId()) {
-            while (!simulation.hasStep(endStep) && simulation.getSteps().size() <= simulation.getLimitDurationSteps()) {
+            int limitTicks = simulation.getTimeline().getLimitTicks();
+            while (!simulation.hasStep(endTick) && simulation.getSteps().size() <= limitTicks) {
                 Simulation.Step draftStep = createDraftStep(simulation);
                 selectAlgorithm(simulation).refineDraftStep(draftStep, simulation);
                 for (Cell cell : draftStep.getCells()) {
@@ -86,8 +90,8 @@ public final class Simulator {
         Grid grid = simulation.getGrid();
         Simulation.Step draftStep = new Simulation.Step();
         Simulation.Step lastStep = simulation.getSteps().getLast();
-        Duration period = simulation.getStepDuration().multipliedBy(simulation.getSteps().size());
-        Instant date = simulation.getStartDate().plus(period);
+        Duration period = simulation.getTimeline().getStepDuration().multipliedBy(simulation.getSteps().size());
+        Instant date = simulation.getTimeline().getStartDate().plus(period);
 
         lastStep.getCells().forEach(cell -> {
             Weather weather = determineWeather(grid.toLatLng(cell.getCoordinates()), date);
@@ -164,7 +168,6 @@ public final class Simulator {
         return draftStep;
     }
 
-    // TODO: Remove.
     private Algorithm selectAlgorithm(Simulation simulation) {
         if (simulation.getAlgorithm().equals(Simulation.Algorithm.PROBABILISTIC)) {
             return new ProbabilisticAlgorithm();

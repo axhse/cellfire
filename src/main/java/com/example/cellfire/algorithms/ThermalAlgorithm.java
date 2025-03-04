@@ -52,7 +52,8 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     public ThermalAlgorithm() {
-        this(DEFAULT_COMBUSTION_RATE,
+        this(
+                DEFAULT_COMBUSTION_RATE,
                 DEFAULT_ENERGY_EMISSION,
                 DEFAULT_AIR_HUMIDITY_EFFECT,
                 DEFAULT_SLOPE_EFFECT,
@@ -64,8 +65,10 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     public ThermalAlgorithm(double... parameters) {
-        this(parameters[0], parameters[1], parameters[2], parameters[3],
-                parameters[4], parameters[5], parameters[6], parameters[7]);
+        this(
+                parameters[0], parameters[1], parameters[2], parameters[3],
+                parameters[4], parameters[5], parameters[6], parameters[7]
+        );
     }
 
     @Override
@@ -117,7 +120,7 @@ public final class ThermalAlgorithm implements Algorithm {
             return;
         }
         double combustionRate = calculateCombustionRate(cell, simulation.getConditions());
-        double burnedFraction = combustionRate * simulation.getStepDuration().toSeconds();
+        double burnedFraction = combustionRate * simulation.getTimeline().getStepDuration().toSeconds();
         if (burnedFraction > 1) {
             combustionRate /= burnedFraction;
             burnedFraction = 1;

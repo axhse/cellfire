@@ -51,9 +51,9 @@ public final class SimulationController {
         if (simulation == null) {
             return response;
         }
-        simulator.progressSimulation(simulation, params.getEndStep());
+        simulator.progressSimulation(simulation, params.getEndTick());
         List<Simulation.Step> steps =
-                simulation.getSteps().subList(params.getStartStep(), params.getEndStep() + 1).stream().toList();
+                simulation.getSteps().subList(params.getStartTick(), params.getEndTick() + 1).stream().toList();
         response.put("steps", steps);
         return response;
     }

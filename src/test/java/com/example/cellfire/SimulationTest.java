@@ -12,6 +12,8 @@ import com.google.maps.model.LatLng;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,7 +139,7 @@ public final class SimulationTest {
 
     @Test
     public void testSimulationSteps() {
-        Simulator simulator = createSimulator();
+        Simulator simulator = createSimulator(10);
         Simulation simulation = createSimulation();
 
         Assertions.assertEquals(0, simulation.getSteps().size());
@@ -154,7 +156,7 @@ public final class SimulationTest {
 
     @Test
     public void testSimulationStepCells() {
-        Simulator simulator = createSimulator();
+        Simulator simulator = createSimulator(10);
         Simulation simulation = createSimulation();
 
         simulator.startSimulation(simulation);
@@ -186,7 +188,7 @@ public final class SimulationTest {
 
     @Test
     public void testPolarNeighboringCells() {
-        Simulator simulator = createSimulator();
+        Simulator simulator = createSimulator(10);
         Simulation simulation = simulator.createDefaultSimulation(
                 new LatLng(-90 + 0.00001, 0),
                 Simulation.Algorithm.THERMAL
@@ -202,16 +204,47 @@ public final class SimulationTest {
         }
     }
 
-    private static Simulator createSimulator() {
+    @Test
+    public void testStepCount() {
+        Simulator simulator = createSimulator(0);
+
+        Simulation simulation1 = simulator.createSimulation(
+                123,
+                new LatLng(0, 0),
+                Duration.ofHours(4),
+                Duration.ofDays(3),
+                Instant.now(),
+                Simulation.Algorithm.THERMAL
+        );
+        simulator.startSimulation(simulation1);
+        simulator.progressSimulation(simulation1, 3);
+        Assertions.assertEquals(1 + 3, simulation1.getSteps().size());
+        simulator.progressSimulation(simulation1, 100000);
+        Assertions.assertEquals(1 + 24 / 4 * 3, simulation1.getSteps().size());
+
+        Simulation simulation2 = simulator.createSimulation(
+                123,
+                new LatLng(0, 0),
+                Duration.ofHours(4),
+                Duration.ofDays(3).plusMinutes(3 * 60 + 50),
+                Instant.now(),
+                Simulation.Algorithm.THERMAL
+        );
+        simulator.startSimulation(simulation2);
+        simulator.progressSimulation(simulation2, 100000);
+        Assertions.assertEquals(1 + 24 / 4 * 3, simulation2.getSteps().size());
+    }
+
+    private static Simulator createSimulator(double fuel) {
         return new Simulator(
-                new UniformTerrainService((byte) 1, 10, 0),
+                new UniformTerrainService((byte) 1, fuel, 0),
                 new UniformWeatherService(10000, 0, 0, 0),
                 new ThermalAlgorithm()
         );
     }
 
     private static Simulation createSimulation() {
-        return createSimulator().createDefaultSimulation(
+        return createSimulator(10).createDefaultSimulation(
                 new LatLng(0, -180 + 0.00001),
                 Simulation.Algorithm.THERMAL
         );

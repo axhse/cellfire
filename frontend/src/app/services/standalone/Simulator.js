@@ -1,27 +1,27 @@
+import { Grid } from '../../models/Grid';
+import { Simulation } from '../../models/Simulation';
+import { Timeline } from '../../models/Timeline';
+
 export class Simulator {
   async createSimulation(startLonLat, algorithm) {
     const stepDurationMs = 30 * 60 * 1000;
-    const limitDurationSteps = (7 * 24 * 60 * 60 * 1000) / stepDurationMs;
+    const limitTicks = (7 * 24 * 60 * 60 * 1000) / stepDurationMs;
     const startDate = new Date(
       ((new Date().valueOf() / stepDurationMs) >> 0) * stepDurationMs
     );
-    const grid = { scale: 200 };
+    const gridScale = 200;
     const startCoordinates = {
-      x: Math.round(startLonLat[0] * grid.scale),
-      y: Math.round(startLonLat[1] * grid.scale),
+      x: Math.round(startLonLat[0] * gridScale),
+      y: Math.round(startLonLat[1] * gridScale),
     };
-    const simulation = {
-      id: 'DEMO-ID',
-      grid,
-      startCoordinates,
-      startDate,
-      stepDurationMs,
-      limitDurationSteps,
-      algorithm,
-      conditions: { ignitionTemperature: 280 },
-      steps: [],
-    };
-    simulation.steps.push(produceDemoSimulationStep(simulation, 0));
+    const simulation = new Simulation(
+      'DEMO-SIMULATION',
+      new Grid(gridScale, startCoordinates),
+      new Timeline(startDate, stepDurationMs, limitTicks),
+      { ignitionTemperature: 280 },
+      algorithm
+    );
+    this.progressSimulation(simulation, 0);
     return simulation;
   }
 
@@ -29,28 +29,35 @@ export class Simulator {
     return;
   }
 
-  async progressSimulation(simulation, endStep) {
-    while (simulation.steps.length <= endStep) {
-      simulation.steps.push(
-        produceDemoSimulationStep(simulation, simulation.steps.length)
-      );
+  async progressSimulation(simulation, endTick) {
+    // 1 day 30 minutes.
+    if (endTick === 24 * 2 + 1) {
+      return false;
     }
+    while (simulation.steps.length <= endTick) {
+      const step = produceDemoSimulationStep(
+        simulation.grid.startCoordinates,
+        simulation.steps.length
+      );
+      simulation.appendSteps([step], simulation.steps.length);
+    }
+    return true;
   }
 }
 
-function produceDemoSimulationStep(simulation, step) {
+function produceDemoSimulationStep(startCoordinates, tick) {
   const demoCells = [];
-  for (let x = 0; x <= step; x++) {
-    for (let y = 0; x + y <= step; y++) {
-      demoCells.push(produceDemoCell(simulation.startCoordinates, x, y));
+  for (let x = 0; x <= tick; x++) {
+    for (let y = 0; x + y <= tick; y++) {
+      demoCells.push(produceDemoCell(startCoordinates, x, y));
       if (x > 0) {
-        demoCells.push(produceDemoCell(simulation.startCoordinates, -x, y));
+        demoCells.push(produceDemoCell(startCoordinates, -x, y));
         if (y > 0) {
-          demoCells.push(produceDemoCell(simulation.startCoordinates, -x, -y));
+          demoCells.push(produceDemoCell(startCoordinates, -x, -y));
         }
       }
       if (y > 0) {
-        demoCells.push(produceDemoCell(simulation.startCoordinates, x, -y));
+        demoCells.push(produceDemoCell(startCoordinates, x, -y));
       }
     }
   }
@@ -62,9 +69,9 @@ function produceDemoCell(startCoordinates, offsetX, offsetY) {
     100 + (((offsetX + 3) * 5) % 77) * 10 + (((offsetY + 7) * 9) % 100) * 4;
   const fuel =
     0 + (((offsetX + 4) * 5) % 77) / 77 + (((offsetY + 3) * 9) % 100) / 44;
+  const elevation = (fuel * 200 + heat / 5 + 12402394) % 500;
   const airTemperature = (fuel * 40) % 40;
   const airHumidity = (Math.round(fuel * 100 + 1000) % 101) / 100;
-  const elevation = (fuel * 200 + heat / 5 + 12402394) % 500;
   const windX = (Math.round(fuel * 100 + 1002) % 15) - 7;
   const windY = (Math.round(fuel * 123 + 12340) % 8) - 3;
   const damaged = (offsetX * 2 + offsetY * 5 + 7) % 20 < 10;
@@ -75,6 +82,6 @@ function produceDemoCell(startCoordinates, offsetX, offsetY) {
       y: startCoordinates.y + offsetY,
     },
     state: { heat, fuel, damaged },
-    weather: { airTemperature, airHumidity, elevation, windX, windY },
+    weather: { elevation, airTemperature, airHumidity, windX, windY },
   };
 }

@@ -42,11 +42,11 @@ public final class FlammableForestDoesNotBurnUnderHumidAir extends TuneCase {
         );
         Simulation simulation = startDefaultSimulation(simulator, algorithm);
 
-        int limitSteps = 10;
-        for (int step = 2; step <= limitSteps; step++) {
-            simulator.progressSimulation(simulation, step);
+        int limitTicks = 10;
+        for (int endTick = 2; endTick <= limitTicks; endTick++) {
+            simulator.progressSimulation(simulation, endTick);
             int damagedCellCount = 0;
-            for (Cell cell : simulation.getSteps().get(step).getCells()) {
+            for (Cell cell : simulation.getSteps().get(endTick).getCells()) {
                 if (cell.getState().isDamaged()) {
                     damagedCellCount++;
                 }
