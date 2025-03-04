@@ -60,7 +60,7 @@ public final class Simulator {
         LatLng startPoint = simulation.getGrid().toLatLng(startCoordinates);
 
         float fuel = determineFuel(startPoint);
-        CellState initialState = new CellState(INITIAL_HEAT, fuel, true);
+        CellState initialState = new CellState(INITIAL_HEAT, fuel, false);
         Weather weather = determineWeather(startPoint, simulation.getTimeline().getStartDate());
 
         Cell initialCell = new Cell(startCoordinates, initialState, weather);
