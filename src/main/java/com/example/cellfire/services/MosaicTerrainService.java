@@ -1,6 +1,6 @@
 package com.example.cellfire.services;
 
-import com.example.cellfire.data.ForestConditions;
+import com.example.cellfire.data.ForestTypeConditions;
 import com.example.cellfire.data.ResourceLoader;
 import com.example.cellfire.data.Mosaic;
 import com.google.maps.model.LatLng;
@@ -15,13 +15,13 @@ public final class MosaicTerrainService implements TerrainService {
     @Override
     public double getIgnitionTemperature(LatLng point) {
         byte forestType = forestTypeClusterMap.at(point, (byte) 0);
-        return ForestConditions.determineIgnitionTemperature(forestType);
+        return ForestTypeConditions.determineIgnitionTemperature(forestType);
     }
 
     @Override
     public double getActivationEnergy(LatLng point) {
         byte forestType = forestTypeClusterMap.at(point, (byte) 0);
-        return ForestConditions.determineActivationEnergy(forestType);
+        return ForestTypeConditions.determineActivationEnergy(forestType);
     }
 
     @Override

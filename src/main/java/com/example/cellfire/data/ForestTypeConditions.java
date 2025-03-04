@@ -1,6 +1,6 @@
 package com.example.cellfire.data;
 
-public final class ForestConditions {
+public final class ForestTypeConditions {
     public static double determineIgnitionTemperature(byte forestType) {
         return switch (forestType) {
             case 1 -> 325;
@@ -8,7 +8,7 @@ public final class ForestConditions {
             case 3 -> 305;
             case 4 -> 235;
             case 5 -> 285;
-            default -> 10_000;
+            default -> Double.POSITIVE_INFINITY;
         };
     }
 
@@ -19,7 +19,7 @@ public final class ForestConditions {
             case 3 -> 115_000;
             case 4 -> 95_000;
             case 5 -> 110_000;
-            default -> 10_000_000;
+            default -> Double.POSITIVE_INFINITY;
         };
     }
 

@@ -1,10 +1,12 @@
 package com.example.cellfire.tuner.experiment;
 
-import com.example.cellfire.algorithms.Algorithm;
 import com.example.cellfire.algorithms.ThermalAlgorithm;
 import com.example.cellfire.models.Simulation;
 import com.example.cellfire.services.Simulator;
 import com.google.maps.model.LatLng;
+
+import java.time.Duration;
+import java.time.Instant;
 
 public abstract class TuneCase {
     private final double weight;
@@ -31,19 +33,29 @@ public abstract class TuneCase {
         return this.getClass().getSimpleName();
     }
 
-    public final ModelScore evaluate(Algorithm algorithm) {
+    public final ModelScore evaluate(ThermalAlgorithm algorithm) {
         return ModelScore.weight(score(algorithm), weight, isObligatory);
     }
 
-    protected abstract ModelScore score(Algorithm algorithm);
+    protected abstract ModelScore score(ThermalAlgorithm algorithm);
 
-    protected static Simulation startDefaultSimulation(Simulator simulator, Algorithm algorithm) {
-        String algorithmName = algorithm instanceof ThermalAlgorithm
-                ? Simulation.Algorithm.THERMAL : Simulation.Algorithm.PROBABILISTIC;
-        LatLng startPoint = new LatLng(0, 0);
-        Simulation simulation = simulator.createDefaultSimulation(startPoint, algorithmName);
+    protected static Simulation createDefaultSimulation(Duration stepDuration) {
+        return new Simulation(
+                new Simulation.MarkedGrid(1, getDefaultStartPoint()),
+                new Simulation.Timeline(Instant.now(), stepDuration, Duration.ofDays(7)),
+                new Simulation.Conditions(0, 100000),
+                Simulation.Algorithm.THERMAL
+        );
+    }
+
+    protected static Simulation startDefaultSimulation(Simulator simulator) {
+        Simulation simulation = simulator.createSimulation(getDefaultStartPoint(), Simulation.Algorithm.THERMAL);
         simulator.startSimulation(simulation);
         return simulation;
+    }
+
+    private static LatLng getDefaultStartPoint() {
+        return new LatLng(0.000001, 0.000001);
     }
 
     public static final class ModelScore {

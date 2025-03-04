@@ -1,6 +1,10 @@
 package com.example.cellfire.tuner;
 
-import com.example.cellfire.tuner.cases.*;
+import com.example.cellfire.tuner.cases.accuracy.simulation.FlammableForestHumidAir;
+import com.example.cellfire.tuner.cases.accuracy.simulation.ResilientForestModerateFactors;
+import com.example.cellfire.tuner.cases.accuracy.process.CombustionRate;
+import com.example.cellfire.tuner.cases.accuracy.process.HeatExchange;
+import com.example.cellfire.tuner.cases.efficiency.DraftStepCreation;
 import com.example.cellfire.tuner.experiment.Experiment;
 import com.example.cellfire.tuner.experiment.ModelParameter;
 import com.example.cellfire.tuner.experiment.TuneTask;
@@ -9,32 +13,30 @@ import java.util.List;
 
 public final class Tuner {
     public void run() {
-        new Experiment(true, createTask()).run().print();
+        createExperiment().run().print();
     }
 
-    private TuneTask createTask() {
-        return tuneDraftStepCreationAlgorithm();
+    private Experiment createExperiment() {
+        return new Experiment(true, validateDefault());
     }
 
     private TuneTask validateDefault() {
         return new TuneTask(
                 "Default model validation",
                 List.of(
-                        new HeatExchangesProperly(),
-                        new FuelCombustsWithReasonableRate(),
-                        new FlammableForestDoesNotBurnUnderHumidAir(),
-                        new ResilientForestBurnsUnderModerateFactors()
+                        new CombustionRate(),
+                        new HeatExchange(),
+                        new FlammableForestHumidAir(),
+                        new ResilientForestModerateFactors()
                 ),
                 List.of()
         );
     }
 
-    private TuneTask tuneDraftStepCreationAlgorithm() {
+    private TuneTask optimizeDraftStepCreation() {
         return new TuneTask(
-                "Draft step creation algorithm",
-                List.of(new DraftStepCreatesQuickly(
-                        DraftStepCreatesQuickly.CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_HASHMAP
-                )),
+                "Draft step creation",
+                List.of(new DraftStepCreation(DraftStepCreation.CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_HASHMAP)),
                 List.of()
         );
     }
@@ -42,11 +44,11 @@ public final class Tuner {
     private TuneTask tuneCombustionRate() {
         return new TuneTask(
                 "Combustion rate",
-                List.of(new FuelCombustsWithReasonableRate()),
+                List.of(new CombustionRate()),
                 List.of(
                         new ModelParameter(
                                 ModelParameter.COMBUSTION_RATE,
-                                ModelParameter.logRange(1, 100, 1000)
+                                ModelParameter.logRange(1, 200, 1000)
                         ),
                         new ModelParameter(
                                 ModelParameter.AIR_HUMIDITY_EFFECT,
@@ -59,40 +61,40 @@ public final class Tuner {
     private TuneTask tuneHeatExchange() {
         return new TuneTask(
                 "Heat exchange",
-                List.of(new HeatExchangesProperly()),
+                List.of(new HeatExchange()),
                 List.of(
                         new ModelParameter(
-                                ModelParameter.HEAT_REGULATION_DURATION,
-                                0.16
+                                ModelParameter.HEAT_REGULATION_INTENSITY,
+                                ModelParameter.logRange(0.0001, 0.01, 100, 100)
                         ),
                         new ModelParameter(
                                 ModelParameter.RADIATION_PREVALENCE,
-                                ModelParameter.logRange(Math.pow(10, -10), 0.01, 100, 1000)
+                                ModelParameter.logRange(Math.pow(10, -10), 0.01, 100, 100)
                         )
                 )
         );
     }
 
-    private TuneTask tuneHumidityEffect() {
+    private TuneTask adjustHumidityEffect() {
         return new TuneTask(
                 "Humidity effect",
                 List.of(
-                        new FuelCombustsWithReasonableRate(),
-                        new FlammableForestDoesNotBurnUnderHumidAir(),
-                        new ResilientForestBurnsUnderModerateFactors()
+                        new CombustionRate(),
+                        new FlammableForestHumidAir(),
+                        new ResilientForestModerateFactors()
                 ),
                 List.of(
                         new ModelParameter(
                                 ModelParameter.COMBUSTION_RATE,
-                                ModelParameter.logRange(1, 100, 1000)
+                                ModelParameter.logRange(100, 400, 20)
                         ),
                         new ModelParameter(
                                 ModelParameter.ENERGY_EMISSION,
-                                ModelParameter.logRange(Math.pow(10, 7), 0.1, 50, 30)
+                                ModelParameter.logRange(10000, 0.1, 1000, 40)
                         ),
                         new ModelParameter(
                                 ModelParameter.AIR_HUMIDITY_EFFECT,
-                                ModelParameter.logRange(2, 20, 30)
+                                ModelParameter.logRange(5, 15, 20)
                         )
                 )
         );

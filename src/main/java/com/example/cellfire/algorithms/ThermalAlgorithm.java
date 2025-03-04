@@ -6,9 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class ThermalAlgorithm implements Algorithm {
-    public static final double DEFAULT_COMBUSTION_RATE = 31;
-    public static final double DEFAULT_ENERGY_EMISSION = 4.7 * Math.pow(10, 7);
-    public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 4.4;
+    public static final double DEFAULT_COMBUSTION_RATE = 300;
+    public static final double DEFAULT_ENERGY_EMISSION = 27000;
+    public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 7.5;
     /**
      * += 3.
      * 3.5 in some research.
@@ -20,8 +20,8 @@ public final class ThermalAlgorithm implements Algorithm {
      */
     public static final double DEFAULT_WIND_EFFECT = 0.15;
     public static final double DEFAULT_DISTANCE_EFFECT = 1.0 / 200;
-    public static final double DEFAULT_HEAT_REGULATION_DURATION = 0.16;
-    public static final double DEFAULT_RADIATION_PREVALENCE = 7 * Math.pow(10, -10);
+    public static final double DEFAULT_HEAT_REGULATION_INTENSITY = 0.00018;
+    public static final double DEFAULT_RADIATION_PREVALENCE = 4 * Math.pow(10, -10);
 
     private static final double UNIVERSAL_GAS_CONSTANT = 8.3;
     private static final double CELSIUS_ZERO_TEMPERATURE = 273;
@@ -35,19 +35,19 @@ public final class ThermalAlgorithm implements Algorithm {
     private final double slopeEffect;
     private final double windEffect;
     private final double distanceEffect;
-    private final double heatRegulationDuration;
+    private final double heatRegulationIntensity;
     private final double radiationPrevalence;
 
     public ThermalAlgorithm(
             double combustionRate, double energyEmission, double airHumidityEffect, double slopeEffect,
-            double windEffect, double distanceEffect, double heatRegulationDuration, double radiationPrevalence) {
+            double windEffect, double distanceEffect, double heatRegulationIntensity, double radiationPrevalence) {
         this.combustionRate = combustionRate;
         this.energyEmission = energyEmission;
         this.airHumidityEffect = airHumidityEffect;
         this.slopeEffect = slopeEffect;
         this.windEffect = windEffect;
         this.distanceEffect = distanceEffect;
-        this.heatRegulationDuration = heatRegulationDuration;
+        this.heatRegulationIntensity = heatRegulationIntensity;
         this.radiationPrevalence = radiationPrevalence;
     }
 
@@ -59,7 +59,7 @@ public final class ThermalAlgorithm implements Algorithm {
                 DEFAULT_SLOPE_EFFECT,
                 DEFAULT_WIND_EFFECT,
                 DEFAULT_DISTANCE_EFFECT,
-                DEFAULT_HEAT_REGULATION_DURATION,
+                DEFAULT_HEAT_REGULATION_INTENSITY,
                 DEFAULT_RADIATION_PREVALENCE
         );
     }
@@ -73,15 +73,13 @@ public final class ThermalAlgorithm implements Algorithm {
 
     @Override
     public void refineDraftStep(Simulation.Step draftStep, Simulation simulation) {
-        List<Cell> burningCells = draftStep.getCells().stream()
-                .filter(cell -> isBurningCell(cell, simulation))
-                .toList();
+        List<Cell> burningCells = draftStep.getCells().stream().filter(cell -> isBurning(cell, simulation)).toList();
         burningCells.forEach((cell) -> burnFuel(cell, simulation));
         burningCells.forEach((cell) -> transferEnergy(cell, simulation));
-        draftStep.getCells().forEach(this::regulateHeat);
+        draftStep.getCells().forEach((cell) -> regulateHeat(cell, simulation));
     }
 
-    private static boolean isBurningCell(Cell cell, Simulation simulation) {
+    private static boolean isBurning(Cell cell, Simulation simulation) {
         return cell.getState().getFuel() > 0
                 && simulation.getConditions().getIgnitionTemperature() <= cell.getState().getHeat()
                 && cell.getWeather().getAirTemperature() > 0;
@@ -119,29 +117,23 @@ public final class ThermalAlgorithm implements Algorithm {
                 || cell.getWeather().getAirTemperature() <= 0) {
             return;
         }
-        double combustionRate = calculateCombustionRate(cell, simulation.getConditions());
-        double burnedFraction = combustionRate * simulation.getTimeline().getStepDuration().toSeconds();
-        if (burnedFraction > 1) {
-            combustionRate /= burnedFraction;
-            burnedFraction = 1;
-        }
-        float energy = (float) calculateCombustionEnergy(cell, combustionRate);
+        double burnedFraction = calculateBurnedFraction(cell, simulation);
+        float energy = (float) calculateCombustionEnergy(cell, burnedFraction);
         float fuel = cell.getState().getFuel() * (1 - (float) burnedFraction);
         setEmittedEnergy(energy, cell);
         cell.getState().setFuel(fuel);
     }
 
     private void transferEnergy(Cell cell, Simulation simulation) {
-        double[] proximity = new double[9];
         Grid grid = simulation.getGrid();
+        double[] proximity = new double[9];
         double averageDistance = estimateAverageDistance(grid, cell.getCoordinates(), cell.getCoordinates());
         proximity[8] = 1.0 / averageDistance;
         int neighborIndex = 0;
         for (Cell neighbor : cell.iterateNeighbors()) {
             averageDistance = estimateAverageDistance(grid, cell.getCoordinates(), neighbor.getCoordinates());
             double environmentalEffect = calculateEnvironmentalEffect(grid, cell, neighbor);
-            proximity[neighborIndex++] = environmentalEffect / averageDistance
-                    * simulation.getGrid().getScale() / distanceEffect;
+            proximity[neighborIndex++] = environmentalEffect / averageDistance * grid.getScale() / distanceEffect;
         }
         double totalProximity = Arrays.stream(proximity).sum();
 
@@ -156,8 +148,10 @@ public final class ThermalAlgorithm implements Algorithm {
         }
     }
 
-    private void regulateHeat(Cell cell) {
-        double heat = toKelvin(Math.min(cell.getState().getHeat(), 2000));
+    private void regulateHeat(Cell cell, Simulation simulation) {
+        double stepDuration = simulation.getTimeline().getStepDuration().toSeconds();
+        double heatRegulationDuration = heatRegulationIntensity * stepDuration;
+        double heat = toKelvin(cell.getState().getHeat());
         double airTemperature = toKelvin(cell.getWeather().getAirTemperature());
         double phase = 0;
         while (phase < 0.999) {
@@ -184,13 +178,18 @@ public final class ThermalAlgorithm implements Algorithm {
         cell.getState().setHeat((float) toCelsius(heat));
     }
 
-    private double calculateCombustionEnergy(Cell cell, double combustionRate) {
-        return energyEmission * combustionRate * cell.getState().getFuel();
+    private double calculateCombustionEnergy(Cell cell, double burnedFraction) {
+        return energyEmission * burnedFraction * cell.getState().getFuel();
+    }
+
+    private double calculateBurnedFraction(Cell cell, Simulation simulation) {
+        double stepDuration = simulation.getTimeline().getStepDuration().toSeconds();
+        return Math.min(1, stepDuration * calculateCombustionRate(cell, simulation.getConditions()));
     }
 
     private double calculateCombustionRate(Cell cell, Simulation.Conditions conditions) {
-        double firePower = -conditions.getActivationEnergy()
-                / UNIVERSAL_GAS_CONSTANT / toKelvin(cell.getState().getHeat());
+        double temperature = toKelvin(cell.getState().getHeat());
+        double firePower = -conditions.getActivationEnergy() / UNIVERSAL_GAS_CONSTANT / temperature;
         double airHumidityInfluence = Math.exp(-airHumidityEffect * cell.getWeather().getAirHumidity());
         return airHumidityInfluence * combustionRate * Math.exp(firePower);
     }

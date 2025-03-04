@@ -1,53 +1,54 @@
-package com.example.cellfire.tuner.cases;
+package com.example.cellfire.tuner.cases.accuracy.process;
 
-import com.example.cellfire.algorithms.Algorithm;
-import com.example.cellfire.models.Cell;
-import com.example.cellfire.models.CellState;
-import com.example.cellfire.models.Coordinates;
-import com.example.cellfire.models.Weather;
+import com.example.cellfire.algorithms.ThermalAlgorithm;
+import com.example.cellfire.models.*;
 import com.example.cellfire.tuner.experiment.TuneCase;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.Duration;
 
-public final class HeatExchangesProperly extends TuneCase {
-    public HeatExchangesProperly(double weight, boolean isObligatory) {
+public final class HeatExchange extends TuneCase {
+    public HeatExchange(double weight, boolean isObligatory) {
         super(weight, isObligatory);
     }
 
-    public HeatExchangesProperly(double weight) {
+    public HeatExchange(double weight) {
         super(weight);
     }
 
-    public HeatExchangesProperly(boolean isObligatory) {
+    public HeatExchange(boolean isObligatory) {
         super(isObligatory);
     }
 
-    public HeatExchangesProperly() {
+    public HeatExchange() {
         super();
     }
 
     @Override
-    protected ModelScore score(Algorithm algorithm) {
-        String heatRegulatorMethodName = "regulateHeat";
+    protected ModelScore score(ThermalAlgorithm algorithm) {
         try {
-            Method heatRegulator = algorithm.getClass().getDeclaredMethod(heatRegulatorMethodName, Cell.class);
+            Method heatRegulator = ThermalAlgorithm.class.getDeclaredMethod(
+                    "regulateHeat", Cell.class, Simulation.class
+            );
             heatRegulator.setAccessible(true);
 
-            Cell overheatedCell = createCell(2000);
-            heatRegulator.invoke(algorithm, overheatedCell);
+            Simulation simulation = createDefaultSimulation(Duration.ofMinutes(30));
+
+            Cell overheatedCell = createCell(5000);
+            heatRegulator.invoke(algorithm, overheatedCell, simulation);
             double overheatedCellHeat = overheatedCell.getState().getHeat();
-            if (overheatedCellHeat < 750) {
+            if (overheatedCellHeat < 700) {
                 return ModelScore.failure("Overheated cell cools down too fast.");
             }
             if (900 < overheatedCellHeat) {
                 return ModelScore.failure("Overheated cell cools down too slow.");
             }
 
-            Cell hotCell = createCell(1200);
-            heatRegulator.invoke(algorithm, hotCell);
+            Cell hotCell = createCell(1300);
+            heatRegulator.invoke(algorithm, hotCell, simulation);
             double hotCellHeat = hotCell.getState().getHeat();
-            if (hotCellHeat < 750) {
+            if (hotCellHeat < 600) {
                 return ModelScore.failure("Hot cell cools down too fast.");
             }
             if (850 < hotCellHeat) {
@@ -55,7 +56,7 @@ public final class HeatExchangesProperly extends TuneCase {
             }
 
             Cell warmCell = createCell(700);
-            heatRegulator.invoke(algorithm, warmCell);
+            heatRegulator.invoke(algorithm, warmCell, simulation);
             double warmCellHeat = warmCell.getState().getHeat();
             if (warmCellHeat < 400) {
                 return ModelScore.failure("Warm cell cools down too fast.");
@@ -65,12 +66,12 @@ public final class HeatExchangesProperly extends TuneCase {
             }
 
             Cell coldCell = createCell(200);
-            heatRegulator.invoke(algorithm, coldCell);
+            heatRegulator.invoke(algorithm, coldCell, simulation);
             double coldCellHeat = coldCell.getState().getHeat();
-            if (coldCellHeat < 130) {
+            if (coldCellHeat < 100) {
                 return ModelScore.failure("Cold cell cools down too fast.");
             }
-            if (170 < coldCellHeat) {
+            if (150 < coldCellHeat) {
                 return ModelScore.failure("Cold cell cools down too slow.");
             }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException exception) {

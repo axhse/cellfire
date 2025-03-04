@@ -1,6 +1,6 @@
-package com.example.cellfire.tuner.cases;
+package com.example.cellfire.tuner.cases.efficiency;
 
-import com.example.cellfire.algorithms.Algorithm;
+import com.example.cellfire.algorithms.ThermalAlgorithm;
 import com.example.cellfire.models.*;
 import com.example.cellfire.tuner.experiment.TuneCase;
 
@@ -8,23 +8,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public final class DraftStepCreatesQuickly extends TuneCase {
+public final class DraftStepCreation extends TuneCase {
     private final CopyingAlgorithm copyingAlgorithm;
 
-    public DraftStepCreatesQuickly(CopyingAlgorithm copyingAlgorithm) {
+    public DraftStepCreation(CopyingAlgorithm copyingAlgorithm) {
         super();
         this.copyingAlgorithm = copyingAlgorithm;
     }
 
     @Override
-    protected TuneCase.ModelScore score(Algorithm algorithm) {
+    protected TuneCase.ModelScore score(ThermalAlgorithm algorithm) {
         Map<CopyingAlgorithm, Function<Simulation.Step, Simulation.Step>> creators = Map.of(
                 CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_SEARCH,
-                DraftStepCreatesQuickly::randomPointerNeighborSearch,
+                DraftStepCreation::randomPointerNeighborSearch,
                 CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_HASHMAP,
-                DraftStepCreatesQuickly::randomPointerNeighborHashmap,
+                DraftStepCreation::randomPointerNeighborHashmap,
                 CopyingAlgorithm.HASHMAP,
-                DraftStepCreatesQuickly::hashmap
+                DraftStepCreation::hashmap
         );
         Map<CopyingAlgorithm, Double> results = new HashMap<>();
         for (Map.Entry<CopyingAlgorithm, Function<Simulation.Step, Simulation.Step>> entry : creators.entrySet()) {

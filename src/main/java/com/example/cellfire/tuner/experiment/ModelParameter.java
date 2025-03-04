@@ -10,7 +10,7 @@ public final class ModelParameter {
     public static final String SLOPE_EFFECT = "slopeEffect";
     public static final String WIND_EFFECT = "windEffect";
     public static final String DISTANCE_EFFECT = "distanceEffect";
-    public static final String HEAT_REGULATION_DURATION = "heatRegulationDuration";
+    public static final String HEAT_REGULATION_INTENSITY = "heatRegulationIntensity";
     public static final String RADIATION_PREVALENCE = "radiationPrevalence";
 
     private final String name;

@@ -1,6 +1,7 @@
 package com.example.cellfire;
 
 import com.example.cellfire.algorithms.ThermalAlgorithm;
+import com.example.cellfire.data.ForestTypeConditions;
 import com.example.cellfire.models.Cell;
 import com.example.cellfire.models.Coordinates;
 import com.example.cellfire.models.Simulation;
@@ -140,7 +141,7 @@ public final class SimulationTest {
     @Test
     public void testSimulationSteps() {
         Simulator simulator = createSimulator(10);
-        Simulation simulation = createSimulation();
+        Simulation simulation = createSimulation(simulator);
 
         Assertions.assertEquals(0, simulation.getSteps().size());
 
@@ -156,8 +157,8 @@ public final class SimulationTest {
 
     @Test
     public void testSimulationStepCells() {
-        Simulator simulator = createSimulator(10);
-        Simulation simulation = createSimulation();
+        Simulator simulator = createSimulator(1000);
+        Simulation simulation = createSimulation(simulator, new LatLng(0, -180 + 0.00001));
 
         simulator.startSimulation(simulation);
         simulator.progressSimulation(simulation, 2);
@@ -188,11 +189,8 @@ public final class SimulationTest {
 
     @Test
     public void testPolarNeighboringCells() {
-        Simulator simulator = createSimulator(10);
-        Simulation simulation = simulator.createDefaultSimulation(
-                new LatLng(-90 + 0.00001, 0),
-                Simulation.Algorithm.THERMAL
-        );
+        Simulator simulator = createSimulator(1000);
+        Simulation simulation = createSimulation(simulator, new LatLng(-90 + 0.00001, 0));
 
         simulator.startSimulation(simulation);
         simulator.progressSimulation(simulation, 1);
@@ -205,48 +203,59 @@ public final class SimulationTest {
     }
 
     @Test
+    public void testSimulationWithoutFuel() {
+        Simulator simulator = createSimulator(0);
+        Simulation simulation = createSimulation(simulator);
+
+        simulator.startSimulation(simulation);
+        simulator.progressSimulation(simulation, 3);
+        Assertions.assertEquals(1, simulation.getSteps().get(3).getCells().size());
+    }
+
+    @Test
     public void testStepCount() {
         Simulator simulator = createSimulator(0);
 
-        Simulation simulation1 = simulator.createSimulation(
-                123,
-                new LatLng(0, 0),
-                Duration.ofHours(4),
-                Duration.ofDays(3),
-                Instant.now(),
-                Simulation.Algorithm.THERMAL
-        );
+        Simulation simulation1 = createSimulation(Duration.ofHours(4), Duration.ofDays(3));
         simulator.startSimulation(simulation1);
         simulator.progressSimulation(simulation1, 3);
         Assertions.assertEquals(1 + 3, simulation1.getSteps().size());
         simulator.progressSimulation(simulation1, 100000);
         Assertions.assertEquals(1 + 24 / 4 * 3, simulation1.getSteps().size());
 
-        Simulation simulation2 = simulator.createSimulation(
-                123,
-                new LatLng(0, 0),
-                Duration.ofHours(4),
-                Duration.ofDays(3).plusMinutes(3 * 60 + 50),
-                Instant.now(),
-                Simulation.Algorithm.THERMAL
-        );
+        Duration limitDuration = Duration.ofDays(3).plusMinutes(3 * 60 + 50);
+        Simulation simulation2 = createSimulation(Duration.ofHours(4), limitDuration);
         simulator.startSimulation(simulation2);
         simulator.progressSimulation(simulation2, 100000);
         Assertions.assertEquals(1 + 24 / 4 * 3, simulation2.getSteps().size());
     }
 
-    private static Simulator createSimulator(double fuel) {
-        return new Simulator(
-                new UniformTerrainService((byte) 1, fuel, 0),
-                new UniformWeatherService(10000, 0, 0, 0),
-                new ThermalAlgorithm()
+    private static Simulation createSimulation(Duration stepDuration, Duration limitDuration) {
+        return new Simulation(
+                new Simulation.MarkedGrid(1, new LatLng(0, 0)),
+                new Simulation.Timeline(Instant.now(), stepDuration, limitDuration),
+                new Simulation.Conditions(0, 100000),
+                Simulation.Algorithm.THERMAL
         );
     }
 
+    private static Simulation createSimulation(Simulator simulator) {
+        return simulator.createSimulation(new LatLng(0, 0), Simulation.Algorithm.THERMAL);
+    }
+
+    private static Simulation createSimulation(Simulator simulator, LatLng startPoint) {
+        return simulator.createSimulation(startPoint, Simulation.Algorithm.THERMAL);
+    }
+
     private static Simulation createSimulation() {
-        return createSimulator(10).createDefaultSimulation(
-                new LatLng(0, -180 + 0.00001),
-                Simulation.Algorithm.THERMAL
+        return createSimulation(createSimulator(0));
+    }
+
+    private static Simulator createSimulator(double fuel) {
+        return new Simulator(
+                new UniformTerrainService(ForestTypeConditions.ForestType.MIXED, fuel, 0),
+                new UniformWeatherService(200, 0, 0, 0),
+                new ThermalAlgorithm()
         );
     }
 }

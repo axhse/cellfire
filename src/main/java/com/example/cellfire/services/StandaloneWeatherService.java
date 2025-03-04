@@ -9,12 +9,12 @@ import java.time.Instant;
 public final class StandaloneWeatherService implements WeatherService {
     @Override
     public double getAirTemperature(LatLng point, Instant date) {
-        return 20;
+        return 25;
     }
 
     @Override
     public double getAirHumidity(LatLng point, Instant date) {
-        return 0.2;
+        return 0.4;
     }
 
     @Override

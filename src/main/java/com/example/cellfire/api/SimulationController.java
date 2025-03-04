@@ -29,7 +29,7 @@ public final class SimulationController {
 
     @PostMapping("/simulation/create")
     public Map<String, Object> createSimulation(@RequestBody SimulationCreationParams params) {
-        Simulation simulation = simulator.createDefaultSimulation(params.getStartPoint(), params.getAlgorithm());
+        Simulation simulation = simulator.createSimulation(params.getStartPoint(), params.getAlgorithm());
         simulator.startSimulation(simulation);
         simulationManager.addSimulation(simulation);
 

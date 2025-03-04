@@ -23,9 +23,9 @@ public final class Simulator {
 
     private final TerrainService terrainService;
     private final WeatherService weatherService;
-    private final Algorithm algorithm;
+    private final ThermalAlgorithm algorithm;
 
-    public Simulator(TerrainService terrainService, WeatherService weatherService, Algorithm algorithm) {
+    public Simulator(TerrainService terrainService, WeatherService weatherService, ThermalAlgorithm algorithm) {
         this.terrainService = terrainService;
         this.weatherService = weatherService;
         this.algorithm = algorithm;
@@ -36,22 +36,12 @@ public final class Simulator {
         this(terrainService, weatherService, new ThermalAlgorithm());
     }
 
-    public Simulation createSimulation(
-            int gridScale, LatLng startPoint, Duration stepDuration,
-            Duration limitDuration, Instant startDate, String algorithm
-    ) {
+    public Simulation createSimulation(LatLng startPoint, String algorithm) {
         return new Simulation(
-                new Simulation.MarkedGrid(gridScale, startPoint),
-                new Simulation.Timeline(startDate, stepDuration, limitDuration),
+                new Simulation.MarkedGrid(DEFAULT_GRID_SCALE, startPoint),
+                new Simulation.Timeline(Instant.now(), DEFAULT_STEP_DURATION, DEFAULT_LIMIT_DURATION),
                 determineConditions(startPoint),
                 algorithm
-        );
-    }
-
-    public Simulation createDefaultSimulation(LatLng startPoint, String algorithm) {
-        return createSimulation(
-                DEFAULT_GRID_SCALE, startPoint, DEFAULT_STEP_DURATION,
-                DEFAULT_LIMIT_DURATION, Instant.now(), algorithm
         );
     }
 
@@ -126,7 +116,8 @@ public final class Simulator {
 
         lastStep.getCells().forEach(previousCell -> {
             Cell cell = previousCell.getTwin();
-            if (cell.getState().getHeat() <= simulation.getConditions().getIgnitionTemperature()) {
+            if (cell.getState().getFuel() == 0
+                    || cell.getState().getHeat() <= simulation.getConditions().getIgnitionTemperature()) {
                 return;
             }
             for (int offsetX = -1; offsetX <= 1; offsetX++) {

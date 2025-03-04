@@ -1,6 +1,5 @@
 package com.example.cellfire.tuner.experiment;
 
-import com.example.cellfire.algorithms.Algorithm;
 import com.example.cellfire.algorithms.ThermalAlgorithm;
 
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ public final class Experiment {
                 parameterValueIndices.add(parameterValueIndex);
                 n /= parameter.getVariations().size();
             }
-            Algorithm algorithm = new ThermalAlgorithm(
+            ThermalAlgorithm algorithm = new ThermalAlgorithm(
                     parameterValues.stream().mapToDouble(Double::doubleValue).toArray()
             );
             for (TuneCase tuneCase : tuneTask.getTuneCases()) {
