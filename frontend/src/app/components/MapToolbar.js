@@ -50,7 +50,7 @@ export class MapToolbar {
       tickShifter.innerHTML = `${describeTimePeriod(period, false)}`;
       tickShifter.title = `${deltaTicks < 0 ? 'Rewind' : 'Advance'} simulation by ${describeTimePeriod(period).slice(2)}`;
     }
-    setTimelineDate('label-timeline-start-date', 'Start', timeline.startDate);
+    setTimelineDate('label-start-date', 'Start', timeline.startDate);
   }
 
   updateControls(simulation) {
@@ -71,7 +71,7 @@ export class MapToolbar {
     setTimelinePeriod(currentPeriod);
     const startTs = timeline.startDate.valueOf();
     const currentDate = new Date(startTs + currentPeriod);
-    setTimelineDate('label-timeline-current-date', 'Current', currentDate);
+    setTimelineDate('label-current-date', 'Current', currentDate);
   }
 
   setPointerMode(pointerMode) {
@@ -158,7 +158,7 @@ function setAverageFuelDensity(fuelDensity) {
 }
 
 function setIndicator(indicator, value, content, title) {
-  const containerId = `container-indicator-${indicator}`;
+  const containerId = `indicator-container-${indicator}`;
   const container = document.getElementById(containerId);
   const backgroundColor = INDICATOR_GRADIENTS[indicator]
     .backgroundFor(value)
@@ -172,7 +172,7 @@ function setIndicator(indicator, value, content, title) {
 }
 
 function setTimelinePeriod(period) {
-  setLabelContent('label-timeline-period', describeTimePeriod(period));
+  setLabelContent('label-period', describeTimePeriod(period));
 }
 
 function setTimelineDate(dateLabelId, dateTitle, date) {

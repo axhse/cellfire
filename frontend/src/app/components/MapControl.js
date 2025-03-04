@@ -47,15 +47,21 @@ const INDICATORS_WITH_ICONS = [
 export function InfoControl() {
   const control = new MapControl('control-container-info', 'Information');
 
-  control.append(createLabel('label-active-algorithm'));
-  control.append(createLabel('label-damaged-area'));
+  control.append(createLabel('label-active-algorithm', 'label-block first'));
+  control.append(createLabel('label-damaged-area', 'label-block'));
 
+  const indicatorPanel = createContainer('indicator-panel');
+  control.append(indicatorPanel);
+
+  let isFirst = true;
   for (const [indicator, icon] of INDICATORS_WITH_ICONS) {
-    const containerId = `container-indicator-${indicator}`;
-    const container = createContainer(containerId, 'container-indicator');
+    const containerId = `indicator-container-${indicator}`;
+    const containerClassName = 'indicator inline' + getOrdinalClass(isFirst);
+    const container = createContainer(containerId, containerClassName);
     container.appendChild(createLabel('', '', icon));
     container.appendChild(createLabel(`label-indicator-${indicator}`));
-    control.append(container);
+    indicatorPanel.appendChild(container);
+    isFirst = false;
   }
 
   return control;
@@ -64,15 +70,17 @@ export function InfoControl() {
 export function LayerControl(tools) {
   const control = new MapControl('control-container-layer', 'Layers');
 
+  let isFirst = true;
   for (const layer of Object.values(Layer)) {
     const toggle = createButton(
       () => tools.switchLayer(layer),
       getLayerToggleId(layer),
-      'control-inline-button layer-toggle off',
+      'off' + getOrdinalClass(isFirst),
       `${LAYER_ICONS[layer]} ${capitalizeText(LAYER_NAMES[layer])}`,
       `Display ${LAYER_NAMES[layer]} layer`
     );
     control.append(toggle);
+    isFirst = false;
   }
 
   return control;
@@ -88,7 +96,7 @@ export function SimulationControl(tools) {
   const algorithmSwitch = createButton(
     tools.switchAlgorithm,
     'algorithm-switch',
-    'control-inline-button',
+    'inline',
     '',
     'Switch algorithm'
   );
@@ -96,8 +104,8 @@ export function SimulationControl(tools) {
 
   const lighter = createButton(
     tools.switchLighter,
-    '',
-    'control-inline-button lighter',
+    'lighter',
+    'inline',
     '🔥',
     'Set ignition point'
   );
@@ -111,18 +119,20 @@ export function TimelineControl(tools) {
   const title = `<<${spacing}Timeline${spacing}>>`;
   const control = new MapControl('control-container-timeline', title);
 
+  let isFirst = true;
   for (const deltaTicks of [-10, -1, 1, 10]) {
     const tickShifter = createButton(
       () => tools.navigateTimeline(deltaTicks),
       getTickShifterId(deltaTicks),
-      'control-inline-button timeline'
+      'inline' + getOrdinalClass(isFirst)
     );
     control.append(tickShifter);
+    isFirst = false;
   }
 
-  control.append(createLabel('label-timeline-start-date'));
-  control.append(createLabel('label-timeline-period'));
-  control.append(createLabel('label-timeline-current-date'));
+  control.append(createLabel('label-start-date', 'label-block'));
+  control.append(createLabel('label-period', 'label-block'));
+  control.append(createLabel('label-current-date', 'label-block'));
 
   return control;
 }
@@ -180,7 +190,7 @@ function createElement(
 }
 
 function createControlContainer(containerId, isCoreControl) {
-  const containerClassName = 'ol-unselectable ol-control map-control-container';
+  const containerClassName = 'ol-unselectable ol-control control-container';
   const container = createContainer(containerId, containerClassName);
   if (!isCoreControl) {
     container.hidden = true;
@@ -189,9 +199,13 @@ function createControlContainer(containerId, isCoreControl) {
 }
 
 function createControlHeader(title) {
-  return createLabel('', 'map-control-header', title);
+  return createLabel('', 'control-header label-block', title);
 }
 
 function createControlBody() {
-  return createContainer('', 'map-control-body');
+  return createContainer('', 'control-body');
+}
+
+function getOrdinalClass(isFirst) {
+  return isFirst ? ' first' : '';
 }
