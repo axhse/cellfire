@@ -14,12 +14,12 @@ public final class StandaloneWeatherService implements WeatherService {
 
     @Override
     public double getAirHumidity(LatLng point, Instant date) {
-        return 0.4;
+        return 0.25;
     }
 
     @Override
     public double getWindX(LatLng point, Instant date) {
-        return 5;
+        return 3;
     }
 
     @Override

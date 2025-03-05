@@ -32,7 +32,7 @@ def decompress_bytes(byte_sequence):
 def compress_map_data(data, factor):
     if factor == 1:
         return data
-    if data.shape[0] % factor != 0 or data.shape[1] % factor != 0:
+    if factor < 1 or data.shape[0] % factor != 0 or data.shape[1] % factor != 0:
         raise Exception("Invalid factor.")
     compressed_data = data.reshape(
         data.shape[0] // factor, factor, data.shape[1] // factor, factor

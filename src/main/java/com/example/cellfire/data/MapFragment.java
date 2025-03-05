@@ -25,9 +25,9 @@ public class MapFragment {
         return 0 <= valueX && valueX < width * scale && 0 <= valueY && valueY < height * scale;
     }
 
-    public byte at(LatLng point) {
+    public int at(LatLng point) {
         int valueX = (int) Math.round((point.lng - x) * scale - 0.5);
         int valueY = (int) Math.round((point.lat - y) * scale - 0.5);
-        return data[valueX][valueY];
+        return data[valueX][valueY] & 0xFF;
     }
 }

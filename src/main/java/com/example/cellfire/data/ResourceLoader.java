@@ -21,9 +21,9 @@ public final class ResourceLoader {
         return new Mosaic(fragments);
     }
 
-    public static Mosaic loadCanopyHeightMap() {
+    public static Mosaic loadForestDensityMap() {
         List<MapFragment> fragments = new ArrayList<>();
-        fragments.add(loadMapFragment("CanopyHeight", 1000, 48, 36, 3));
+        fragments.add(loadMapFragment("ForestDensity", 200, 48, 36, 3));
         return new Mosaic(fragments);
     }
 
@@ -55,7 +55,7 @@ public final class ResourceLoader {
 
     private static MapFragment loadMapSmoothFragment(String name, int scale, int x, int y, int width, int height) {
         byte[][] data = loadFragmentData(name, scale, x, y, width, height);
-        return new MapSmoothFragment(data, scale, x, y, width, height);
+        return new SmoothMapFragment(data, scale, x, y, width, height);
     }
 
     private static MapFragment loadMapSmoothFragment(String name, int scale, int x, int y, int size) {

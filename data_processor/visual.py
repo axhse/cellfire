@@ -20,6 +20,9 @@ class MapDrawer:
         axes.set_yticks([])
         plt.show()
 
+    def draw_native(self, fragment: MapFragment):
+        return self.draw(fragment, fragment.scale)
+
     @staticmethod
     def _to_plt_color(rgb_color):
         return [channel / 255 for channel in rgb_color]

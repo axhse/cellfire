@@ -7,7 +7,7 @@ import java.util.List;
 
 public final class ThermalAlgorithm implements Algorithm {
     public static final double DEFAULT_COMBUSTION_RATE = 300;
-    public static final double DEFAULT_ENERGY_EMISSION = 27000;
+    public static final double DEFAULT_ENERGY_EMISSION = 50000;
     public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 7.5;
     /**
      * += 3.

@@ -12,8 +12,8 @@ import com.example.cellfire.tuner.services.UniformWeatherService;
 import java.util.List;
 
 public final class FlammableForestHumidAir extends TuneCase {
-    private static final byte FOREST_TYPE = ForestTypeConditions.ForestType.DECIDUOUS_BROADLEAF;
-    private static final double FUEL = 0.5;
+    private static final int FOREST_TYPE = ForestTypeConditions.ForestType.DECIDUOUS_BROADLEAF;
+    private static final double FUEL = 0.25;
     private static final double AIR_TEMPERATURE = 20;
     private static final double AIR_HUMIDITY = 0.8;
     private static final double WIND_X = 1;

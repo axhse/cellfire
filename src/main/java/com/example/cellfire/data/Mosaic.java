@@ -4,14 +4,14 @@ import com.google.maps.model.LatLng;
 
 import java.util.List;
 
-public class Mosaic {
-    protected final List<MapFragment> fragments;
+public final class Mosaic {
+    private final List<MapFragment> fragments;
 
     public Mosaic(List<MapFragment> fragments) {
         this.fragments = fragments;
     }
 
-    public byte at(LatLng point) {
+    public int at(LatLng point) {
         for (MapFragment fragment : fragments) {
             if (fragment.has(point)) {
                 return fragment.at(point);
@@ -20,7 +20,7 @@ public class Mosaic {
         throw new IllegalArgumentException("Mosaic has no value for (%s).".formatted(point));
     }
 
-    public byte at(LatLng point, byte defaultValue) {
+    public int at(LatLng point, int defaultValue) {
         for (MapFragment fragment : fragments) {
             if (fragment.has(point)) {
                 return fragment.at(point);

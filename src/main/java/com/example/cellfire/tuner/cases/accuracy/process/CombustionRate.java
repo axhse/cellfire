@@ -34,7 +34,7 @@ public final class CombustionRate extends TuneCase {
             );
             rateCalculator.setAccessible(true);
 
-            byte forestType = ForestTypeConditions.ForestType.MIXED;
+            int forestType = ForestTypeConditions.ForestType.MIXED;
             Simulation.Conditions conditions = new Simulation.Conditions(
                     ForestTypeConditions.determineIgnitionTemperature(forestType),
                     ForestTypeConditions.determineActivationEnergy(forestType)

@@ -10,33 +10,28 @@ import org.springframework.stereotype.Service;
 public final class MosaicTerrainService implements TerrainService {
     private final Mosaic elevationMap = ResourceLoader.loadElevationMap();
     private final Mosaic forestTypeClusterMap = ResourceLoader.loadForestTypeClusterMap();
-    private final Mosaic canopyHeightMap = ResourceLoader.loadCanopyHeightMap();
+    private final Mosaic forestDensityMap = ResourceLoader.loadForestDensityMap();
 
     @Override
     public double getIgnitionTemperature(LatLng point) {
-        byte forestType = forestTypeClusterMap.at(point, (byte) 0);
+        int forestType = forestTypeClusterMap.at(point, 0);
         return ForestTypeConditions.determineIgnitionTemperature(forestType);
     }
 
     @Override
     public double getActivationEnergy(LatLng point) {
-        byte forestType = forestTypeClusterMap.at(point, (byte) 0);
+        int forestType = forestTypeClusterMap.at(point, 0);
         return ForestTypeConditions.determineActivationEnergy(forestType);
     }
 
     @Override
     public double getFuel(LatLng point) {
-        double canopyHeight = canopyHeightMap.at(point, (byte) 0);
-        return calculateFuel(canopyHeight);
+        return forestDensityMap.at(point, 0) / 255.0;
     }
 
     @Override
     public double getElevation(LatLng point) {
-        double elevation = elevationMap.at(point, (byte) 0);
+        double elevation = elevationMap.at(point, 0);
         return elevation * 6400 / 255;
-    }
-
-    private double calculateFuel(double canopyHeight) {
-        return (1 * canopyHeight * canopyHeight + 5 * canopyHeight) / 500;
     }
 }

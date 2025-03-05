@@ -5,11 +5,11 @@ import com.example.cellfire.services.TerrainService;
 import com.google.maps.model.LatLng;
 
 public final class UniformTerrainService implements TerrainService {
-    private final byte forestType;
+    private final int forestType;
     private final double fuel;
     private final double elevation;
 
-    public UniformTerrainService(byte forestType, double fuel, double elevation) {
+    public UniformTerrainService(int forestType, double fuel, double elevation) {
         this.forestType = forestType;
         this.fuel = fuel;
         this.elevation = elevation;

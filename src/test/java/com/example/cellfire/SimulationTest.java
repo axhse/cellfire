@@ -157,7 +157,7 @@ public final class SimulationTest {
 
     @Test
     public void testSimulationStepCells() {
-        Simulator simulator = createSimulator(1000);
+        Simulator simulator = createSimulator(1000000000);
         Simulation simulation = createSimulation(simulator, new LatLng(0, -180 + 0.00001));
 
         simulator.startSimulation(simulation);
