@@ -82,6 +82,6 @@ function produceDemoCell(startCoordinates, offsetX, offsetY) {
       y: startCoordinates.y + offsetY,
     },
     state: { heat, fuel, damaged },
-    weather: { elevation, airTemperature, airHumidity, windX, windY },
+    factors: { elevation, airTemperature, airHumidity, windX, windY },
   };
 }

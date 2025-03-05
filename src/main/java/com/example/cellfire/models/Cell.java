@@ -9,12 +9,12 @@ public final class Cell {
     private final Cell[] vicinity = new Cell[9];
     private final Coordinates coordinates;
     private final CellState state;
-    private final Weather weather;
+    private final CellFactors factors;
 
-    public Cell(Coordinates coordinates, CellState state, Weather weather) {
+    public Cell(Coordinates coordinates, CellState state, CellFactors factors) {
         this.coordinates = coordinates;
         this.state = state;
-        this.weather = weather;
+        this.factors = factors;
     }
 
     public Coordinates getCoordinates() {
@@ -25,8 +25,8 @@ public final class Cell {
         return state;
     }
 
-    public Weather getWeather() {
-        return weather;
+    public CellFactors getFactors() {
+        return factors;
     }
 
     @JsonIgnore

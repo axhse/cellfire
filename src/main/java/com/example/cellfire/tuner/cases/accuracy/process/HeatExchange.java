@@ -84,7 +84,7 @@ public final class HeatExchange extends TuneCase {
         return new Cell(
                 new Coordinates(0, 0),
                 new CellState(heat, 0, true),
-                new Weather(0, 30, 0, 0, 0)
+                new CellFactors(0, 30, 0, 0, 0)
         );
     }
 }

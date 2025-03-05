@@ -70,7 +70,7 @@ public final class ProbabilisticAlgorithm implements Algorithm {
     }
 
     private double calculateSlopeEffect(Grid grid, Cell cell, Cell otherCell) {
-        double elevation = otherCell.getWeather().getElevation() - cell.getWeather().getElevation();
+        double elevation = otherCell.getFactors().getElevation() - cell.getFactors().getElevation();
         if (elevation == 0) {
             return 1;
         }
@@ -85,8 +85,8 @@ public final class ProbabilisticAlgorithm implements Algorithm {
     private double calculateWindEffect(Cell cell, Cell otherCell) {
         double vectorX = otherCell.getCoordinates().getX() - cell.getCoordinates().getX();
         double vectorY = otherCell.getCoordinates().getY() - cell.getCoordinates().getY();
-        double windX = cell.getWeather().getWindX();
-        double windY = cell.getWeather().getWindY();
+        double windX = cell.getFactors().getWindX();
+        double windY = cell.getFactors().getWindY();
         double windSpeed = Math.sqrt(windX * windX + windY * windY);
         if (windSpeed == 0) {
             return 1;

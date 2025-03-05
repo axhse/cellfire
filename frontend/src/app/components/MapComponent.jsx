@@ -81,7 +81,7 @@ export class MapComponent extends Component {
 
     for (const cell of this.simulation.getSimulatedCells()) {
       const significantHeat =
-        cell.weather.airTemperature + SIGNIFICANT_OVERHEAT;
+        cell.factors.airTemperature + SIGNIFICANT_OVERHEAT;
       if (!cell.state.damaged && cell.state.heat < significantHeat) {
         continue;
       }
@@ -117,10 +117,10 @@ export class MapComponent extends Component {
       color = gradients.fuel.forValue(cell.state.fuel);
     }
     if (this.toolbar.layer === Layer.Elevation) {
-      color = gradients.elevation.forValue(cell.weather.elevation);
+      color = gradients.elevation.forValue(cell.factors.elevation);
     }
     if (this.toolbar.layer === Layer.Wind) {
-      color = gradients.wind.forValue(cell.weather.windSpeed);
+      color = gradients.wind.forValue(cell.factors.windSpeed);
     }
 
     return new Style({ fill: new Fill({ color: color.css() }) });

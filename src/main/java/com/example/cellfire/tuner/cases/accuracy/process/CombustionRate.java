@@ -92,7 +92,7 @@ public final class CombustionRate extends TuneCase {
         return new Cell(
                 new Coordinates(0, 0),
                 new CellState(heat, 0, true),
-                new Weather(0, 0, airHumidity, 0, 0)
+                new CellFactors(0, 0, airHumidity, 0, 0)
         );
     }
 }

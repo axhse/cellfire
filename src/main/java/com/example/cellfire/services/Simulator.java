@@ -51,9 +51,9 @@ public final class Simulator {
 
         float fuel = determineFuel(startPoint);
         CellState initialState = new CellState(INITIAL_HEAT, fuel, false);
-        Weather weather = determineWeather(startPoint, simulation.getTimeline().getStartDate());
+        CellFactors factors = determineFactors(startPoint, simulation.getTimeline().getStartDate());
 
-        Cell initialCell = new Cell(startCoordinates, initialState, weather);
+        Cell initialCell = new Cell(startCoordinates, initialState, factors);
 
         Simulation.Step initialStep = new Simulation.Step();
         initialStep.getCells().add(initialCell);
@@ -84,15 +84,15 @@ public final class Simulator {
         Instant date = simulation.getTimeline().getStartDate().plus(period);
 
         lastStep.getCells().forEach(cell -> {
-            Weather weather = determineWeather(grid.toLatLng(cell.getCoordinates()), date);
-            if (weather.equals(cell.getWeather())) {
-                weather = cell.getWeather();
+            CellFactors factors = determineFactors(grid.toLatLng(cell.getCoordinates()), date);
+            if (factors.equals(cell.getFactors())) {
+                factors = cell.getFactors();
             }
             CellState lastCellState = cell.getState();
             boolean isDamaged = lastCellState.isDamaged()
                     || simulation.getConditions().getIgnitionTemperature() < lastCellState.getHeat();
             CellState draftCellState = new CellState(lastCellState.getHeat(), lastCellState.getFuel(), isDamaged);
-            Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, weather);
+            Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, factors);
             draftCell.setTwin(cell);
             cell.setTwin(draftCell);
             draftStep.getCells().add(draftCell);
@@ -132,12 +132,12 @@ public final class Simulator {
                     }
                     LatLng neighborPoint = grid.toLatLng(neighborCoordinates);
                     float fuel = determineFuel(neighborPoint);
-                    Weather weather = determineWeather(neighborPoint, date);
-                    if (weather.equals(cell.getWeather())) {
-                        weather = cell.getWeather();
+                    CellFactors factors = determineFactors(neighborPoint, date);
+                    if (factors.equals(cell.getFactors())) {
+                        factors = cell.getFactors();
                     }
-                    CellState neighborState = new CellState(weather.getAirTemperature(), fuel, false);
-                    Cell neighbor = new Cell(neighborCoordinates, neighborState, weather);
+                    CellState neighborState = new CellState(factors.getAirTemperature(), fuel, false);
+                    Cell neighbor = new Cell(neighborCoordinates, neighborState, factors);
 
                     for (int dX = -1; dX <= 1; dX++) {
                         for (int dY = -1; dY <= 1; dY++) {
@@ -173,8 +173,8 @@ public final class Simulator {
         );
     }
 
-    private Weather determineWeather(LatLng point, Instant date) {
-        return new Weather(
+    private CellFactors determineFactors(LatLng point, Instant date) {
+        return new CellFactors(
                 (float) terrainService.getElevation(point),
                 (float) weatherService.getAirTemperature(point, date),
                 (float) weatherService.getAirHumidity(point, date),

@@ -44,12 +44,12 @@ public final class DraftStepCreation extends TuneCase {
 
     private static Simulation.Step randomPointerNeighborSearch(Simulation.Step lastStep) {
         Simulation.Step draftStep = new Simulation.Step();
-        Weather weather = new Weather(0, 0, 0, 0, 0);
+        CellFactors factors = new CellFactors(0, 0, 0, 0, 0);
 
         lastStep.getCells().forEach(cell -> {
             CellState lastCellState = cell.getState();
             CellState draftCellState = new CellState(lastCellState.getHeat(), lastCellState.getFuel(), true);
-            Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, weather);
+            Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, factors);
             draftCell.setTwin(cell);
             cell.setTwin(draftCell);
             draftStep.getCells().add(draftCell);
@@ -83,8 +83,8 @@ public final class DraftStepCreation extends TuneCase {
                             cell.getCoordinates().getX() + offsetX,
                             cell.getCoordinates().getY() + offsetY
                     );
-                    CellState neighborState = new CellState(weather.getAirTemperature(), 1, false);
-                    Cell neighbor = new Cell(neighborCoordinates, neighborState, weather);
+                    CellState neighborState = new CellState(factors.getAirTemperature(), 1, false);
+                    Cell neighbor = new Cell(neighborCoordinates, neighborState, factors);
 
                     draftStep.getCells().forEach(otherCell -> {
                         int distanceX = otherCell.getCoordinates().getX() - neighbor.getCoordinates().getX();
@@ -105,12 +105,12 @@ public final class DraftStepCreation extends TuneCase {
 
     private static Simulation.Step randomPointerNeighborHashmap(Simulation.Step lastStep) {
         Simulation.Step draftStep = new Simulation.Step();
-        Weather weather = new Weather(0, 0, 0, 0, 0);
+        CellFactors factors = new CellFactors(0, 0, 0, 0, 0);
 
         lastStep.getCells().forEach(cell -> {
             CellState lastCellState = cell.getState();
             CellState draftCellState = new CellState(lastCellState.getHeat(), lastCellState.getFuel(), true);
-            Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, weather);
+            Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, factors);
             draftCell.setTwin(cell);
             cell.setTwin(draftCell);
             draftStep.getCells().add(draftCell);
@@ -146,8 +146,8 @@ public final class DraftStepCreation extends TuneCase {
                             cell.getCoordinates().getX() + offsetX,
                             cell.getCoordinates().getY() + offsetY
                     );
-                    CellState neighborState = new CellState(weather.getAirTemperature(), 1, false);
-                    Cell neighbor = new Cell(neighborCoordinates, neighborState, weather);
+                    CellState neighborState = new CellState(factors.getAirTemperature(), 1, false);
+                    Cell neighbor = new Cell(neighborCoordinates, neighborState, factors);
 
                     for (int dX = -1; dX <= 1; dX++) {
                         for (int dY = -1; dY <= 1; dY++) {
@@ -174,14 +174,14 @@ public final class DraftStepCreation extends TuneCase {
 
     private static Simulation.Step hashmap(Simulation.Step lastStep) {
         Simulation.Step draftStep = new Simulation.Step();
-        Weather weather = new Weather(0, 0, 0, 0, 0);
+        CellFactors factors = new CellFactors(0, 0, 0, 0, 0);
 
         Map<Coordinates, Cell> draftCellMap = new HashMap<>(draftStep.getCells().size());
 
         lastStep.getCells().forEach(cell -> {
             CellState lastCellState = cell.getState();
             CellState draftCellState = new CellState(lastCellState.getHeat(), lastCellState.getFuel(), true);
-            Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, weather);
+            Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, factors);
             draftCellMap.put(cell.getCoordinates(), draftCell);
         });
         draftStep.getCells().addAll(draftCellMap.values());
@@ -213,8 +213,8 @@ public final class DraftStepCreation extends TuneCase {
                             cell.getCoordinates().getX() + offsetX,
                             cell.getCoordinates().getY() + offsetY
                     );
-                    CellState neighborState = new CellState(weather.getAirTemperature(), 1, false);
-                    Cell neighbor = new Cell(neighborCoordinates, neighborState, weather);
+                    CellState neighborState = new CellState(factors.getAirTemperature(), 1, false);
+                    Cell neighbor = new Cell(neighborCoordinates, neighborState, factors);
 
                     for (int dX = -1; dX <= 1; dX++) {
                         for (int dY = -1; dY <= 1; dY++) {
@@ -242,8 +242,8 @@ public final class DraftStepCreation extends TuneCase {
     private static Simulation.Step createInitialStep() {
         Simulation.Step initialStep = new Simulation.Step();
         CellState cellState = new CellState(10000, 1, true);
-        Weather weather = new Weather(0, 0, 0, 0, 0);
-        Cell initialCell = new Cell(new Coordinates(123, 456), cellState, weather);
+        CellFactors factors = new CellFactors(0, 0, 0, 0, 0);
+        Cell initialCell = new Cell(new Coordinates(123, 456), cellState, factors);
         initialStep.getCells().add(initialCell);
         return initialStep;
     }

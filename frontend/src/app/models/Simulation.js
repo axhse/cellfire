@@ -51,15 +51,15 @@ export class Simulation {
   }
 
   calculateAverageAirTemperature() {
-    return this.calculateAverageFactor((cell) => cell.weather.airTemperature);
+    return this.calculateAverageFactor((cell) => cell.factors.airTemperature);
   }
 
   calculateAverageAirHumidity() {
-    return this.calculateAverageFactor((cell) => cell.weather.airHumidity);
+    return this.calculateAverageFactor((cell) => cell.factors.airHumidity);
   }
 
   calculateAverageWindSpeed() {
-    return this.calculateAverageFactor((cell) => cell.weather.windSpeed);
+    return this.calculateAverageFactor((cell) => cell.factors.windSpeed);
   }
 
   calculateAverageFuelDensity() {
@@ -92,9 +92,9 @@ function toLonLat(gridScale, coordinates) {
 function enrichSteps(steps) {
   for (const step of steps) {
     for (const cell of step.cells) {
-      const windX = cell.weather.windX;
-      const windY = cell.weather.windY;
-      cell.weather.windSpeed = Math.sqrt(windX * windX + windY * windY);
+      const windX = cell.factors.windX;
+      const windY = cell.factors.windY;
+      cell.factors.windSpeed = Math.sqrt(windX * windX + windY * windY);
     }
   }
 }

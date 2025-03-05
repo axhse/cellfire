@@ -2,14 +2,14 @@ package com.example.cellfire.models;
 
 import java.util.Objects;
 
-public final class Weather {
+public final class CellFactors {
     private final float elevation;
     private final float airTemperature;
     private final float airHumidity;
     private final float windX;
     private final float windY;
 
-    public Weather(float elevation, float airTemperature, float airHumidity, float windX, float windY) {
+    public CellFactors(float elevation, float airTemperature, float airHumidity, float windX, float windY) {
         this.elevation = elevation;
         this.airTemperature = airTemperature;
         this.airHumidity = airHumidity;
@@ -41,7 +41,7 @@ public final class Weather {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Weather factors = (Weather) o;
+        CellFactors factors = (CellFactors) o;
         return Float.compare(elevation, factors.elevation) == 0 && Float.compare(airTemperature, factors.airTemperature) == 0 && Float.compare(airHumidity, factors.airHumidity) == 0 && Float.compare(windX, factors.windX) == 0 && Float.compare(windY, factors.windY) == 0;
     }
 
