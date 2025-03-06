@@ -167,10 +167,7 @@ public final class Simulator {
     }
 
     private Simulation.Conditions determineConditions(LatLng startPoint) {
-        return new Simulation.Conditions(
-                terrainService.getIgnitionTemperature(startPoint),
-                terrainService.getActivationEnergy(startPoint)
-        );
+        return new Simulation.Conditions(terrainService.getActivationEnergy(startPoint));
     }
 
     private CellFactors determineFactors(LatLng point, Instant date) {

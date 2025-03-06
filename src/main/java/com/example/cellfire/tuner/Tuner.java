@@ -41,23 +41,6 @@ public final class Tuner {
         );
     }
 
-    private TuneTask tuneCombustionRate() {
-        return new TuneTask(
-                "Combustion rate",
-                List.of(new CombustionRate()),
-                List.of(
-                        new ModelParameter(
-                                ModelParameter.COMBUSTION_RATE,
-                                ModelParameter.logRange(1, 200, 1000)
-                        ),
-                        new ModelParameter(
-                                ModelParameter.AIR_HUMIDITY_EFFECT,
-                                ModelParameter.logRange(1, 10, 100)
-                        )
-                )
-        );
-    }
-
     private TuneTask tuneHeatExchange() {
         return new TuneTask(
                 "Heat exchange",
@@ -75,6 +58,23 @@ public final class Tuner {
         );
     }
 
+    private TuneTask tuneCombustionRate() {
+        return new TuneTask(
+                "Combustion rate",
+                List.of(new CombustionRate()),
+                List.of(
+                        new ModelParameter(
+                                ModelParameter.COMBUSTION_INTENSITY,
+                                ModelParameter.logRange(10000, 0.1, 1000, 200)
+                        ),
+                        new ModelParameter(
+                                ModelParameter.AIR_HUMIDITY_EFFECT,
+                                ModelParameter.logRange(1, 10, 20)
+                        )
+                )
+        );
+    }
+
     private TuneTask adjustHumidityEffect() {
         return new TuneTask(
                 "Humidity effect",
@@ -85,16 +85,16 @@ public final class Tuner {
                 ),
                 List.of(
                         new ModelParameter(
-                                ModelParameter.COMBUSTION_RATE,
-                                ModelParameter.logRange(100, 400, 20)
+                                ModelParameter.COMBUSTION_INTENSITY,
+                                ModelParameter.logRange(10000, 0.5, 20, 20)
                         ),
                         new ModelParameter(
                                 ModelParameter.ENERGY_EMISSION,
-                                ModelParameter.logRange(10000, 0.1, 1000, 40)
+                                ModelParameter.logRange(10000, 0.5, 20, 100)
                         ),
                         new ModelParameter(
                                 ModelParameter.AIR_HUMIDITY_EFFECT,
-                                ModelParameter.logRange(5, 15, 20)
+                                ModelParameter.logRange(3, 10, 50)
                         )
                 )
         );

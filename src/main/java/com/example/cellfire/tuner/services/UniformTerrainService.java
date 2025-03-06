@@ -16,11 +16,6 @@ public final class UniformTerrainService implements TerrainService {
     }
 
     @Override
-    public double getIgnitionTemperature(LatLng point) {
-        return ForestTypeConditions.determineIgnitionTemperature(this.forestType);
-    }
-
-    @Override
     public double getActivationEnergy(LatLng point) {
         return ForestTypeConditions.determineActivationEnergy(this.forestType);
     }

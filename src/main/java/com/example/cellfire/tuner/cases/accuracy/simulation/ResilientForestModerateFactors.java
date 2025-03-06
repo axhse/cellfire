@@ -12,7 +12,7 @@ import com.example.cellfire.tuner.services.UniformWeatherService;
 import java.util.List;
 
 public final class ResilientForestModerateFactors extends TuneCase {
-    private static final int FOREST_TYPE = ForestTypeConditions.ForestType.EVERGREEN_NEEDLE_LEAF;
+    private static final int FOREST_TYPE = ForestTypeConditions.ForestType.DECIDUOUS_BROADLEAF;
     private static final double FUEL = 0.5;
     private static final double AIR_TEMPERATURE = 30;
     private static final double AIR_HUMIDITY = 0.3;

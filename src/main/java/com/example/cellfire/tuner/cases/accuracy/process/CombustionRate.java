@@ -35,10 +35,8 @@ public final class CombustionRate extends TuneCase {
             rateCalculator.setAccessible(true);
 
             int forestType = ForestTypeConditions.ForestType.MIXED;
-            Simulation.Conditions conditions = new Simulation.Conditions(
-                    ForestTypeConditions.determineIgnitionTemperature(forestType),
-                    ForestTypeConditions.determineActivationEnergy(forestType)
-            );
+            double activationEnergy = ForestTypeConditions.determineActivationEnergy(forestType);
+            Simulation.Conditions conditions = new Simulation.Conditions(activationEnergy);
             long duration = Duration.ofMinutes(30).toSeconds();
 
             Cell initiallCell = createCell(1000, 0.5f);
@@ -47,13 +45,13 @@ public final class CombustionRate extends TuneCase {
                 return ModelScore.failure("Initial combustion is too slow.");
             }
 
-            Cell burningCell = createCell(800, 0.15f);
+            Cell burningCell = createCell(800, 0.2f);
             double highCombustionRate = (double) rateCalculator.invoke(algorithm, burningCell, conditions);
             if (0.8 < highCombustionRate * duration) {
                 return ModelScore.failure("Intensive combustion is too fast.");
             }
 
-            burningCell = createCell(800, 0.3f);
+            burningCell = createCell(750, 0.4f);
             double moderateCombustionRate = (double) rateCalculator.invoke(algorithm, burningCell, conditions);
             if (moderateCombustionRate * duration < 0.1) {
                 return ModelScore.failure("Moderate combustion is too slow.");
@@ -62,22 +60,22 @@ public final class CombustionRate extends TuneCase {
                 return ModelScore.failure("Moderate combustion is too fast.");
             }
 
-            burningCell = createCell(650, 0.15f);
+            burningCell = createCell(700, 0.2f);
             moderateCombustionRate = (double) rateCalculator.invoke(algorithm, burningCell, conditions);
             if (moderateCombustionRate * duration < 0.1) {
                 return ModelScore.failure("Moderate combustion is too slow.");
             }
-            if (0.6 < moderateCombustionRate * duration) {
+            if (0.5 < moderateCombustionRate * duration) {
                 return ModelScore.failure("Moderate combustion is too fast.");
             }
 
-            Cell smolderingCell = createCell(500, 0.3f);
+            Cell smolderingCell = createCell(600, 0.3f);
             double smolderingRate = (double) rateCalculator.invoke(algorithm, smolderingCell, conditions);
             if (0.1 < smolderingRate * duration) {
                 return ModelScore.failure("Smoldering is too fast.");
             }
 
-            Cell boilingCell = createCell(850, 0.8f);
+            Cell boilingCell = createCell(800, 0.8f);
             double boilingRate = (double) rateCalculator.invoke(algorithm, boilingCell, conditions);
             if (0.1 < boilingRate * duration) {
                 return ModelScore.failure("Boiling is too fast.");

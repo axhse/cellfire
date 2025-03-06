@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ModelParameter {
-    public static final String COMBUSTION_RATE = "combustionRate";
+    public static final String COMBUSTION_INTENSITY = "combustionIntensity";
     public static final String ENERGY_EMISSION = "energyEmission";
     public static final String AIR_HUMIDITY_EFFECT = "airHumidityEffect";
     public static final String SLOPE_EFFECT = "slopeEffect";

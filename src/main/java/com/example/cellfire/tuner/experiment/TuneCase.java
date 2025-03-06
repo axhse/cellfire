@@ -43,7 +43,7 @@ public abstract class TuneCase {
         return new Simulation(
                 new Simulation.MarkedGrid(1, getDefaultStartPoint()),
                 new Simulation.Timeline(Instant.now(), stepDuration, Duration.ofDays(7)),
-                new Simulation.Conditions(0, 100000),
+                new Simulation.Conditions(100000),
                 Simulation.Algorithm.THERMAL
         );
     }

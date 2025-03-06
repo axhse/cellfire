@@ -6,9 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class ThermalAlgorithm implements Algorithm {
-    public static final double DEFAULT_COMBUSTION_RATE = 300;
-    public static final double DEFAULT_ENERGY_EMISSION = 50000;
-    public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 7.5;
+    public static final double DEFAULT_COMBUSTION_INTENSITY = 20000;
+    public static final double DEFAULT_ENERGY_EMISSION = 33000;
+    public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 4.5;
     /**
      * += 3.
      * 3.5 in some research.
@@ -29,7 +29,7 @@ public final class ThermalAlgorithm implements Algorithm {
     private static final double HEAT_EXCHANGE_ITERATION_FRACTION = 0.2;
     private static final double HEAT_CHANGE_LIMIT = 0.1;
 
-    private final double combustionRate;
+    private final double combustionIntensity;
     private final double energyEmission;
     private final double airHumidityEffect;
     private final double slopeEffect;
@@ -39,9 +39,9 @@ public final class ThermalAlgorithm implements Algorithm {
     private final double radiationPrevalence;
 
     public ThermalAlgorithm(
-            double combustionRate, double energyEmission, double airHumidityEffect, double slopeEffect,
+            double combustionIntensity, double energyEmission, double airHumidityEffect, double slopeEffect,
             double windEffect, double distanceEffect, double heatRegulationIntensity, double radiationPrevalence) {
-        this.combustionRate = combustionRate;
+        this.combustionIntensity = combustionIntensity;
         this.energyEmission = energyEmission;
         this.airHumidityEffect = airHumidityEffect;
         this.slopeEffect = slopeEffect;
@@ -53,7 +53,7 @@ public final class ThermalAlgorithm implements Algorithm {
 
     public ThermalAlgorithm() {
         this(
-                DEFAULT_COMBUSTION_RATE,
+                DEFAULT_COMBUSTION_INTENSITY,
                 DEFAULT_ENERGY_EMISSION,
                 DEFAULT_AIR_HUMIDITY_EFFECT,
                 DEFAULT_SLOPE_EFFECT,
@@ -191,7 +191,7 @@ public final class ThermalAlgorithm implements Algorithm {
         double temperature = toKelvin(cell.getState().getHeat());
         double firePower = -conditions.getActivationEnergy() / UNIVERSAL_GAS_CONSTANT / temperature;
         double airHumidityInfluence = Math.exp(-airHumidityEffect * cell.getFactors().getAirHumidity());
-        return airHumidityInfluence * combustionRate * Math.exp(firePower);
+        return airHumidityInfluence * combustionIntensity * Math.exp(firePower);
     }
 
     private double calculateEnvironmentalEffect(Grid grid, Cell cell, Cell otherCell) {

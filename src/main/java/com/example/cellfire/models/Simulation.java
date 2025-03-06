@@ -115,16 +115,16 @@ public final class Simulation {
     }
 
     public static final class Conditions {
-        private final double ignitionTemperature;
+        private static final double IGNITION_TEMPERATURE = 500;
+
         private final double activationEnergy;
 
-        public Conditions(double ignitionTemperature, double activationEnergy) {
-            this.ignitionTemperature = ignitionTemperature;
+        public Conditions(double activationEnergy) {
             this.activationEnergy = activationEnergy;
         }
 
         public double getIgnitionTemperature() {
-            return ignitionTemperature;
+            return IGNITION_TEMPERATURE;
         }
 
         public double getActivationEnergy() {

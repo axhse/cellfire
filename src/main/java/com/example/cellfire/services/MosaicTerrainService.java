@@ -13,12 +13,6 @@ public final class MosaicTerrainService implements TerrainService {
     private final Mosaic forestDensityMap = ResourceLoader.loadForestDensityMap();
 
     @Override
-    public double getIgnitionTemperature(LatLng point) {
-        int forestType = forestTypeClusterMap.at(point, 0);
-        return ForestTypeConditions.determineIgnitionTemperature(forestType);
-    }
-
-    @Override
     public double getActivationEnergy(LatLng point) {
         int forestType = forestTypeClusterMap.at(point, 0);
         return ForestTypeConditions.determineActivationEnergy(forestType);

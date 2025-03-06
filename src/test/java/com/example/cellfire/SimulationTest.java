@@ -234,7 +234,7 @@ public final class SimulationTest {
         return new Simulation(
                 new Simulation.MarkedGrid(1, new LatLng(0, 0)),
                 new Simulation.Timeline(Instant.now(), stepDuration, limitDuration),
-                new Simulation.Conditions(0, 100000),
+                new Simulation.Conditions(100000),
                 Simulation.Algorithm.THERMAL
         );
     }
