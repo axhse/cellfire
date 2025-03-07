@@ -56,27 +56,27 @@ export const START_RECTANGLE_STROKE_COLOR = new Color(255, 0, 0, 0.3);
 const WEAK_FLAME_COLOR = new LayerColor(255, 180, 0);
 const LAYER_COLORS = {
   intact: {
-    min: new LayerColor(0, 255, 0),
+    min: new LayerColor(0, 200, 0),
     max: WEAK_FLAME_COLOR,
   },
   burning: {
     min: WEAK_FLAME_COLOR,
-    max: new LayerColor(255, 0, 0),
+    max: new LayerColor(200, 0, 0),
   },
   burned: {
-    min: new LayerColor(0, 0, 0, LAYER_OPACITY / 1.5),
+    min: new LayerColor(100, 100, 80, LAYER_OPACITY),
     max: WEAK_FLAME_COLOR,
   },
   fuel: {
     min: new LayerColor(200, 0, 255, 0.05),
-    max: new LayerColor(150, 0, 120),
+    max: new LayerColor(200, 0, 150),
   },
   elevation: {
     subSea: new LayerColor(0, 0, 200),
-    seaLevel: new LayerColor(0, 200, 0),
-    hill: new LayerColor(200, 200, 0),
-    mountain: new LayerColor(200, 0, 0),
-    peak: new LayerColor(100, 100, 100),
+    seaLevel: new LayerColor(0, 100, 0),
+    hill: new LayerColor(220, 180, 0),
+    mountain: new LayerColor(150, 0, 0),
+    peak: new LayerColor(50, 50, 50),
   },
 };
 
@@ -117,12 +117,12 @@ class ElevationGradient {
       ),
       new Gradient(
         0,
-        1500,
+        2000,
         LAYER_COLORS.elevation.seaLevel,
         LAYER_COLORS.elevation.hill
       ),
       new Gradient(
-        1500,
+        2000,
         4000,
         LAYER_COLORS.elevation.hill,
         LAYER_COLORS.elevation.mountain
