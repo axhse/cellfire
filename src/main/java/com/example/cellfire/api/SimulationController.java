@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 public final class SimulationController {
@@ -46,14 +47,14 @@ public final class SimulationController {
     @PostMapping("/simulation/progress")
     public Map<String, Object> progressSimulation(@RequestBody SimulationProgressParams params) {
         Map<String, Object> response = new HashMap<>();
-        Simulation simulation = simulationManager.findSimulation(params.getSimulationId());
-        response.put("hasResult", simulation != null);
-        if (simulation == null) {
+        Optional<Simulation> simulation = simulationManager.findSimulation(params.getSimulationId());
+        response.put("hasResult", simulation.isPresent());
+        if (simulation.isEmpty()) {
             return response;
         }
-        simulator.progressSimulation(simulation, params.getEndTick());
+        simulator.progressSimulation(simulation.get(), params.getEndTick());
         List<Simulation.Step> steps =
-                simulation.getSteps().subList(params.getStartTick(), params.getEndTick() + 1).stream().toList();
+                simulation.get().getSteps().subList(params.getStartTick(), params.getEndTick() + 1).stream().toList();
         response.put("steps", steps);
         return response;
     }

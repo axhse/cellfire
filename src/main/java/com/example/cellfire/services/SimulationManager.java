@@ -13,16 +13,16 @@ public final class SimulationManager {
     private final List<Simulation> simulations = new ArrayList<>();
     private final Map<String, Instant> accessDates = new HashMap<>();
 
-    public Simulation findSimulation(String id) {
+    public Optional<Simulation> findSimulation(String id) {
         synchronized (simulations) {
             for (Simulation simulation : simulations) {
                 if (simulation.getId().equals(id)) {
                     accessDates.put(simulation.getId(), Instant.now());
-                    return simulation;
+                    return Optional.of(simulation);
                 }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     public void addSimulation(Simulation simulation) {

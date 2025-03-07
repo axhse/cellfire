@@ -5,7 +5,6 @@ import com.example.cellfire.data.ForestTypeConditions;
 import com.example.cellfire.models.Cell;
 import com.example.cellfire.models.Coordinates;
 import com.example.cellfire.models.Simulation;
-import com.example.cellfire.services.SimulationManager;
 import com.example.cellfire.services.Simulator;
 import com.example.cellfire.tuner.services.UniformTerrainService;
 import com.example.cellfire.tuner.services.UniformWeatherService;
@@ -15,129 +14,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
-public final class SimulationTest {
-    @Test
-    public void testAdditionToManager() {
-        SimulationManager manager = new SimulationManager();
-
-        List<Simulation> simulations = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            Simulation simulation = createSimulation();
-            simulations.add(simulation);
-            manager.addSimulation(simulation);
-        }
-
-        for (Simulation simulation : simulations) {
-            Assertions.assertEquals(simulation, manager.findSimulation(simulation.getId()));
-        }
-    }
-
-    @Test
-    public void testRemovalFromManager() {
-        SimulationManager manager = new SimulationManager();
-
-        List<Simulation> simulations = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            Simulation simulation = createSimulation();
-            simulations.add(simulation);
-            manager.addSimulation(simulation);
-        }
-
-        manager.removeSimulation(simulations.get(0).getId());
-        Assertions.assertNull(manager.findSimulation(simulations.get(0).getId()));
-
-        for (int i = 1; i < 20; i++) {
-            Simulation simulation = simulations.get(i);
-            Assertions.assertEquals(simulation, manager.findSimulation(simulation.getId()));
-
-            manager.removeSimulation(simulation.getId());
-            Assertions.assertNull(manager.findSimulation(simulation.getId()));
-        }
-    }
-
-    @Test
-    public void testManagerOverflow() {
-        SimulationManager manager = new SimulationManager();
-        Simulation simulation;
-
-        List<Simulation> simulations = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            simulation = createSimulation();
-            simulations.add(simulation);
-            manager.addSimulation(simulation);
-        }
-
-        simulation = createSimulation();
-        manager.addSimulation(simulation);
-
-        Assertions.assertNull(manager.findSimulation(simulations.get(0).getId()));
-        Assertions.assertEquals(simulations.get(1), manager.findSimulation(simulations.get(1).getId()));
-        Assertions.assertEquals(simulations.get(19), manager.findSimulation(simulations.get(19).getId()));
-        Assertions.assertEquals(simulation, manager.findSimulation(simulation.getId()));
-    }
-
-    @Test
-    public void testManagerOverflowAccessed() {
-        SimulationManager manager = new SimulationManager();
-        Simulation simulation;
-
-        List<Simulation> simulations = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            simulation = createSimulation();
-            simulations.add(simulation);
-            manager.addSimulation(simulation);
-        }
-
-        manager.findSimulation(simulations.get(0).getId());
-        manager.findSimulation(simulations.get(1).getId());
-
-        simulation = createSimulation();
-        manager.addSimulation(simulation);
-
-        Assertions.assertNull(manager.findSimulation(simulations.get(2).getId()));
-        Assertions.assertEquals(simulations.get(0), manager.findSimulation(simulations.get(0).getId()));
-        Assertions.assertEquals(simulations.get(1), manager.findSimulation(simulations.get(1).getId()));
-        Assertions.assertEquals(simulations.get(3), manager.findSimulation(simulations.get(3).getId()));
-        Assertions.assertEquals(simulations.get(19), manager.findSimulation(simulations.get(19).getId()));
-        Assertions.assertEquals(simulation, manager.findSimulation(simulation.getId()));
-    }
-
-    @Test
-    public void testManagerOverflowAllAccessed() {
-        SimulationManager manager = new SimulationManager();
-        Simulation simulation;
-
-        List<Simulation> simulations = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            simulation = createSimulation();
-            simulations.add(simulation);
-            manager.addSimulation(simulation);
-        }
-
-        for (int i = 19; 0 <= i; i--) {
-            manager.findSimulation(simulations.get(i).getId());
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        manager.findSimulation(simulations.get(18).getId());
-        manager.findSimulation(simulations.get(19).getId());
-
-        simulation = createSimulation();
-        manager.addSimulation(simulation);
-
-        Assertions.assertNull(manager.findSimulation(simulations.get(17).getId()));
-        Assertions.assertEquals(simulations.get(16), manager.findSimulation(simulations.get(16).getId()));
-        Assertions.assertEquals(simulations.get(18), manager.findSimulation(simulations.get(18).getId()));
-        Assertions.assertEquals(simulations.get(19), manager.findSimulation(simulations.get(19).getId()));
-        Assertions.assertEquals(simulation, manager.findSimulation(simulation.getId()));
-    }
-
+public final class SimulatorTests {
     @Test
     public void testSimulationSteps() {
         Simulator simulator = createSimulator(10);
@@ -213,7 +91,7 @@ public final class SimulationTest {
     }
 
     @Test
-    public void testStepCount() {
+    public void testSimulationStepCount() {
         Simulator simulator = createSimulator(0);
 
         Simulation simulation1 = createSimulation(Duration.ofHours(4), Duration.ofDays(3));
@@ -245,10 +123,6 @@ public final class SimulationTest {
 
     private static Simulation createSimulation(Simulator simulator, LatLng startPoint) {
         return simulator.createSimulation(startPoint, Simulation.Algorithm.THERMAL);
-    }
-
-    private static Simulation createSimulation() {
-        return createSimulation(createSimulator(0));
     }
 
     private static Simulator createSimulator(double fuel) {
