@@ -5,15 +5,16 @@ import com.example.cellfire.services.WeatherService;
 import com.google.maps.model.LatLng;
 
 import java.time.Instant;
+import java.util.Optional;
 
 public final class UniformWeatherService implements WeatherService {
-    private final Weather weather;
+    private final Optional<Weather> weather;
 
     public UniformWeatherService(double airTemperature, double airHumidity, double windX, double windY) {
-        this.weather = new Weather(airTemperature, airHumidity, windX, windY);
+        this.weather = Optional.of(new Weather(airTemperature, airHumidity, windX, windY));
     }
 
-    public Weather getWeather(LatLng point, Instant date) {
+    public Optional<Weather> getWeather(LatLng point, Instant date) {
         return weather;
     }
 }

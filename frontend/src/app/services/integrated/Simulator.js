@@ -10,26 +10,31 @@ export class Simulator {
       body: JSON.stringify({ startLonLat, algorithm }),
     });
 
-    if (response.ok) {
-      const body = await response.json();
-      const params = body.simulation;
-
-      const grid = new Grid(params.grid.scale, params.grid.startCoordinates);
-      const timeline = new Timeline(
-        new Date(params.timeline.startDateMs),
-        params.timeline.stepDurationMs,
-        params.timeline.limitTicks
-      );
-      const simulation = new Simulation(
-        params.id,
-        grid,
-        timeline,
-        params.conditions,
-        params.algorithm
-      );
-      simulation.appendSteps(params.steps, 0);
-      return simulation;
+    if (!response.ok) {
+      return undefined;
     }
+
+    const body = await response.json();
+    if (!body.success) {
+      return undefined;
+    }
+
+    const params = body.simulation;
+    const grid = new Grid(params.grid.scale, params.grid.startCoordinates);
+    const timeline = new Timeline(
+      new Date(params.timeline.startDateMs),
+      params.timeline.stepDurationMs,
+      params.timeline.limitTicks
+    );
+    const simulation = new Simulation(
+      params.id,
+      grid,
+      timeline,
+      params.conditions,
+      params.algorithm
+    );
+    simulation.appendSteps(params.steps, 0);
+    return simulation;
   }
 
   async removeSimulation(simulation) {
@@ -52,14 +57,16 @@ export class Simulator {
       body: JSON.stringify({ simulationId: simulation.id, startTick, endTick }),
     });
 
-    if (response.ok) {
-      const body = await response.json();
-      if (body.hasResult) {
-        simulation.appendSteps(body.steps, startTick);
-        return true;
-      }
+    if (!response.ok) {
+      return false;
     }
 
-    return false;
+    const body = await response.json();
+    if (!body.success) {
+      return false;
+    }
+
+    simulation.appendSteps(body.steps, startTick);
+    return true;
   }
 }

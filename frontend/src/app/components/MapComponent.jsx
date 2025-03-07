@@ -56,8 +56,13 @@ export class MapComponent extends Component {
       toLonLat(event.coordinate),
       this.toolbar.algorithm
     );
-    this.updateMap();
-    this.toolbar.enterSimulation(this.simulation);
+    if (this.simulation === undefined) {
+      this.model.vectorSource.clear();
+      this.toolbar.exitSimulation();
+    } else {
+      this.updateMap();
+      this.toolbar.enterSimulation(this.simulation);
+    }
   }
 
   async navigateTimeline(steps) {

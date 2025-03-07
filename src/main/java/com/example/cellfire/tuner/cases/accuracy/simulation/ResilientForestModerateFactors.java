@@ -46,7 +46,7 @@ public final class ResilientForestModerateFactors extends TuneCase {
 
         int limitTicks = 10;
         for (int endTick = 2; endTick <= limitTicks; endTick++) {
-            simulator.progressSimulation(simulation, endTick);
+            simulator.tryProgressSimulation(simulation, endTick);
             List<Cell> cells = simulation.getSteps().get(endTick).getCells();
             long damagedCellCount = cells.stream().filter(cell -> cell.getState().isDamaged()).count();
             if (9 <= damagedCellCount) {

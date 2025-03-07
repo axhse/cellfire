@@ -23,13 +23,13 @@ public final class SimulatorTests {
 
         Assertions.assertEquals(0, simulation.getSteps().size());
 
-        simulator.startSimulation(simulation);
+        simulator.tryStartSimulation(simulation);
         Assertions.assertEquals(1, simulation.getSteps().size());
 
-        simulator.progressSimulation(simulation, 4);
+        simulator.tryProgressSimulation(simulation, 4);
         Assertions.assertEquals(5, simulation.getSteps().size());
 
-        simulator.progressSimulation(simulation, 6);
+        simulator.tryProgressSimulation(simulation, 6);
         Assertions.assertEquals(7, simulation.getSteps().size());
     }
 
@@ -38,8 +38,8 @@ public final class SimulatorTests {
         Simulator simulator = createSimulator(1000000000);
         Simulation simulation = createSimulation(simulator, new LatLng(0, -180 + 0.00001));
 
-        simulator.startSimulation(simulation);
-        simulator.progressSimulation(simulation, 2);
+        simulator.tryStartSimulation(simulation);
+        simulator.tryProgressSimulation(simulation, 2);
 
         Assertions.assertEquals(1, simulation.getSteps().get(0).getCells().size());
         Assertions.assertEquals(9, simulation.getSteps().get(1).getCells().size());
@@ -70,8 +70,8 @@ public final class SimulatorTests {
         Simulator simulator = createSimulator(1000);
         Simulation simulation = createSimulation(simulator, new LatLng(-90 + 0.00001, 0));
 
-        simulator.startSimulation(simulation);
-        simulator.progressSimulation(simulation, 1);
+        simulator.tryStartSimulation(simulation);
+        simulator.tryProgressSimulation(simulation, 1);
 
         Assertions.assertEquals(6, simulation.getSteps().get(1).getCells().size());
 
@@ -85,8 +85,8 @@ public final class SimulatorTests {
         Simulator simulator = createSimulator(0);
         Simulation simulation = createSimulation(simulator);
 
-        simulator.startSimulation(simulation);
-        simulator.progressSimulation(simulation, 3);
+        simulator.tryStartSimulation(simulation);
+        simulator.tryProgressSimulation(simulation, 3);
         Assertions.assertEquals(1, simulation.getSteps().get(3).getCells().size());
     }
 
@@ -95,16 +95,16 @@ public final class SimulatorTests {
         Simulator simulator = createSimulator(0);
 
         Simulation simulation1 = createSimulation(Duration.ofHours(4), Duration.ofDays(3));
-        simulator.startSimulation(simulation1);
-        simulator.progressSimulation(simulation1, 3);
+        simulator.tryStartSimulation(simulation1);
+        simulator.tryProgressSimulation(simulation1, 3);
         Assertions.assertEquals(1 + 3, simulation1.getSteps().size());
-        simulator.progressSimulation(simulation1, 100000);
+        simulator.tryProgressSimulation(simulation1, 100000);
         Assertions.assertEquals(1 + 24 / 4 * 3, simulation1.getSteps().size());
 
         Duration limitDuration = Duration.ofDays(3).plusMinutes(3 * 60 + 50);
         Simulation simulation2 = createSimulation(Duration.ofHours(4), limitDuration);
-        simulator.startSimulation(simulation2);
-        simulator.progressSimulation(simulation2, 100000);
+        simulator.tryStartSimulation(simulation2);
+        simulator.tryProgressSimulation(simulation2, 100000);
         Assertions.assertEquals(1 + 24 / 4 * 3, simulation2.getSteps().size());
     }
 

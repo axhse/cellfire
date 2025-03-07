@@ -50,7 +50,7 @@ public abstract class TuneCase {
 
     protected static Simulation startDefaultSimulation(Simulator simulator) {
         Simulation simulation = simulator.createSimulation(getDefaultStartPoint(), Simulation.Algorithm.THERMAL);
-        simulator.startSimulation(simulation);
+        simulator.tryStartSimulation(simulation);
         return simulation;
     }
 

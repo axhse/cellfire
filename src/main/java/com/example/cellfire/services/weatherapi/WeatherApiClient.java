@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public final class WeatherApiClient {
@@ -23,19 +24,20 @@ public final class WeatherApiClient {
         this.apiKey = apiKey;
     }
 
-    public WeatherForecast requestForecast(LatLng point) {
+    public Optional<WeatherForecast> requestForecast(LatLng point) {
         BigDecimal lat = BigDecimal.valueOf(point.lat);
         BigDecimal lng = BigDecimal.valueOf(point.lng);
         String uri = "%s?days=3&key=%s&q=%s,%s".formatted(FORECAST_BASE_URL, apiKey, lat, lng);
         try {
-            return webClient.post()
+            WeatherForecast forecast = webClient.post()
                     .uri(uri)
                     .retrieve()
                     .bodyToMono(ForecastResponseData.class)
                     .map(this::retrieveForecast)
                     .block();
+            return forecast == null ? Optional.empty() : Optional.of(forecast);
         } catch (Exception exception) {
-            return null;
+            return Optional.empty();
         }
     }
 

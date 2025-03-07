@@ -6,13 +6,13 @@ import com.example.cellfire.algorithms.ThermalAlgorithm;
 import com.example.cellfire.models.*;
 import com.google.maps.model.LatLng;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public final class Simulator {
@@ -46,44 +46,54 @@ public final class Simulator {
         );
     }
 
-    public void startSimulation(Simulation simulation) {
+    public boolean tryStartSimulation(Simulation simulation) {
         Coordinates startCoordinates = simulation.getGrid().getStartCoordinates();
         LatLng startPoint = simulation.getGrid().pointOf(startCoordinates);
 
         Cell.State initialState = new Cell.State(INITIAL_HEAT, determineFuel(startPoint), false);
-        Cell.Factors factors = determineFactors(startPoint, simulation.getTimeline().getStartDate());
+        try {
+            Cell.Factors factors = determineFactors(startPoint, simulation.getTimeline().getStartDate());
 
-        Cell initialCell = new Cell(startCoordinates, initialState, factors);
+            Cell initialCell = new Cell(startCoordinates, initialState, factors);
 
-        Simulation.Step initialStep = new Simulation.Step();
-        initialStep.getCells().add(initialCell);
-        simulation.getSteps().add(initialStep);
-    }
-
-    public void progressSimulation(Simulation simulation, int endTick) {
-        synchronized (simulation.getId()) {
-            int limitTicks = simulation.getTimeline().getLimitTicks();
-            while (!simulation.hasStep(endTick) && simulation.getSteps().size() <= limitTicks) {
-                Simulation.Step draftStep = createDraftStep(simulation);
-                selectAlgorithm(simulation).refineDraftStep(draftStep, simulation);
-                for (Cell cell : draftStep.getCells()) {
-                    if (cell.getState().getFuel() < SIGNIFICANT_FUEL) {
-                        cell.getState().setFuel(0);
-                    }
-                }
-                simulation.getSteps().add(draftStep);
-            }
+            Simulation.Step initialStep = new Simulation.Step();
+            initialStep.getCells().add(initialCell);
+            simulation.getSteps().add(initialStep);
+            return true;
+        } catch (SimulatorException exception) {
+            return false;
         }
     }
 
-    private Simulation.Step createDraftStep(Simulation simulation) {
+    public boolean tryProgressSimulation(Simulation simulation, int endTick) {
+        synchronized (simulation.getId()) {
+            int limitTicks = simulation.getTimeline().getLimitTicks();
+            while (!simulation.hasStep(endTick) && simulation.getSteps().size() <= limitTicks) {
+                try {
+                    Simulation.Step draftStep = createDraftStep(simulation);
+                    selectAlgorithm(simulation).refineDraftStep(draftStep, simulation);
+                    for (Cell cell : draftStep.getCells()) {
+                        if (cell.getState().getFuel() < SIGNIFICANT_FUEL) {
+                            cell.getState().setFuel(0);
+                        }
+                    }
+                    simulation.getSteps().add(draftStep);
+                } catch (SimulatorException exception) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private Simulation.Step createDraftStep(Simulation simulation) throws SimulatorException {
         Grid grid = simulation.getGrid();
         Simulation.Step draftStep = new Simulation.Step();
         Simulation.Step lastStep = simulation.getSteps().getLast();
         Duration period = simulation.getTimeline().getStepDuration().multipliedBy(simulation.getSteps().size());
         Instant date = simulation.getTimeline().getStartDate().plus(period);
 
-        lastStep.getCells().forEach(cell -> {
+        for (Cell cell : lastStep.getCells()) {
             Cell.Factors factors = determineFactors(grid.pointOf(cell.getCoordinates()), date);
             if (factors.equals(cell.getFactors())) {
                 factors = cell.getFactors();
@@ -96,9 +106,9 @@ public final class Simulator {
             draftCell.setTwin(cell);
             cell.setTwin(draftCell);
             draftStep.getCells().add(draftCell);
-        });
+        }
 
-        lastStep.getCells().forEach(cell -> {
+        for (Cell cell : lastStep.getCells()) {
             for (int offsetX = -1; offsetX <= 1; offsetX++) {
                 for (int offsetY = -1; offsetY <= 1; offsetY++) {
                     if (offsetX == 0 && offsetY == 0 || cell.getNeighbor(offsetX, offsetY) == null) {
@@ -107,18 +117,18 @@ public final class Simulator {
                     cell.getTwin().setNeighbor(offsetX, offsetY, cell.getNeighbor(offsetX, offsetY).getTwin());
                 }
             }
-        });
+        }
 
         draftStep.getCells().forEach(cell -> cell.setTwin(null));
 
         Map<Coordinates, Cell> draftCellMap = new HashMap<>(draftStep.getCells().size());
         draftStep.getCells().forEach(cell -> draftCellMap.put(cell.getCoordinates(), cell));
 
-        lastStep.getCells().forEach(previousCell -> {
+        for (Cell previousCell : lastStep.getCells()) {
             Cell cell = previousCell.getTwin();
             if (cell.getState().getFuel() == 0
                     || cell.getState().getHeat() <= simulation.getConditions().getIgnitionTemperature()) {
-                return;
+                continue;
             }
             for (int offsetX = -1; offsetX <= 1; offsetX++) {
                 for (int offsetY = -1; offsetY <= 1; offsetY++) {
@@ -154,7 +164,7 @@ public final class Simulator {
                     draftCellMap.put(neighbor.getCoordinates(), neighbor);
                 }
             }
-        });
+        }
 
         return draftStep;
     }
@@ -170,8 +180,12 @@ public final class Simulator {
         return new Simulation.Conditions(terrainService.getActivationEnergy(startPoint));
     }
 
-    private Cell.Factors determineFactors(LatLng point, Instant date) {
-        return new Cell.Factors(terrainService.getElevation(point), weatherService.getWeather(point, date));
+    private Cell.Factors determineFactors(LatLng point, Instant date) throws SimulatorException {
+        Optional<Weather> weather = weatherService.getWeather(point, date);
+        if (weather.isEmpty()) {
+            throw new SimulatorException();
+        }
+        return new Cell.Factors(terrainService.getElevation(point), weather.get());
     }
 
     private double determineFuel(LatLng point) {
@@ -180,5 +194,8 @@ public final class Simulator {
             fuel = 0;
         }
         return fuel;
+    }
+
+    private static final class SimulatorException extends Exception {
     }
 }

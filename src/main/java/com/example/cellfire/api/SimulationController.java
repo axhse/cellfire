@@ -30,12 +30,18 @@ public final class SimulationController {
 
     @PostMapping("/simulation/create")
     public Map<String, Object> createSimulation(@RequestBody SimulationCreationParams params) {
-        Simulation simulation = simulator.createSimulation(params.getStartPoint(), params.getAlgorithm());
-        simulator.startSimulation(simulation);
-        simulationManager.addSimulation(simulation);
-
         Map<String, Object> response = new HashMap<>();
-        response.put("simulation", simulation);
+
+        Simulation simulation = simulator.createSimulation(params.getStartPoint(), params.getAlgorithm());
+
+        if (simulator.tryStartSimulation(simulation)) {
+            response.put("success", true);
+            response.put("simulation", simulation);
+            simulationManager.addSimulation(simulation);
+        } else {
+            response.put("success", false);
+        }
+
         return response;
     }
 
@@ -47,15 +53,22 @@ public final class SimulationController {
     @PostMapping("/simulation/progress")
     public Map<String, Object> progressSimulation(@RequestBody SimulationProgressParams params) {
         Map<String, Object> response = new HashMap<>();
+
         Optional<Simulation> simulation = simulationManager.findSimulation(params.getSimulationId());
-        response.put("hasResult", simulation.isPresent());
         if (simulation.isEmpty()) {
+            response.put("success", false);
             return response;
         }
-        simulator.progressSimulation(simulation.get(), params.getEndTick());
-        List<Simulation.Step> steps =
-                simulation.get().getSteps().subList(params.getStartTick(), params.getEndTick() + 1).stream().toList();
-        response.put("steps", steps);
+
+        if (simulator.tryProgressSimulation(simulation.get(), params.getEndTick())) {
+            response.put("success", true);
+            List<Simulation.Step> steps = simulation.get().getSteps();
+            List<Simulation.Step> lastSteps =
+                    steps.subList(params.getStartTick(), params.getEndTick() + 1).stream().toList();
+            response.put("steps", lastSteps);
+        } else {
+            response.put("success", false);
+        }
         return response;
     }
 }

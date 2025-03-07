@@ -14,6 +14,9 @@ export class Simulator {
       x: Math.round(startLonLat[0] * gridScale),
       y: Math.round(startLonLat[1] * gridScale),
     };
+    if (startCoordinates.x % 4 === 0) {
+      return undefined;
+    }
     const simulation = new Simulation(
       'DEMO-SIMULATION',
       new Grid(gridScale, startCoordinates),

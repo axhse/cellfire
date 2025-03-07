@@ -5,12 +5,12 @@ import com.example.cellfire.models.Grid;
 import com.example.cellfire.models.Weather;
 import com.example.cellfire.services.WeatherService;
 import com.google.maps.model.LatLng;
-import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 //@Service
 public final class WeatherApiService implements WeatherService {
@@ -23,19 +23,18 @@ public final class WeatherApiService implements WeatherService {
         this.weatherApiClient = weatherApiClient;
     }
 
-    public synchronized Weather getWeather(LatLng point, Instant date) {
+    public synchronized Optional<Weather> getWeather(LatLng point, Instant date) {
         Coordinates coordinates = coordinatesOf(point);
         long timePoint = timePointOf(date);
-        if (cache.containsKey(timePoint)) {
-            Map<Coordinates, Weather> serialData = cache.get(timePoint);
-            if (serialData.containsKey(coordinates)) {
-                return serialData.get(coordinates);
-            }
+        Optional<Weather> cachedWeather = findCached(coordinates, timePoint);
+        if (cachedWeather.isPresent()) {
+            return cachedWeather;
         }
-        WeatherForecast forecast = weatherApiClient.requestForecast(point);
-        if (forecast == null) {
-            return null;
+        Optional<WeatherForecast> optionalForecast = weatherApiClient.requestForecast(point);
+        if (optionalForecast.isEmpty()) {
+            return Optional.empty();
         }
+        WeatherForecast forecast = optionalForecast.get();
         for (int hourIndex = forecast.getHourlyForecastedWeather().size() - 1; 0 <= hourIndex; hourIndex--) {
             long period = Duration.ofHours(hourIndex).toSeconds();
             long hourTimePoint = timePointOf(forecast.getForecastStartDate().plusSeconds(period));
@@ -44,13 +43,17 @@ public final class WeatherApiService implements WeatherService {
             }
             cache.get(hourTimePoint).put(coordinates, forecast.getHourlyForecastedWeather().get(hourIndex));
         }
+        return findCached(coordinates, timePoint);
+    }
+
+    private Optional<Weather> findCached(Coordinates coordinates, long timePoint) {
         if (cache.containsKey(timePoint)) {
             Map<Coordinates, Weather> serialData = cache.get(timePoint);
             if (serialData.containsKey(coordinates)) {
-                return serialData.get(coordinates);
+                return Optional.of(serialData.get(coordinates));
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private Coordinates coordinatesOf(LatLng point) {
