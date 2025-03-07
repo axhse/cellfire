@@ -55,6 +55,31 @@ public final class MapFragmentTests {
     }
 
     @Test
+    public void testSmoothBoundaries() {
+        byte[][] data = new byte[7 * 2][7 * 3];
+        data[0][0] = 10;
+        data[0][1] = 40;
+        data[1][0] = 100;
+        MapFragment fragment = new SmoothMapFragment(data, 7, 0, 0, 2, 3);
+        LatLng point;
+
+        point = new LatLng(0.4 / 7, -0.1 / 7);
+        Assertions.assertFalse(fragment.has(point));
+
+        point = new LatLng(0.4 / 7, 0.1 / 7);
+        Assertions.assertTrue(fragment.has(point));
+        Assertions.assertEquals(10, fragment.at(point));
+
+        point = new LatLng(1 / 7.0, 0.1 / 7);
+        Assertions.assertTrue(fragment.has(point));
+        Assertions.assertEquals((10 + 40) / 2, fragment.at(point));
+
+        point = new LatLng(0.1 / 7, 1 / 7.0);
+        Assertions.assertTrue(fragment.has(point));
+        Assertions.assertEquals((10 + 100) / 2, fragment.at(point));
+    }
+
+    @Test
     public void testSmoothValuesNearCenters() {
         byte[][] data = new byte[7 * 2][7 * 3];
         for (int x = 0; x < 7 * 2; x++) {

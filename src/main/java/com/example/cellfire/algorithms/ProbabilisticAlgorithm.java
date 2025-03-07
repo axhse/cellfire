@@ -5,7 +5,7 @@ import com.example.cellfire.models.*;
 import java.util.Random;
 
 public final class ProbabilisticAlgorithm implements Algorithm {
-    private static final float INITIAL_HEAT = 1000;
+    private static final double INITIAL_HEAT = 1000;
 
     private static final Random random = new Random();
 
@@ -22,7 +22,7 @@ public final class ProbabilisticAlgorithm implements Algorithm {
     }
 
     private void setDefaultMark(Cell cell) {
-        cell.setTwin(new Cell(null, new CellState(0, 0, false), null));
+        cell.setTwin(new Cell(null, new Cell.State(0, 0, false), null));
     }
 
     private void applyRules(Cell cell, Simulation simulation) {
@@ -74,7 +74,7 @@ public final class ProbabilisticAlgorithm implements Algorithm {
         if (elevation == 0) {
             return 1;
         }
-        double localCos = Math.cos(Math.toRadians(grid.toLatLng(cell.getCoordinates()).lat));
+        double localCos = Math.cos(Math.toRadians(grid.pointOf(cell.getCoordinates()).lat));
         double distanceX = Math.abs(cell.getCoordinates().getX() - otherCell.getCoordinates().getX()) * localCos;
         double distanceY = Math.abs(cell.getCoordinates().getY() - otherCell.getCoordinates().getY());
         double distance = grid.getCellHeight() * Math.sqrt(distanceX * distanceX + distanceY * distanceY);

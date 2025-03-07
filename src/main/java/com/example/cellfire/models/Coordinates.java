@@ -12,10 +12,10 @@ public final class Coordinates {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Coordinates otherCoordinates = (Coordinates) o;
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        Coordinates otherCoordinates = (Coordinates) other;
         return x == otherCoordinates.x && y == otherCoordinates.y;
     }
 

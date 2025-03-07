@@ -86,11 +86,11 @@ public final class CombustionRate extends TuneCase {
         return ModelScore.victory();
     }
 
-    private static Cell createCell(float heat, float airHumidity) {
+    private static Cell createCell(double heat, double airHumidity) {
         return new Cell(
                 new Coordinates(0, 0),
-                new CellState(heat, 0, true),
-                new CellFactors(0, 0, airHumidity, 0, 0)
+                new Cell.State(heat, 0, true),
+                new Cell.Factors(0, new Weather(0, airHumidity, 0, 0))
         );
     }
 }

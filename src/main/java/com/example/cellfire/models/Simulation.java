@@ -57,7 +57,7 @@ public final class Simulation {
 
         public MarkedGrid(int scale, LatLng startPoint) {
             super(scale);
-            startCoordinates = fromLatLng(startPoint);
+            startCoordinates = coordinatesOf(startPoint);
         }
 
         public Coordinates getStartCoordinates() {

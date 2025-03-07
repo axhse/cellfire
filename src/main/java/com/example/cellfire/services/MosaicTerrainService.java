@@ -14,8 +14,7 @@ public final class MosaicTerrainService implements TerrainService {
 
     @Override
     public double getActivationEnergy(LatLng point) {
-        int forestType = forestTypeClusterMap.at(point, 0);
-        return ForestTypeConditions.determineActivationEnergy(forestType);
+        return ForestTypeConditions.determineActivationEnergy(forestTypeClusterMap.at(point, 0));
     }
 
     @Override
@@ -25,7 +24,6 @@ public final class MosaicTerrainService implements TerrainService {
 
     @Override
     public double getElevation(LatLng point) {
-        double elevation = elevationMap.at(point, 0);
-        return elevation * 6400 / 255;
+        return elevationMap.at(point, 0) * 6400.0 / 255;
     }
 }

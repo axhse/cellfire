@@ -32,9 +32,9 @@ public class Grid {
         return cellHeight;
     }
 
-    public Coordinates fromLatLng(LatLng latLng) {
-        long x = Math.round(latLng.lng * scale - 0.5);
-        long y = Math.round(latLng.lat * scale - 0.5);
+    public Coordinates coordinatesOf(LatLng point) {
+        long x = Math.round(point.lng * scale - 0.5);
+        long y = Math.round(point.lat * scale - 0.5);
         if (x == 180L * scale || x + 1 == -180L * scale) {
             x = -180L * scale;
         }
@@ -47,7 +47,7 @@ public class Grid {
         return new Coordinates((int) x, (int) y);
     }
 
-    public LatLng toLatLng(Coordinates coordinates) {
+    public LatLng pointOf(Coordinates coordinates) {
         return new LatLng((coordinates.getY() + 0.5) / scale, (coordinates.getX() + 0.5) / scale);
     }
 

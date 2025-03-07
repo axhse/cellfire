@@ -6,6 +6,7 @@ import com.example.cellfire.algorithms.ThermalAlgorithm;
 import com.example.cellfire.models.*;
 import com.google.maps.model.LatLng;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -18,8 +19,8 @@ public final class Simulator {
     private static final int DEFAULT_GRID_SCALE = 200;
     private static final Duration DEFAULT_STEP_DURATION = Duration.ofMinutes(30);
     private static final Duration DEFAULT_LIMIT_DURATION = Duration.ofDays(7);
-    private static final float INITIAL_HEAT = 1000;
-    private static final float SIGNIFICANT_FUEL = 0.01F;
+    private static final double INITIAL_HEAT = 1000;
+    private static final double SIGNIFICANT_FUEL = 0.01F;
 
     private final TerrainService terrainService;
     private final WeatherService weatherService;
@@ -47,11 +48,10 @@ public final class Simulator {
 
     public void startSimulation(Simulation simulation) {
         Coordinates startCoordinates = simulation.getGrid().getStartCoordinates();
-        LatLng startPoint = simulation.getGrid().toLatLng(startCoordinates);
+        LatLng startPoint = simulation.getGrid().pointOf(startCoordinates);
 
-        float fuel = determineFuel(startPoint);
-        CellState initialState = new CellState(INITIAL_HEAT, fuel, false);
-        CellFactors factors = determineFactors(startPoint, simulation.getTimeline().getStartDate());
+        Cell.State initialState = new Cell.State(INITIAL_HEAT, determineFuel(startPoint), false);
+        Cell.Factors factors = determineFactors(startPoint, simulation.getTimeline().getStartDate());
 
         Cell initialCell = new Cell(startCoordinates, initialState, factors);
 
@@ -84,14 +84,14 @@ public final class Simulator {
         Instant date = simulation.getTimeline().getStartDate().plus(period);
 
         lastStep.getCells().forEach(cell -> {
-            CellFactors factors = determineFactors(grid.toLatLng(cell.getCoordinates()), date);
+            Cell.Factors factors = determineFactors(grid.pointOf(cell.getCoordinates()), date);
             if (factors.equals(cell.getFactors())) {
                 factors = cell.getFactors();
             }
-            CellState lastCellState = cell.getState();
+            Cell.State lastCellState = cell.getState();
             boolean isDamaged = lastCellState.isDamaged()
                     || simulation.getConditions().getIgnitionTemperature() < lastCellState.getHeat();
-            CellState draftCellState = new CellState(lastCellState.getHeat(), lastCellState.getFuel(), isDamaged);
+            Cell.State draftCellState = new Cell.State(lastCellState.getHeat(), lastCellState.getFuel(), isDamaged);
             Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, factors);
             draftCell.setTwin(cell);
             cell.setTwin(draftCell);
@@ -130,13 +130,13 @@ public final class Simulator {
                         // Cells neighboring through the poles are not expected.
                         continue;
                     }
-                    LatLng neighborPoint = grid.toLatLng(neighborCoordinates);
-                    float fuel = determineFuel(neighborPoint);
-                    CellFactors factors = determineFactors(neighborPoint, date);
+                    LatLng neighborPoint = grid.pointOf(neighborCoordinates);
+                    double fuel = determineFuel(neighborPoint);
+                    Cell.Factors factors = determineFactors(neighborPoint, date);
                     if (factors.equals(cell.getFactors())) {
                         factors = cell.getFactors();
                     }
-                    CellState neighborState = new CellState(factors.getAirTemperature(), fuel, false);
+                    Cell.State neighborState = new Cell.State(factors.getAirTemperature(), fuel, false);
                     Cell neighbor = new Cell(neighborCoordinates, neighborState, factors);
 
                     for (int dX = -1; dX <= 1; dX++) {
@@ -170,21 +170,15 @@ public final class Simulator {
         return new Simulation.Conditions(terrainService.getActivationEnergy(startPoint));
     }
 
-    private CellFactors determineFactors(LatLng point, Instant date) {
-        return new CellFactors(
-                (float) terrainService.getElevation(point),
-                (float) weatherService.getAirTemperature(point, date),
-                (float) weatherService.getAirHumidity(point, date),
-                (float) weatherService.getWindX(point, date),
-                (float) weatherService.getWindY(point, date)
-        );
+    private Cell.Factors determineFactors(LatLng point, Instant date) {
+        return new Cell.Factors(terrainService.getElevation(point), weatherService.getWeather(point, date));
     }
 
-    private float determineFuel(LatLng point) {
+    private double determineFuel(LatLng point) {
         double fuel = terrainService.getFuel(point);
         if (fuel < SIGNIFICANT_FUEL) {
             fuel = 0;
         }
-        return (float) fuel;
+        return fuel;
     }
 }

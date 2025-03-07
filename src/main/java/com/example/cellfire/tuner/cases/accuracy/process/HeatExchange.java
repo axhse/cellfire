@@ -80,11 +80,11 @@ public final class HeatExchange extends TuneCase {
         return ModelScore.victory();
     }
 
-    private static Cell createCell(float heat) {
+    private static Cell createCell(double heat) {
         return new Cell(
                 new Coordinates(0, 0),
-                new CellState(heat, 0, true),
-                new CellFactors(0, 30, 0, 0, 0)
+                new Cell.State(heat, 0, true),
+                new Cell.Factors(0, new Weather(30, 0, 0, 0))
         );
     }
 }

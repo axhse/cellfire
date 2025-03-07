@@ -9,37 +9,37 @@ import org.junit.jupiter.api.Test;
 public final class GridTests {
     @Test
     public void testCenterFromLatLng() {
-        Coordinates coordinates = new Grid(123).fromLatLng(new LatLng(0, 0));
+        Coordinates coordinates = new Grid(123).coordinatesOf(new LatLng(0, 0));
         Assertions.assertEquals(new Coordinates(0, 0), coordinates);
     }
 
     @Test
     public void testLeftBottomCornerFromLatLng() {
-        Coordinates coordinates = new Grid(10).fromLatLng(new LatLng(-90, -180));
+        Coordinates coordinates = new Grid(10).coordinatesOf(new LatLng(-90, -180));
         Assertions.assertEquals(new Coordinates(-1800, -900), coordinates);
     }
 
     @Test
     public void testTopRightCornerFromLatLng() {
-        Coordinates coordinates = new Grid(10).fromLatLng(new LatLng(90, 179.999));
+        Coordinates coordinates = new Grid(10).coordinatesOf(new LatLng(90, 179.999));
         Assertions.assertEquals(new Coordinates(1799, 899), coordinates);
     }
 
     @Test
     public void testRightWraparoundCoordinatesFromLatLng() {
-        Coordinates coordinates = new Grid(10).fromLatLng(new LatLng(0, 180));
+        Coordinates coordinates = new Grid(10).coordinatesOf(new LatLng(0, 180));
         Assertions.assertEquals(new Coordinates(-1800, 0), coordinates);
     }
 
     @Test
     public void testPositiveCoordinatesFromLatLng() {
-        Coordinates coordinates = new Grid(67).fromLatLng(new LatLng(45.001, 123.001));
+        Coordinates coordinates = new Grid(67).coordinatesOf(new LatLng(45.001, 123.001));
         Assertions.assertEquals(new Coordinates(67 * 123, 67 * 45), coordinates);
     }
 
     @Test
     public void testNegativeCoordinatesFromLatLng() {
-        Coordinates coordinates = new Grid(67).fromLatLng(new LatLng(-45.001, -123.001));
+        Coordinates coordinates = new Grid(67).coordinatesOf(new LatLng(-45.001, -123.001));
         Assertions.assertEquals(new Coordinates(67 * -123 - 1, 67 * -45 - 1), coordinates);
     }
 
@@ -47,32 +47,32 @@ public final class GridTests {
     public void testLeftBottomCornerToLatLng() {
         Grid grid = new Grid(10);
         Coordinates coordinates = new Coordinates(-1800, -900);
-        LatLng latLng = grid.toLatLng(coordinates);
-        Assertions.assertEquals(coordinates, grid.fromLatLng(latLng));
+        LatLng latLng = grid.pointOf(coordinates);
+        Assertions.assertEquals(coordinates, grid.coordinatesOf(latLng));
     }
 
     @Test
     public void testTopRightCornerToLatLng() {
         Grid grid = new Grid(10);
         Coordinates coordinates = new Coordinates(1799, 899);
-        LatLng latLng = grid.toLatLng(coordinates);
-        Assertions.assertEquals(coordinates, grid.fromLatLng(latLng));
+        LatLng latLng = grid.pointOf(coordinates);
+        Assertions.assertEquals(coordinates, grid.coordinatesOf(latLng));
     }
 
     @Test
     public void testPositiveCoordinatesToLatLng() {
         Grid grid = new Grid(67);
         Coordinates coordinates = new Coordinates(67 * 123, 67 * 45);
-        LatLng latLng = grid.toLatLng(coordinates);
-        Assertions.assertEquals(coordinates, grid.fromLatLng(latLng));
+        LatLng latLng = grid.pointOf(coordinates);
+        Assertions.assertEquals(coordinates, grid.coordinatesOf(latLng));
     }
 
     @Test
     public void testNegativeCoordinatesToLatLng() {
         Grid grid = new Grid(67);
         Coordinates coordinates = new Coordinates(67 * -123, 67 * -45);
-        LatLng latLng = grid.toLatLng(coordinates);
-        Assertions.assertEquals(coordinates, grid.fromLatLng(latLng));
+        LatLng latLng = grid.pointOf(coordinates);
+        Assertions.assertEquals(coordinates, grid.coordinatesOf(latLng));
     }
 
     @Test

@@ -86,7 +86,7 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     private static double estimateAverageDistance(Grid grid, Coordinates first, Coordinates second) {
-        double localCos = Math.cos(Math.toRadians(grid.toLatLng(first).lat));
+        double localCos = Math.cos(Math.toRadians(grid.pointOf(first).lat));
         // Cells neighboring through the poles are not expected.
         double distanceX = Math.abs(first.getX() - second.getX()) * localCos;
         double distanceY = Math.abs(first.getY() - second.getY());
@@ -103,11 +103,11 @@ public final class ThermalAlgorithm implements Algorithm {
         return kelvinTemperature - CELSIUS_ZERO_TEMPERATURE;
     }
 
-    private static void setEmittedEnergy(float energy, Cell cell) {
-        cell.setTwin(new Cell(null, new CellState(energy, 0, false), null));
+    private static void setEmittedEnergy(double energy, Cell cell) {
+        cell.setTwin(new Cell(null, new Cell.State(energy, 0, false), null));
     }
 
-    private static float getEmittedEnergy(Cell cell) {
+    private static double getEmittedEnergy(Cell cell) {
         return cell.getTwin().getState().getHeat();
     }
 
@@ -118,8 +118,8 @@ public final class ThermalAlgorithm implements Algorithm {
             return;
         }
         double burnedFraction = calculateBurnedFraction(cell, simulation);
-        float energy = (float) calculateCombustionEnergy(cell, burnedFraction);
-        float fuel = cell.getState().getFuel() * (1 - (float) burnedFraction);
+        double energy = calculateCombustionEnergy(cell, burnedFraction);
+        double fuel = cell.getState().getFuel() * (1 - burnedFraction);
         setEmittedEnergy(energy, cell);
         cell.getState().setFuel(fuel);
     }
@@ -139,11 +139,11 @@ public final class ThermalAlgorithm implements Algorithm {
 
         double emittedEnergy = getEmittedEnergy(cell);
         double heat = cell.getState().getHeat() + emittedEnergy * proximity[8] / totalProximity;
-        cell.getState().setHeat((float) heat);
+        cell.getState().setHeat(heat);
         neighborIndex = 0;
         for (Cell neighbor : cell.iterateNeighbors()) {
             heat = neighbor.getState().getHeat() + emittedEnergy * proximity[neighborIndex] / totalProximity;
-            neighbor.getState().setHeat((float) heat);
+            neighbor.getState().setHeat(heat);
             neighborIndex++;
         }
     }
@@ -175,7 +175,7 @@ public final class ThermalAlgorithm implements Algorithm {
                 heat = 0;
             }
         }
-        cell.getState().setHeat((float) toCelsius(heat));
+        cell.getState().setHeat(toCelsius(heat));
     }
 
     private double calculateCombustionEnergy(Cell cell, double burnedFraction) {
@@ -203,7 +203,7 @@ public final class ThermalAlgorithm implements Algorithm {
         if (elevation == 0) {
             return 1;
         }
-        double localCos = Math.cos(Math.toRadians(grid.toLatLng(cell.getCoordinates()).lat));
+        double localCos = Math.cos(Math.toRadians(grid.pointOf(cell.getCoordinates()).lat));
         double distanceX = Math.abs(cell.getCoordinates().getX() - otherCell.getCoordinates().getX()) * localCos;
         double distanceY = Math.abs(cell.getCoordinates().getY() - otherCell.getCoordinates().getY());
         double distance = grid.getCellHeight() * Math.sqrt(distanceX * distanceX + distanceY * distanceY);

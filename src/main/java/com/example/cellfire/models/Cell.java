@@ -3,15 +3,16 @@ package com.example.cellfire.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 public final class Cell {
     @JsonIgnore
     private final Cell[] vicinity = new Cell[9];
     private final Coordinates coordinates;
-    private final CellState state;
-    private final CellFactors factors;
+    private final State state;
+    private final Factors factors;
 
-    public Cell(Coordinates coordinates, CellState state, CellFactors factors) {
+    public Cell(Coordinates coordinates, State state, Factors factors) {
         this.coordinates = coordinates;
         this.state = state;
         this.factors = factors;
@@ -21,11 +22,11 @@ public final class Cell {
         return coordinates;
     }
 
-    public CellState getState() {
+    public State getState() {
         return state;
     }
 
-    public CellFactors getFactors() {
+    public Factors getFactors() {
         return factors;
     }
 
@@ -64,5 +65,76 @@ public final class Cell {
                 return vicinity[index++];
             }
         };
+    }
+
+    public static final class State {
+        private final boolean isDamaged;
+        private float fuel;
+        private float heat;
+
+        public State(double heat, double fuel, boolean isDamaged) {
+            this.fuel = (float) fuel;
+            this.heat = (float) heat;
+            this.isDamaged = isDamaged;
+        }
+
+        public boolean isDamaged() {
+            return isDamaged;
+        }
+
+        public double getFuel() {
+            return fuel;
+        }
+
+        public void setFuel(double fuel) {
+            this.fuel = (float) fuel;
+        }
+
+        public double getHeat() {
+            return heat;
+        }
+
+        public void setHeat(double heat) {
+            this.heat = (float) heat;
+        }
+    }
+
+    public static final class Factors extends Weather {
+        private final byte elevation;
+
+        public Factors(double elevation, Weather weather) {
+            super(weather.getAirTemperature(), weather.getAirHumidity(), weather.getWindX(), weather.getWindY());
+            this.elevation = compressElevation(elevation);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) return true;
+            if (other == null || getClass() != other.getClass()) return false;
+            Factors otherFactors = (Factors) other;
+            return (elevation == otherFactors.elevation
+                    && airTemperature == otherFactors.airTemperature
+                    && airHumidity == otherFactors.airHumidity
+                    && windX == otherFactors.windX
+                    && windY == otherFactors.windY
+            );
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(elevation, airTemperature, airHumidity, windX, windY);
+        }
+
+        public double getElevation() {
+            return decompressElevation(elevation);
+        }
+
+        private static byte compressElevation(double elevation) {
+            return (byte) Math.round(elevation / 6400 * 255);
+        }
+
+        private static double decompressElevation(byte elevation) {
+            return (((int) elevation) & 0xFF) * 6400.0 / 255;
+        }
     }
 }
