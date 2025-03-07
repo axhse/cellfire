@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @Service
 public final class WeatherApiClient {
-    private static final String FORECAST_BASE_URL = "http://api.weatherapi.com/v1/forecast.json";
+    public static final int FORECASTED_DAYS = 3;
     private final String apiKey;
     private final WebClient webClient = WebClient.create();
 
@@ -25,12 +25,9 @@ public final class WeatherApiClient {
     }
 
     public Optional<WeatherForecast> requestForecast(LatLng point) {
-        BigDecimal lat = BigDecimal.valueOf(point.lat);
-        BigDecimal lng = BigDecimal.valueOf(point.lng);
-        String uri = "%s?days=3&key=%s&q=%s,%s".formatted(FORECAST_BASE_URL, apiKey, lat, lng);
         try {
             WeatherForecast forecast = webClient.post()
-                    .uri(uri)
+                    .uri(buildForecastUri(point))
                     .retrieve()
                     .bodyToMono(ForecastResponseData.class)
                     .map(this::retrieveForecast)
@@ -39,6 +36,15 @@ public final class WeatherApiClient {
         } catch (Exception exception) {
             return Optional.empty();
         }
+    }
+
+    private String buildForecastUri(LatLng point) {
+        String baseUri = "http://api.weatherapi.com/v1/forecast.json";
+
+        BigDecimal lat = BigDecimal.valueOf(point.lat);
+        BigDecimal lng = BigDecimal.valueOf(point.lng);
+
+        return "%s?key=%s&days=%s&q=%s,%s".formatted(baseUri, apiKey, FORECASTED_DAYS, lat, lng);
     }
 
     private WeatherForecast retrieveForecast(ForecastResponseData response) {

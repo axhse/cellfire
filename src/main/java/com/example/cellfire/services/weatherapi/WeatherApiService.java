@@ -5,18 +5,17 @@ import com.example.cellfire.models.Grid;
 import com.example.cellfire.models.Weather;
 import com.example.cellfire.services.WeatherService;
 import com.google.maps.model.LatLng;
+import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 //@Service
 public final class WeatherApiService implements WeatherService {
     private static final Grid grid = new Grid(10);
     private static final long timeScale = Duration.ofHours(2).toSeconds();
-    private final Map<Long, Map<Coordinates, Weather>> cache = new HashMap<>();
+    private final SortedMap<Long, Map<Coordinates, Weather>> cache = new TreeMap<>();
     private final WeatherApiClient weatherApiClient;
 
     public WeatherApiService(WeatherApiClient weatherApiClient) {
@@ -25,7 +24,18 @@ public final class WeatherApiService implements WeatherService {
 
     public synchronized Optional<Weather> getWeather(LatLng point, Instant date) {
         Coordinates coordinates = coordinatesOf(point);
-        long timePoint = timePointOf(date);
+        long currentTimePoint = timePointOf(Instant.now());
+        while (!cache.isEmpty() && cache.firstKey() < currentTimePoint) {
+            cache.remove(cache.firstKey());
+        }
+        // If given date is beyond forecast period, weather at the latest forecasted moment is returned.
+        long timePoint = Math.min(timePointOf(date), determineLatestTimePoint());
+        if (timePoint < currentTimePoint - 1) {
+            return Optional.empty();
+        }
+        if (timePoint == currentTimePoint - 1) {
+            timePoint = currentTimePoint;
+        }
         Optional<Weather> cachedWeather = findCached(coordinates, timePoint);
         if (cachedWeather.isPresent()) {
             return cachedWeather;
@@ -38,12 +48,19 @@ public final class WeatherApiService implements WeatherService {
         for (int hourIndex = forecast.getHourlyForecastedWeather().size() - 1; 0 <= hourIndex; hourIndex--) {
             long period = Duration.ofHours(hourIndex).toSeconds();
             long hourTimePoint = timePointOf(forecast.getForecastStartDate().plusSeconds(period));
+            if (hourTimePoint < currentTimePoint) {
+                break;
+            }
             if (!cache.containsKey(hourTimePoint)) {
-                cache.put(hourTimePoint, new HashMap<>());
+                putTimePoint(hourTimePoint);
             }
             cache.get(hourTimePoint).put(coordinates, forecast.getHourlyForecastedWeather().get(hourIndex));
         }
         return findCached(coordinates, timePoint);
+    }
+
+    private void putTimePoint(long timePoint) {
+        cache.put(timePoint, new HashMap<>());
     }
 
     private Optional<Weather> findCached(Coordinates coordinates, long timePoint) {
@@ -54,6 +71,13 @@ public final class WeatherApiService implements WeatherService {
             }
         }
         return Optional.empty();
+    }
+
+    private long determineLatestTimePoint() {
+        Duration forecastedPeriod = Duration.ofDays(WeatherApiClient.FORECASTED_DAYS).minusSeconds(1);
+        long dayDuration = Duration.ofDays(1).toSeconds();
+        long latestTs = Instant.now().plus(forecastedPeriod).getEpochSecond() / dayDuration * dayDuration;
+        return timePointOf(Instant.ofEpochSecond(latestTs));
     }
 
     private Coordinates coordinatesOf(LatLng point) {
