@@ -72,18 +72,22 @@ const LAYER_COLORS = {
     max: new LayerColor(150, 0, 120),
   },
   elevation: {
-    min: new LayerColor(0, 255, 200),
-    max: new LayerColor(255, 0, 0),
+    subSea: new LayerColor(0, 0, 200),
+    seaLevel: new LayerColor(0, 200, 0),
+    hill: new LayerColor(200, 200, 0),
+    mountain: new LayerColor(200, 0, 0),
+    peak: new LayerColor(100, 100, 100),
   },
 };
 
 class Gradient {
-  constructor(minValue, maxValue, colors) {
+  constructor(minValue, maxValue, minColor, maxColor) {
     this.baseValue = minValue;
     this.valueRange = maxValue - minValue;
-    this.baseColor = colors.min;
+    this.maxValue = maxValue;
+    this.baseColor = minColor;
     this.colorRange = new Color(
-      ...[0, 1, 2, 3].map((i) => colors.max.rgba()[i] - colors.min.rgba()[i])
+      ...[0, 1, 2, 3].map((i) => maxColor.rgba()[i] - minColor.rgba()[i])
     );
   }
 
@@ -98,10 +102,60 @@ class Gradient {
   }
 }
 
+function gradientOf(minValue, maxValue, colors) {
+  return new Gradient(minValue, maxValue, colors.min, colors.max);
+}
+
+class ElevationGradient {
+  constructor() {
+    this.gradients = [
+      new Gradient(
+        -500,
+        0,
+        LAYER_COLORS.elevation.subSea,
+        LAYER_COLORS.elevation.seaLevel
+      ),
+      new Gradient(
+        0,
+        1500,
+        LAYER_COLORS.elevation.seaLevel,
+        LAYER_COLORS.elevation.hill
+      ),
+      new Gradient(
+        1500,
+        4000,
+        LAYER_COLORS.elevation.hill,
+        LAYER_COLORS.elevation.mountain
+      ),
+      new Gradient(
+        4000,
+        6400,
+        LAYER_COLORS.elevation.mountain,
+        LAYER_COLORS.elevation.peak
+      ),
+    ];
+  }
+
+  forValue(value) {
+    if (value < this.gradients[0].baseValue) {
+      return this.gradients[0].forValue(value);
+    }
+    if (value > this.gradients[this.gradients.length - 1].maxValue) {
+      return this.gradients[this.gradients.length - 1].forValue(value);
+    }
+    for (const gradient of this.gradients) {
+      if (gradient.baseValue <= value && value <= gradient.maxValue) {
+        return gradient.forValue(value);
+      }
+    }
+    return new Color(255, 0, 255, 1);
+  }
+}
+
 export class IndicatorGradient {
   constructor(minValue, maxValue) {
-    this.textGradient = new Gradient(minValue, maxValue, INDICATOR_COLORS.text);
-    this.backgroundGradient = new Gradient(
+    this.textGradient = gradientOf(minValue, maxValue, INDICATOR_COLORS.text);
+    this.backgroundGradient = gradientOf(
       minValue,
       maxValue,
       INDICATOR_COLORS.background
@@ -126,10 +180,10 @@ export const INDICATOR_GRADIENTS = {
 
 export class LayerGradients {
   constructor(ignitionTemperature) {
-    this.intact = new Gradient(0, ignitionTemperature, LAYER_COLORS.intact);
-    this.burning = new Gradient(ignitionTemperature, 900, LAYER_COLORS.burning);
-    this.burned = new Gradient(0, ignitionTemperature, LAYER_COLORS.burned);
-    this.fuel = new Gradient(0, 1, LAYER_COLORS.fuel);
-    this.elevation = new Gradient(0, 4500, LAYER_COLORS.elevation);
+    this.intact = gradientOf(0, ignitionTemperature, LAYER_COLORS.intact);
+    this.burning = gradientOf(ignitionTemperature, 900, LAYER_COLORS.burning);
+    this.burned = gradientOf(0, ignitionTemperature, LAYER_COLORS.burned);
+    this.fuel = gradientOf(0, 1, LAYER_COLORS.fuel);
+    this.elevation = new ElevationGradient();
   }
 }
