@@ -11,8 +11,8 @@ export class Simulator {
     );
     const gridScale = 200;
     const startCoordinates = {
-      x: Math.round(startLonLat[0] * gridScale),
-      y: Math.round(startLonLat[1] * gridScale),
+      x: Math.round(startLonLat[0] * gridScale - 0.5),
+      y: Math.round(startLonLat[1] * gridScale - 0.5),
     };
     if (startCoordinates.x % 4 === 0) {
       return undefined;
