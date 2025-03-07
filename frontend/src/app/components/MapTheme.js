@@ -75,10 +75,6 @@ const LAYER_COLORS = {
     min: new LayerColor(0, 255, 200),
     max: new LayerColor(255, 0, 0),
   },
-  wind: {
-    min: new LayerColor(0, 200, 255, 0.05),
-    max: new LayerColor(255, 0, 0),
-  },
 };
 
 class Gradient {
@@ -135,6 +131,5 @@ export class LayerGradients {
     this.burned = new Gradient(0, ignitionTemperature, LAYER_COLORS.burned);
     this.fuel = new Gradient(0, 1, LAYER_COLORS.fuel);
     this.elevation = new Gradient(0, 4500, LAYER_COLORS.elevation);
-    this.wind = new Gradient(0, 10, LAYER_COLORS.wind);
   }
 }

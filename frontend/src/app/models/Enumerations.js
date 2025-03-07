@@ -1,13 +1,4 @@
-export const Algorithm = { Thermal: 'thermal', Probabilistic: 'probabilistic' };
-
 export const PointerMode = { Regular: 'regular', Lighter: 'lighter' };
-
-export const Layer = {
-  Fire: 'fire',
-  Fuel: 'fuel',
-  Elevation: 'elevation',
-  Wind: 'wind',
-};
 
 export const Indicator = {
   AirTemperature: 'air-temperature',
@@ -15,3 +6,7 @@ export const Indicator = {
   WindSpeed: 'wind-speed',
   FuelDensity: 'fuel-density',
 };
+
+export const Layer = { Fire: 'fire', Fuel: 'fuel', Elevation: 'elevation' };
+
+export const Algorithm = { Thermal: 'thermal', Probabilistic: 'probabilistic' };

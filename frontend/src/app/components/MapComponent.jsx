@@ -119,9 +119,6 @@ export class MapComponent extends Component {
     if (this.toolbar.layer === Layer.Elevation) {
       color = gradients.elevation.forValue(cell.factors.elevation);
     }
-    if (this.toolbar.layer === Layer.Wind) {
-      color = gradients.wind.forValue(cell.factors.windSpeed);
-    }
 
     return new Style({ fill: new Fill({ color: color.css() }) });
   }

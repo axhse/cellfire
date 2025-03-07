@@ -27,14 +27,12 @@ const LAYER_NAMES = {
   [Layer.Fire]: 'fire status',
   [Layer.Fuel]: 'fuel density',
   [Layer.Elevation]: 'elevation',
-  [Layer.Wind]: 'wind speed',
 };
 
 const LAYER_ICONS = {
   [Layer.Fire]: '🔥',
   [Layer.Fuel]: '🌳',
   [Layer.Elevation]: '⛰️',
-  [Layer.Wind]: '🌀',
 };
 
 const INDICATORS_WITH_ICONS = [
