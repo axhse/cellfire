@@ -63,10 +63,12 @@ export class MapToolbar {
 
   updateInfoControl(simulation) {
     setDamagedArea(simulation.estimateDamagedArea());
-    setAverageAirTemperature(simulation.calculateAverageAirTemperature());
-    setAverageAirHumidity(simulation.calculateAverageAirHumidity());
-    setAverageWindSpeed(simulation.calculateAverageWindSpeed());
-    setAverageFuelDensity(simulation.calculateAverageFuelDensity());
+    setAirTemperature(simulation.calculateAverageAirTemperature());
+    setAirHumidity(simulation.calculateAverageAirHumidity());
+    const windSpeed = roundWindSpeed(simulation.calculateAverageWindSpeed());
+    setWindSpeed(windSpeed);
+    setWindDirection(simulation.calculateAverageWindAngle(), windSpeed);
+    setFuelDensity(simulation.calculateAverageFuelDensity());
   }
 
   updateTimelineControl(timeline) {
@@ -126,7 +128,7 @@ function setDamagedArea(damagedArea) {
   setLabelContent('label-damaged-area', content);
 }
 
-function setAverageAirTemperature(airTemperature) {
+function setAirTemperature(airTemperature) {
   if (Math.abs(Math.round(airTemperature)) < 10) {
     airTemperature = Math.round(airTemperature * 10) / 10;
   } else {
@@ -138,7 +140,7 @@ function setAverageAirTemperature(airTemperature) {
   setIndicator(Indicator.AirTemperature, airTemperature, content, title);
 }
 
-function setAverageAirHumidity(airHumidity) {
+function setAirHumidity(airHumidity) {
   airHumidity = Math.round(airHumidity * 100);
 
   const content = `${airHumidity} %`;
@@ -146,19 +148,28 @@ function setAverageAirHumidity(airHumidity) {
   setIndicator(Indicator.AirHumidity, airHumidity, content, title);
 }
 
-function setAverageWindSpeed(windSpeed) {
-  if (Math.abs(Math.round(windSpeed)) < 10) {
-    windSpeed = Math.round(windSpeed * 10) / 10;
-  } else {
-    windSpeed = Math.round(windSpeed);
-  }
-
-  const content = `${windSpeed} m/s`;
-  const title = `Wind speed: ${nameRangeSection(windSpeed, 3, 7)}`;
-  setIndicator(Indicator.WindSpeed, windSpeed, content, title);
+function setWindSpeed(roundedWindSpeed) {
+  const content = `${roundedWindSpeed} m/s`;
+  const title = `Wind speed: ${nameRangeSection(roundedWindSpeed, 3, 7)}`;
+  setIndicator(Indicator.WindSpeed, roundedWindSpeed, content, title);
 }
 
-function setAverageFuelDensity(fuelDensity) {
+function setWindDirection(windAngle, roundedWindSpeed) {
+  const icon = document.getElementById('wind-direction-icon');
+  const gradient = INDICATOR_GRADIENTS[Indicator.WindSpeed];
+  icon.style.color = gradient.textFor(roundedWindSpeed).css();
+  icon.style.transform = `rotate(${-windAngle.toFixed(3)}rad)`;
+}
+
+function roundWindSpeed(windSpeed) {
+  if (Math.abs(Math.round(windSpeed)) < 10) {
+    return Math.round(windSpeed * 10) / 10;
+  } else {
+    return Math.round(windSpeed);
+  }
+}
+
+function setFuelDensity(fuelDensity) {
   fuelDensity = Math.round(fuelDensity * 100) / 100;
 
   const content = `${fuelDensity}`;

@@ -63,6 +63,10 @@ export function InfoControl() {
     const container = createContainer(containerId, containerClassName);
     container.appendChild(createLabel('', '', icon));
     container.appendChild(createLabel(`label-indicator-${indicator}`));
+    if (indicator === Indicator.WindSpeed) {
+      const icon = createContainer('wind-direction-icon', '', '➤');
+      container.appendChild(icon);
+    }
     indicatorPanel.appendChild(container);
     isFirst = false;
   }
@@ -164,8 +168,8 @@ function createButton(
   return button;
 }
 
-function createContainer(id = '', className = '', title = '') {
-  return createElement('div', id, className, '', title);
+function createContainer(id = '', className = '', content = '', title = '') {
+  return createElement('div', id, className, content, title);
 }
 
 function createLabel(id = '', className = '', content = '', title = '') {

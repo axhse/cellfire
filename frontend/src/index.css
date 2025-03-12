@@ -219,6 +219,12 @@ button {
   margin: 5px 0px 2px 0px;
 }
 
+#wind-direction-icon {
+  display: inline-block;
+  margin-left: 6px;
+  transform-origin: 45% 58%;
+}
+
 #algorithm-switch {
   width: 120px;
   margin-right: 4px;

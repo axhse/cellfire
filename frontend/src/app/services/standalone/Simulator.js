@@ -56,22 +56,24 @@ function produceDemoSimulationStep(startCoordinates, tick, final) {
   const demoCells = [];
   for (let x = 0; x <= tick; x++) {
     for (let y = 0; x + y <= tick; y++) {
-      demoCells.push(produceDemoCell(startCoordinates, x, y, final));
+      demoCells.push(produceDemoCell(startCoordinates, tick, x, y, final));
       if (x > 0) {
-        demoCells.push(produceDemoCell(startCoordinates, -x, y, final));
+        demoCells.push(produceDemoCell(startCoordinates, tick, -x, y, final));
         if (y > 0) {
-          demoCells.push(produceDemoCell(startCoordinates, -x, -y, final));
+          demoCells.push(
+            produceDemoCell(startCoordinates, tick, -x, -y, final)
+          );
         }
       }
       if (y > 0) {
-        demoCells.push(produceDemoCell(startCoordinates, x, -y, final));
+        demoCells.push(produceDemoCell(startCoordinates, tick, x, -y, final));
       }
     }
   }
   return { cells: demoCells, final };
 }
 
-function produceDemoCell(startCoordinates, offsetX, offsetY, final) {
+function produceDemoCell(startCoordinates, tick, offsetX, offsetY, final) {
   let heat =
     100 + (((offsetX + 3) * 5) % 77) * 10 + (((offsetY + 7) * 9) % 100) * 4;
   if (final) {
@@ -83,8 +85,16 @@ function produceDemoCell(startCoordinates, offsetX, offsetY, final) {
     ((fuel * 2000 + heat + (offsetX + 100) * 10 + 124023) % 7000) - 500;
   const airTemperature = (fuel * 40) % 40;
   const airHumidity = (Math.round(fuel * 100 + 1000) % 101) / 100;
-  const windX = (Math.round(offsetX + 1002) % 14) - 8;
-  const windY = (Math.round(offsetY + 12340) % 9) - 3;
+  let windX = 0;
+  let windY = 0;
+  if (tick > 0) {
+    const windSpeed =
+      ((Math.round(offsetX + 1002) % 24) + (Math.round(offsetY + 12340) % 79)) /
+      10;
+    const windAngle = ((tick - 1) * 15 * Math.PI) / 180;
+    windX = windSpeed * Math.cos(windAngle);
+    windY = windSpeed * Math.sin(windAngle);
+  }
   const damaged = (offsetX * 2 + offsetY * 5 + 7) % 20 < 10;
 
   return {

@@ -76,6 +76,23 @@ export class Simulation {
     return cells.map(propertyGetter).reduce((a, v) => a + v, 0) / count;
   }
 
+  calculateAverageWindAngle() {
+    const cells = this.getSampleCells();
+    const cellCount = cells.length;
+    let vectorX = 0;
+    let vectorY = 0;
+    for (const cell of cells) {
+      vectorX += cell.factors.windX;
+      vectorY += cell.factors.windY;
+    }
+    vectorX /= cellCount;
+    vectorY /= cellCount;
+    if (vectorX === 0 && vectorY === 0) {
+      return 0;
+    }
+    return Math.atan2(vectorY, vectorX);
+  }
+
   estimateDamagedArea() {
     return this.getDamagedCells()
       .map((cell) => estimateCellArea(this.grid.scale, cell.coordinates))
