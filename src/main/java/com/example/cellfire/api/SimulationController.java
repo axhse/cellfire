@@ -63,8 +63,8 @@ public final class SimulationController {
         if (simulator.tryProgressSimulation(simulation.get(), params.getEndTick())) {
             response.put("success", true);
             List<Simulation.Step> steps = simulation.get().getSteps();
-            List<Simulation.Step> lastSteps =
-                    steps.subList(params.getStartTick(), params.getEndTick() + 1).stream().toList();
+            int toIndex = Math.min(params.getEndTick() + 1, steps.size());
+            List<Simulation.Step> lastSteps = steps.subList(params.getStartTick(), toIndex).stream().toList();
             response.put("steps", lastSteps);
         } else {
             response.put("success", false);

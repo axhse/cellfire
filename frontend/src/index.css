@@ -199,6 +199,14 @@ button {
   padding: 0px 5px;
 }
 
+#control-container-timeline button:disabled {
+  opacity: 0.6;
+}
+
+#control-container-timeline button:disabled:hover {
+  background-color: var(--map-control-button-color);
+}
+
 #control-container-timeline button.first {
   margin-left: 0px;
 }

@@ -10,12 +10,10 @@ public final class ThermalAlgorithm implements Algorithm {
     public static final double DEFAULT_ENERGY_EMISSION = 33000;
     public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 4.5;
     /**
-     * += 3.
      * 3.5 in some research.
      */
     public static final double DEFAULT_SLOPE_EFFECT = 3;
     /**
-     * 0.1-0.3.
      * 0.13 in some research.
      */
     public static final double DEFAULT_WIND_EFFECT = 0.15;
@@ -112,14 +110,13 @@ public final class ThermalAlgorithm implements Algorithm {
     }
 
     private void burnFuel(Cell cell, Simulation simulation) {
-        if (cell.getState().getFuel() == 0
-                || cell.getState().getHeat() < simulation.getConditions().getIgnitionTemperature()
-                || cell.getFactors().getAirTemperature() <= 0) {
+        double initialFuel = cell.getState().getFuel();
+        if (initialFuel == 0 || !simulation.isBurning(cell) || cell.getFactors().getAirTemperature() <= 0) {
             return;
         }
         double burnedFraction = calculateBurnedFraction(cell, simulation);
         double energy = calculateCombustionEnergy(cell, burnedFraction);
-        double fuel = cell.getState().getFuel() * (1 - burnedFraction);
+        double fuel = initialFuel * (1 - burnedFraction);
         setEmittedEnergy(energy, cell);
         cell.getState().setFuel(fuel);
     }

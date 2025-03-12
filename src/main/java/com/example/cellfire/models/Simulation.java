@@ -52,6 +52,10 @@ public final class Simulation {
         return algorithm;
     }
 
+    public boolean isBurning(Cell cell) {
+        return conditions.getIgnitionTemperature() <= cell.getState().getHeat();
+    }
+
     public static final class MarkedGrid extends Grid {
         private final Coordinates startCoordinates;
 
@@ -108,6 +112,15 @@ public final class Simulation {
 
     public static final class Step {
         private final List<Cell> cells = new ArrayList<>();
+        private boolean isFinal = false;
+
+        public void markAsFinal() {
+            isFinal = true;
+        }
+
+        public boolean isFinal() {
+            return isFinal;
+        }
 
         public List<Cell> getCells() {
             return cells;

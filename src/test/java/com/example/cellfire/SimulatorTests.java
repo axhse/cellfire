@@ -18,7 +18,7 @@ import java.time.Instant;
 public final class SimulatorTests {
     @Test
     public void testSimulationSteps() {
-        Simulator simulator = createSimulator(10);
+        Simulator simulator = createSimulator(1000000000);
         Simulation simulation = createSimulation(simulator);
 
         Assertions.assertEquals(0, simulation.getSteps().size());
@@ -67,7 +67,7 @@ public final class SimulatorTests {
 
     @Test
     public void testPolarNeighboringCells() {
-        Simulator simulator = createSimulator(1000);
+        Simulator simulator = createSimulator(1000000000);
         Simulation simulation = createSimulation(simulator, new LatLng(-90 + 0.00001, 0));
 
         simulator.tryStartSimulation(simulation);
@@ -86,35 +86,27 @@ public final class SimulatorTests {
         Simulation simulation = createSimulation(simulator);
 
         simulator.tryStartSimulation(simulation);
-        simulator.tryProgressSimulation(simulation, 3);
-        Assertions.assertEquals(1, simulation.getSteps().get(3).getCells().size());
+        simulator.tryProgressSimulation(simulation, 10);
+        Assertions.assertEquals(3, simulation.getSteps().size());
+        Assertions.assertEquals(1, simulation.getSteps().get(2).getCells().size());
     }
 
     @Test
     public void testSimulationStepCount() {
-        Simulator simulator = createSimulator(0);
+        Simulator simulator = createSimulator(1000000000);
 
-        Simulation simulation1 = createSimulation(Duration.ofHours(4), Duration.ofDays(3));
+        Simulation simulation1 = createSimulation(Duration.ofMinutes(30), Duration.ofHours(4));
         simulator.tryStartSimulation(simulation1);
         simulator.tryProgressSimulation(simulation1, 3);
         Assertions.assertEquals(1 + 3, simulation1.getSteps().size());
         simulator.tryProgressSimulation(simulation1, 100000);
-        Assertions.assertEquals(1 + 24 / 4 * 3, simulation1.getSteps().size());
+        Assertions.assertEquals(1 + 2 * 4, simulation1.getSteps().size());
 
-        Duration limitDuration = Duration.ofDays(3).plusMinutes(3 * 60 + 50);
-        Simulation simulation2 = createSimulation(Duration.ofHours(4), limitDuration);
+        Duration limitDuration = Duration.ofHours(4).plusMinutes(29);
+        Simulation simulation2 = createSimulation(Duration.ofMinutes(30), limitDuration);
         simulator.tryStartSimulation(simulation2);
         simulator.tryProgressSimulation(simulation2, 100000);
-        Assertions.assertEquals(1 + 24 / 4 * 3, simulation2.getSteps().size());
-    }
-
-    private static Simulation createSimulation(Duration stepDuration, Duration limitDuration) {
-        return new Simulation(
-                new Simulation.MarkedGrid(1, new LatLng(0, 0)),
-                new Simulation.Timeline(Instant.now(), stepDuration, limitDuration),
-                new Simulation.Conditions(100000),
-                Simulation.Algorithm.THERMAL
-        );
+        Assertions.assertEquals(1 + 2 * 4, simulation2.getSteps().size());
     }
 
     private static Simulation createSimulation(Simulator simulator) {
@@ -123,6 +115,16 @@ public final class SimulatorTests {
 
     private static Simulation createSimulation(Simulator simulator, LatLng startPoint) {
         return simulator.createSimulation(startPoint, Simulation.Algorithm.THERMAL);
+    }
+
+    private static Simulation createSimulation(Duration stepDuration, Duration limitDuration) {
+        int forestType = ForestTypeConditions.ForestType.MIXED;
+        return new Simulation(
+                new Simulation.MarkedGrid(200, new LatLng(0, 0)),
+                new Simulation.Timeline(Instant.now(), stepDuration, limitDuration),
+                new Simulation.Conditions(ForestTypeConditions.determineActivationEnergy(forestType)),
+                Simulation.Algorithm.THERMAL
+        );
     }
 
     private static Simulator createSimulator(double fuel) {

@@ -10,8 +10,8 @@ export class Timeline {
     return this.simulatedTick * this.stepDurationMs;
   }
 
-  navigate(deltaTicks) {
-    const wantedTick = this.simulatedTick + deltaTicks;
+  navigate(tickDelta) {
+    const wantedTick = this.simulatedTick + tickDelta;
     const newTick = Math.min(this.limitTicks, Math.max(0, wantedTick));
     this.simulatedTick = newTick;
     return newTick;

@@ -1,4 +1,4 @@
-import { getLayerToggleId, getTickShifterId } from './MapControl';
+import { TICK_DELTAS, getLayerToggleId, getTickShifterId } from './MapControl';
 import { INDICATOR_GRADIENTS } from './MapTheme';
 import {
   Algorithm,
@@ -43,12 +43,15 @@ export class MapToolbar {
   }
 
   configureTimelineControl(timeline) {
-    for (const deltaTicks of [-10, -1, 1, 10]) {
-      const period = deltaTicks * timeline.stepDurationMs;
-      const tickShifterId = getTickShifterId(deltaTicks);
+    for (const tickDelta of TICK_DELTAS) {
+      const period = tickDelta * timeline.stepDurationMs;
+      const tickShifterId = getTickShifterId(tickDelta);
       const tickShifter = document.getElementById(tickShifterId);
       tickShifter.innerHTML = `${describeTimePeriod(period, false)}`;
-      tickShifter.title = `${deltaTicks < 0 ? 'Rewind' : 'Advance'} simulation by ${describeTimePeriod(period).slice(2)}`;
+      tickShifter.title = `${tickDelta < 0 ? 'Rewind' : 'Advance'} simulation by ${describeTimePeriod(period).slice(2)}`;
+      if (tickDelta < 0) {
+        setElementAvailability(getTickShifterId(tickDelta), false);
+      }
     }
     setTimelineDate('label-start-date', 'Start', timeline.startDate);
   }
@@ -67,6 +70,12 @@ export class MapToolbar {
   }
 
   updateTimelineControl(timeline) {
+    for (const tickDelta of TICK_DELTAS) {
+      const potentialTick = timeline.simulatedTick + (tickDelta < 0 ? -1 : 1);
+      const isAvailable =
+        0 <= potentialTick && potentialTick <= timeline.limitTicks;
+      setElementAvailability(getTickShifterId(tickDelta), isAvailable);
+    }
     const simulatedPeriod = timeline.getSimulatedPeriod();
     setTimelinePeriod(simulatedPeriod);
     const startTs = timeline.startDate.valueOf();
@@ -181,6 +190,10 @@ function setTimelineDate(dateLabelId, dateTitle, date) {
 
 function setLabelContent(elementId, content) {
   document.getElementById(elementId).innerHTML = content;
+}
+
+function setElementAvailability(elementId, isAvailable) {
+  document.getElementById(elementId).disabled = !isAvailable;
 }
 
 function switchElementClass(elementId, className, isWanted) {

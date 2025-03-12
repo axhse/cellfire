@@ -42,6 +42,8 @@ const INDICATORS_WITH_ICONS = [
   [Indicator.FuelDensity, '🌳'],
 ];
 
+export const TICK_DELTAS = [-10, -1, 1, 10];
+
 export function InfoControl() {
   const control = new MapControl('control-container-info', 'Information');
 
@@ -121,10 +123,10 @@ export function TimelineControl(tools) {
   const control = new MapControl('control-container-timeline', title);
 
   let isFirst = true;
-  for (const deltaTicks of [-10, -1, 1, 10]) {
+  for (const tickDelta of TICK_DELTAS) {
     const tickShifter = createButton(
-      () => tools.navigateTimeline(deltaTicks),
-      getTickShifterId(deltaTicks),
+      () => tools.navigateTimeline(tickDelta),
+      getTickShifterId(tickDelta),
       'inline' + getOrdinalClass(isFirst)
     );
     control.append(tickShifter);
@@ -145,9 +147,9 @@ export function getLayerToggleId(layer) {
   return `layer-toggle-${layer}`;
 }
 
-export function getTickShifterId(deltaTicks) {
-  const direction = deltaTicks < 0 ? 'backward' : 'forward';
-  return `timeline-navigator-${direction}-${Math.abs(deltaTicks)}`;
+export function getTickShifterId(tickDelta) {
+  const direction = tickDelta < 0 ? 'backward' : 'forward';
+  return `timeline-navigator-${direction}-${Math.abs(tickDelta)}`;
 }
 
 function createButton(

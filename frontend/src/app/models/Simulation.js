@@ -24,6 +24,10 @@ export class Simulation {
       this.steps = this.steps.slice(0, startIndex);
     }
     this.steps.push(...steps);
+    if (steps[steps.length - 1].final) {
+      this.timeline.limitTicks = this.steps.length - 1;
+      this.timeline.simulatedTick = this.steps.length - 1;
+    }
   }
 
   getSimulatedCells() {

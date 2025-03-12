@@ -14,7 +14,7 @@ export class Simulator {
       x: Math.round(startLonLat[0] * gridScale - 0.5),
       y: Math.round(startLonLat[1] * gridScale - 0.5),
     };
-    if (startCoordinates.x % 4 === 0) {
+    if (startCoordinates.x % 5 === 0) {
       return undefined;
     }
     const simulation = new Simulation(
@@ -33,43 +33,50 @@ export class Simulator {
   }
 
   async progressSimulation(simulation, endTick) {
+    // 1 day 7 hours.
+    const finalTick = 24 * 2 + 7 * 2;
     // 1 day 30 minutes.
     if (endTick === 24 * 2 + 1) {
       return false;
     }
-    while (simulation.steps.length <= endTick) {
+    while (simulation.steps.length <= Math.min(endTick, finalTick)) {
+      const wantedTick = simulation.steps.length;
       const step = produceDemoSimulationStep(
         simulation.grid.startCoordinates,
-        simulation.steps.length
+        wantedTick,
+        wantedTick === finalTick
       );
-      simulation.appendSteps([step], simulation.steps.length);
+      simulation.appendSteps([step], wantedTick);
     }
     return true;
   }
 }
 
-function produceDemoSimulationStep(startCoordinates, tick) {
+function produceDemoSimulationStep(startCoordinates, tick, final) {
   const demoCells = [];
   for (let x = 0; x <= tick; x++) {
     for (let y = 0; x + y <= tick; y++) {
-      demoCells.push(produceDemoCell(startCoordinates, x, y));
+      demoCells.push(produceDemoCell(startCoordinates, x, y, final));
       if (x > 0) {
-        demoCells.push(produceDemoCell(startCoordinates, -x, y));
+        demoCells.push(produceDemoCell(startCoordinates, -x, y, final));
         if (y > 0) {
-          demoCells.push(produceDemoCell(startCoordinates, -x, -y));
+          demoCells.push(produceDemoCell(startCoordinates, -x, -y, final));
         }
       }
       if (y > 0) {
-        demoCells.push(produceDemoCell(startCoordinates, x, -y));
+        demoCells.push(produceDemoCell(startCoordinates, x, -y, final));
       }
     }
   }
-  return { cells: demoCells };
+  return { cells: demoCells, final };
 }
 
-function produceDemoCell(startCoordinates, offsetX, offsetY) {
-  const heat =
+function produceDemoCell(startCoordinates, offsetX, offsetY, final) {
+  let heat =
     100 + (((offsetX + 3) * 5) % 77) * 10 + (((offsetY + 7) * 9) % 100) * 4;
+  if (final) {
+    heat %= 200;
+  }
   const fuel =
     0 + (((offsetX + 4) * 2) % 77) / 77 + (((offsetY + 3) * 3) % 100) / 44;
   const elevation =

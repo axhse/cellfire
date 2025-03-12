@@ -68,7 +68,10 @@ public final class Simulator {
     public boolean tryProgressSimulation(Simulation simulation, int endTick) {
         synchronized (simulation.getId()) {
             int limitTicks = simulation.getTimeline().getLimitTicks();
-            while (!simulation.hasStep(endTick) && simulation.getSteps().size() <= limitTicks) {
+            while (!simulation.hasStep(endTick)
+                    && !simulation.getSteps().getLast().isFinal()
+                    && simulation.getSteps().size() <= limitTicks
+            ) {
                 try {
                     Simulation.Step draftStep = createDraftStep(simulation);
                     selectAlgorithm(simulation).refineDraftStep(draftStep, simulation);
@@ -78,6 +81,9 @@ public final class Simulator {
                         }
                     }
                     simulation.getSteps().add(draftStep);
+                    if (draftStep.getCells().stream().noneMatch(simulation::isBurning)) {
+                        draftStep.markAsFinal();
+                    }
                 } catch (SimulatorException exception) {
                     return false;
                 }
@@ -98,10 +104,9 @@ public final class Simulator {
             if (factors.equals(cell.getFactors())) {
                 factors = cell.getFactors();
             }
-            Cell.State lastCellState = cell.getState();
-            boolean isDamaged = lastCellState.isDamaged()
-                    || simulation.getConditions().getIgnitionTemperature() < lastCellState.getHeat();
-            Cell.State draftCellState = new Cell.State(lastCellState.getHeat(), lastCellState.getFuel(), isDamaged);
+            Cell.State cellState = cell.getState();
+            boolean isDamaged = cellState.isDamaged() || simulation.isBurning(cell);
+            Cell.State draftCellState = new Cell.State(cellState.getHeat(), cellState.getFuel(), isDamaged);
             Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, factors);
             draftCell.setTwin(cell);
             cell.setTwin(draftCell);
@@ -126,8 +131,7 @@ public final class Simulator {
 
         for (Cell previousCell : lastStep.getCells()) {
             Cell cell = previousCell.getTwin();
-            if (cell.getState().getFuel() == 0
-                    || cell.getState().getHeat() <= simulation.getConditions().getIgnitionTemperature()) {
+            if (cell.getState().getFuel() == 0 || !simulation.isBurning(cell)) {
                 continue;
             }
             for (int offsetX = -1; offsetX <= 1; offsetX++) {
