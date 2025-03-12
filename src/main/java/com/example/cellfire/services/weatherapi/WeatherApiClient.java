@@ -5,8 +5,6 @@ import com.example.cellfire.services.weatherapi.dto.ForecastDayData;
 import com.example.cellfire.services.weatherapi.dto.ForecastResponseData;
 import com.example.cellfire.services.weatherapi.dto.WeatherData;
 import com.google.maps.model.LatLng;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.math.BigDecimal;
@@ -14,13 +12,12 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-@Service
 public final class WeatherApiClient {
     public static final int FORECASTED_DAYS = 3;
     private final String apiKey;
     private final WebClient webClient = WebClient.create();
 
-    public WeatherApiClient(@Value("${WEATHER_API_KEY}") String apiKey) {
+    public WeatherApiClient(String apiKey) {
         this.apiKey = apiKey;
     }
 

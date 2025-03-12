@@ -5,21 +5,19 @@ import com.example.cellfire.models.Grid;
 import com.example.cellfire.models.Weather;
 import com.example.cellfire.services.WeatherService;
 import com.google.maps.model.LatLng;
-import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-//@Service
 public final class WeatherApiService implements WeatherService {
     private static final Grid grid = new Grid(10);
     private static final long timeScale = Duration.ofHours(2).toSeconds();
     private final SortedMap<Long, Map<Coordinates, Weather>> cache = new TreeMap<>();
     private final WeatherApiClient weatherApiClient;
 
-    public WeatherApiService(WeatherApiClient weatherApiClient) {
-        this.weatherApiClient = weatherApiClient;
+    public WeatherApiService(String apiKey) {
+        this.weatherApiClient = new WeatherApiClient(apiKey);
     }
 
     public synchronized Optional<Weather> getWeather(LatLng point, Instant date) {
