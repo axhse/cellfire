@@ -1,6 +1,8 @@
 :root {
   --page-color: #cefbe3;
   --text-color: #008a5c;
+  --href-color: #006470;
+  --visited-href-color: #2f4858;
   --map-border-color: #679c81;
   --map-control-color: rgba(65, 65, 65, 0.2);
   --map-control-header-color: rgba(227, 227, 227, 0.7);
@@ -24,12 +26,43 @@ body {
   font-family: 'MainFont';
 }
 
-h2 {
+h2,
+h3,
+p {
   color: var(--text-color);
+}
+
+h3 {
+  margin-top: 30px;
+  text-align: center;
+}
+
+p {
+  font-weight: bold;
+}
+
+a {
+  color: var(--href-color);
+}
+
+a:visited {
+  color: var(--visited-href-color);
 }
 
 button {
   font-family: 'MainFont';
+}
+
+.section {
+  width: 100%;
+}
+
+.section-header {
+  margin-top: 100px;
+}
+
+.section-header {
+  margin-top: 100px;
 }
 
 .ol-touch .ol-control button {
@@ -140,7 +173,7 @@ button {
 }
 
 #page-container {
-  margin: 5vh 8vw;
+  margin: 5vh 10vw;
   justify-items: center;
 }
 

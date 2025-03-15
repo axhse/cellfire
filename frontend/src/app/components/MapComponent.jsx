@@ -10,7 +10,7 @@ import { Layer, PointerMode } from '../models/Enumerations';
 import { SIGNIFICANT_OVERHEAT } from '../models/Simulation';
 import { SIMULATOR } from '../services/Registry';
 
-export class MapComponent extends Component {
+export default class MapComponent extends Component {
   constructor() {
     super();
     this.mapContainerRef = React.createRef();
