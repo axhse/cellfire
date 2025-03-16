@@ -43,6 +43,7 @@ public final class WeatherApiService implements WeatherService {
             return Optional.empty();
         }
         WeatherForecast forecast = optionalForecast.get();
+        var x = timePointOf(forecast.getForecastStartDate());
         for (int hourIndex = forecast.getHourlyForecastedWeather().size() - 1; 0 <= hourIndex; hourIndex--) {
             long period = Duration.ofHours(hourIndex).toSeconds();
             long hourTimePoint = timePointOf(forecast.getForecastStartDate().plusSeconds(period));
@@ -54,6 +55,10 @@ public final class WeatherApiService implements WeatherService {
             }
             cache.get(hourTimePoint).put(coordinates, forecast.getHourlyForecastedWeather().get(hourIndex));
         }
+        if (!cache.containsKey(currentTimePoint)) {
+            putTimePoint(currentTimePoint);
+        }
+        cache.get(currentTimePoint).put(coordinates, forecast.getFactualWeather());
         return findCached(coordinates, timePoint);
     }
 

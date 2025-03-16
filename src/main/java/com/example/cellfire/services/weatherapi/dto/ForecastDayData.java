@@ -11,7 +11,7 @@ public final class ForecastDayData {
     @JsonProperty("hour")
     private List<WeatherData> hourlyWeather;
 
-    public Instant getDate() {
+    public Instant getLocalDate() {
         return Instant.ofEpochSecond(dateEpoch);
     }
 

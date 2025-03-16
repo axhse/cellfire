@@ -2,11 +2,23 @@ package com.example.cellfire.services.weatherapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.TimeZone;
+
 public final class ForecastResponseData {
+    @JsonProperty("location")
+    private Location location;
     @JsonProperty("current")
     private WeatherData factual;
     @JsonProperty("forecast")
     private ForecastData forecast;
+
+    public TimeZone getTimezoneId() {
+        return TimeZone.getTimeZone(location.timezoneId);
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
 
     public WeatherData getFactual() {
         return factual;
@@ -22,5 +34,14 @@ public final class ForecastResponseData {
 
     public void setForecast(ForecastData forecast) {
         this.forecast = forecast;
+    }
+
+    public final static class Location {
+        @JsonProperty("tz_id")
+        private String timezoneId;
+
+        public void setTimezoneId(String timezoneId) {
+            this.timezoneId = timezoneId;
+        }
     }
 }

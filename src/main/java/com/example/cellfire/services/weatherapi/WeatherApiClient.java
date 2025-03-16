@@ -46,11 +46,15 @@ public final class WeatherApiClient {
 
     private WeatherForecast retrieveForecast(ForecastResponseData response) {
         List<ForecastDayData> forecastDays = response.getForecast().getDays();
-        Instant forecastStartDate = forecastDays.isEmpty() ? null : forecastDays.get(0).getDate();
+        if (forecastDays.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+        Instant startDate = forecastDays.get(0).getLocalDate().minusMillis(response.getTimezoneId().getRawOffset());
         List<Weather> hourlyForecastedWeather = forecastDays.stream()
                 .flatMap(day -> day.getHourlyWeather().stream())
                 .map(WeatherData::getWeather)
                 .toList();
-        return new WeatherForecast(forecastStartDate, hourlyForecastedWeather, response.getFactual().getWeather());
+        Weather factualWeather = response.getFactual().getWeather();
+        return new WeatherForecast(startDate, hourlyForecastedWeather, factualWeather);
     }
 }
