@@ -72,7 +72,6 @@ const LAYER_COLORS = {
     max: new LayerColor(200, 0, 150),
   },
   elevation: {
-    subSea: new LayerColor(0, 0, 200),
     seaLevel: new LayerColor(0, 100, 0),
     hill: new LayerColor(220, 180, 0),
     mountain: new LayerColor(150, 0, 0),
@@ -109,12 +108,6 @@ function gradientOf(minValue, maxValue, colors) {
 class ElevationGradient {
   constructor() {
     this.gradients = [
-      new Gradient(
-        -500,
-        0,
-        LAYER_COLORS.elevation.subSea,
-        LAYER_COLORS.elevation.seaLevel
-      ),
       new Gradient(
         0,
         2000,

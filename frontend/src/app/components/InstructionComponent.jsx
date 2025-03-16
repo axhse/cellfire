@@ -36,8 +36,8 @@ export default function Instruction() {
         from 0 to 1.
       </p>
       <p>
-        The elevation layer colors: blue for areas below -500m, green at sea
-        level, yellow at 2km, red at 4km, and black above 6.4km.
+        The elevation layer colors: green for areas at sea level or below,
+        yellow at 2km, red at 4km, and black above 6.4km.
       </p>
     </div>
   );
