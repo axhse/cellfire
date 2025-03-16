@@ -12,7 +12,7 @@ import java.util.*;
 
 public final class WeatherApiService implements WeatherService {
     private static final Grid grid = new Grid(10);
-    private static final long timeScale = Duration.ofHours(2).toSeconds();
+    private static final long timeScale = Duration.ofHours(1).toSeconds();
     private final SortedMap<Long, Map<Coordinates, Weather>> cache = new TreeMap<>();
     private final WeatherApiClient weatherApiClient;
 
