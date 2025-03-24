@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.1</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>cellfire</artifactId>
@@ -57,17 +57,10 @@
 			<artifactId>spring-webflux</artifactId>
 			<version>6.2.3</version>
 		</dependency>
-
-		<dependency>
-			<groupId>com.google.maps</groupId>
-			<artifactId>google-maps-services</artifactId>
-			<version>2.2.0</version>
-		</dependency>
     </dependencies>
 
 	<build>
 		<plugins>
-			<!-- Плагин для копирования собранных файлов в папку resources/static -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
@@ -80,10 +73,10 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/classes/static</outputDirectory> <!-- Папка для статических ресурсов -->
+							<outputDirectory>${project.build.directory}/classes/static</outputDirectory>
 							<resources>
 								<resource>
-									<directory>frontend/build</directory> <!-- Папка с результатами сборки -->
+									<directory>frontend/build</directory>
 								</resource>
 							</resources>
 						</configuration>

@@ -4,7 +4,6 @@ import com.example.cellfire.algorithms.Algorithm;
 import com.example.cellfire.algorithms.ProbabilisticAlgorithm;
 import com.example.cellfire.algorithms.ThermalAlgorithm;
 import com.example.cellfire.models.*;
-import com.google.maps.model.LatLng;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

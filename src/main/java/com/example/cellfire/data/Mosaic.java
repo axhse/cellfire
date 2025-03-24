@@ -1,6 +1,6 @@
 package com.example.cellfire.data;
 
-import com.google.maps.model.LatLng;
+import com.example.cellfire.models.LatLng;
 
 import java.util.List;
 

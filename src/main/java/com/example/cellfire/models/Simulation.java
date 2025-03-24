@@ -1,7 +1,6 @@
 package com.example.cellfire.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.maps.model.LatLng;
 
 import java.time.Duration;
 import java.time.Instant;

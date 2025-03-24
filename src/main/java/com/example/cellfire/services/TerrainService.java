@@ -1,6 +1,6 @@
 package com.example.cellfire.services;
 
-import com.google.maps.model.LatLng;
+import com.example.cellfire.models.LatLng;
 
 public interface TerrainService {
     double getActivationEnergy(LatLng point);

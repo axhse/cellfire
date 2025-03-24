@@ -1,8 +1,6 @@
 package com.example.cellfire.tuner.experiment;
 
 import com.example.cellfire.algorithms.ThermalAlgorithm;
-import com.example.cellfire.tuner.experiment.TuneCase;
-import com.example.cellfire.tuner.experiment.ModelParameter;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

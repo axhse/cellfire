@@ -1,10 +1,10 @@
 package com.example.cellfire.services.weatherapi;
 
+import com.example.cellfire.models.LatLng;
 import com.example.cellfire.models.Weather;
 import com.example.cellfire.services.weatherapi.dto.ForecastDayData;
 import com.example.cellfire.services.weatherapi.dto.ForecastResponseData;
 import com.example.cellfire.services.weatherapi.dto.WeatherData;
-import com.google.maps.model.LatLng;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.math.BigDecimal;

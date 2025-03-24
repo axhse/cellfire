@@ -1,8 +1,8 @@
 package com.example.cellfire.tuner.services;
 
 import com.example.cellfire.data.ForestTypeConditions;
+import com.example.cellfire.models.LatLng;
 import com.example.cellfire.services.TerrainService;
-import com.google.maps.model.LatLng;
 
 public final class UniformTerrainService implements TerrainService {
     private final int forestType;

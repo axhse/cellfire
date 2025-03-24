@@ -1,9 +1,9 @@
 package com.example.cellfire.tuner.experiment;
 
 import com.example.cellfire.algorithms.ThermalAlgorithm;
+import com.example.cellfire.models.LatLng;
 import com.example.cellfire.models.Simulation;
 import com.example.cellfire.services.Simulator;
-import com.google.maps.model.LatLng;
 
 import java.time.Duration;
 import java.time.Instant;

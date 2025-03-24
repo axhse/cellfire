@@ -1,8 +1,8 @@
 package com.example.cellfire.tuner.services;
 
+import com.example.cellfire.models.LatLng;
 import com.example.cellfire.models.Weather;
 import com.example.cellfire.services.WeatherService;
-import com.google.maps.model.LatLng;
 
 import java.time.Instant;
 import java.util.Optional;

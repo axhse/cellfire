@@ -1,6 +1,6 @@
 package com.example.cellfire.api.params;
 
-import com.google.maps.model.LatLng;
+import com.example.cellfire.models.LatLng;
 
 public final class SimulationCreationParams {
     private final double[] startLonLat;

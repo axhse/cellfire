@@ -3,7 +3,7 @@ package com.example.cellfire;
 import com.example.cellfire.data.FullSmoothMap;
 import com.example.cellfire.data.MapFragment;
 import com.example.cellfire.data.SmoothMapFragment;
-import com.google.maps.model.LatLng;
+import com.example.cellfire.models.LatLng;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -3,7 +3,7 @@ package com.example.cellfire.services;
 import com.example.cellfire.data.ForestTypeConditions;
 import com.example.cellfire.data.ResourceLoader;
 import com.example.cellfire.data.Mosaic;
-import com.google.maps.model.LatLng;
+import com.example.cellfire.models.LatLng;
 import org.springframework.stereotype.Service;
 
 @Service

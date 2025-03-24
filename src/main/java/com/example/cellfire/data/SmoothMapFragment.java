@@ -1,6 +1,6 @@
 package com.example.cellfire.data;
 
-import com.google.maps.model.LatLng;
+import com.example.cellfire.models.LatLng;
 
 public class SmoothMapFragment extends MapFragment {
     public SmoothMapFragment(byte[][] data, int scale, int x, int y, int width, int height) {

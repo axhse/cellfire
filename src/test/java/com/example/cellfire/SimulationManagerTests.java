@@ -2,12 +2,12 @@ package com.example.cellfire;
 
 import com.example.cellfire.algorithms.ThermalAlgorithm;
 import com.example.cellfire.data.ForestTypeConditions;
+import com.example.cellfire.models.LatLng;
 import com.example.cellfire.models.Simulation;
 import com.example.cellfire.services.SimulationManager;
 import com.example.cellfire.services.Simulator;
 import com.example.cellfire.tuner.services.UniformTerrainService;
 import com.example.cellfire.tuner.services.UniformWeatherService;
-import com.google.maps.model.LatLng;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
