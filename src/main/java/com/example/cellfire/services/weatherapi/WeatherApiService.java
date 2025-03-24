@@ -8,16 +8,23 @@ import com.google.maps.model.LatLng;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public final class WeatherApiService implements WeatherService {
-    private static final Grid grid = new Grid(10);
-    private static final long timeScale = Duration.ofHours(1).toSeconds();
+    private static final Grid GRID = new Grid(20);
+    private static final long TIME_SCALE = Duration.ofHours(1).toSeconds();
+    public final int monthlyRequestLimit;
     private final SortedMap<Long, Map<Coordinates, Weather>> cache = new TreeMap<>();
     private final WeatherApiClient weatherApiClient;
+    public long monthIndex = 0;
+    public int requestCount = 0;
 
-    public WeatherApiService(String apiKey) {
+    public WeatherApiService(String apiKey, int monthlyRequestLimit) {
         this.weatherApiClient = new WeatherApiClient(apiKey);
+        this.monthlyRequestLimit = monthlyRequestLimit;
     }
 
     public synchronized Optional<Weather> getWeather(LatLng point, Instant date) {
@@ -38,12 +45,11 @@ public final class WeatherApiService implements WeatherService {
         if (cachedWeather.isPresent()) {
             return cachedWeather;
         }
-        Optional<WeatherForecast> optionalForecast = weatherApiClient.requestForecast(point);
+        Optional<WeatherForecast> optionalForecast = requestForecast(point);
         if (optionalForecast.isEmpty()) {
             return Optional.empty();
         }
         WeatherForecast forecast = optionalForecast.get();
-        var x = timePointOf(forecast.getForecastStartDate());
         for (int hourIndex = forecast.getHourlyForecastedWeather().size() - 1; 0 <= hourIndex; hourIndex--) {
             long period = Duration.ofHours(hourIndex).toSeconds();
             long hourTimePoint = timePointOf(forecast.getForecastStartDate().plusSeconds(period));
@@ -60,6 +66,22 @@ public final class WeatherApiService implements WeatherService {
         }
         cache.get(currentTimePoint).put(coordinates, forecast.getFactualWeather());
         return findCached(coordinates, timePoint);
+    }
+
+    private Optional<WeatherForecast> requestForecast(LatLng point) {
+        long currentMonthIndex = ChronoUnit.MONTHS.between(
+                LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC),
+                LocalDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC)
+        );
+        if (currentMonthIndex > monthIndex) {
+            monthIndex = currentMonthIndex;
+            requestCount = 0;
+        }
+        if (0 <= monthlyRequestLimit && monthlyRequestLimit <= requestCount) {
+            return Optional.empty();
+        }
+        requestCount++;
+        return weatherApiClient.requestForecast(point);
     }
 
     private void putTimePoint(long timePoint) {
@@ -84,10 +106,10 @@ public final class WeatherApiService implements WeatherService {
     }
 
     private Coordinates coordinatesOf(LatLng point) {
-        return grid.coordinatesOf(point);
+        return GRID.coordinatesOf(point);
     }
 
     private long timePointOf(Instant date) {
-        return date.getEpochSecond() / timeScale;
+        return date.getEpochSecond() / TIME_SCALE;
     }
 }
