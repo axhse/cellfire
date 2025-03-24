@@ -8,7 +8,7 @@ import java.util.List;
 public final class ThermalAlgorithm implements Algorithm {
     public static final double DEFAULT_COMBUSTION_INTENSITY = 20000;
     public static final double DEFAULT_ENERGY_EMISSION = 33000;
-    public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 4.5;
+    public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 4;
     /**
      * 3.5 in some research.
      */
@@ -24,8 +24,7 @@ public final class ThermalAlgorithm implements Algorithm {
     private static final double UNIVERSAL_GAS_CONSTANT = 8.3;
     private static final double CELSIUS_ZERO_TEMPERATURE = 273;
 
-    private static final double HEAT_EXCHANGE_ITERATION_FRACTION = 0.2;
-    private static final double HEAT_CHANGE_LIMIT = 0.1;
+    private static final double HEAT_CHANGE_LIMIT = 0.15;
 
     private final double combustionIntensity;
     private final double energyEmission;
@@ -153,7 +152,7 @@ public final class ThermalAlgorithm implements Algorithm {
         double phase = 0;
         while (phase < 0.999) {
             double heatChangeRate = -radiationPrevalence * Math.pow(heat, 4) - heat + airTemperature;
-            double phaseFraction = HEAT_EXCHANGE_ITERATION_FRACTION;
+            double phaseFraction = 1;
             double iterationDuration = phaseFraction * heatRegulationDuration;
             double heatChange = heatChangeRate * iterationDuration;
             if (Math.abs(heatChange) > heat * HEAT_CHANGE_LIMIT) {

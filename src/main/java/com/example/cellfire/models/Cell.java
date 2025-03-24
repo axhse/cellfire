@@ -100,7 +100,7 @@ public final class Cell {
     }
 
     public static final class Factors extends Weather {
-        private final byte elevation;
+        private final short elevation;
 
         public Factors(double elevation, Weather weather) {
             super(weather.getAirTemperature(), weather.getAirHumidity(), weather.getWindX(), weather.getWindY());
@@ -129,12 +129,13 @@ public final class Cell {
             return decompressElevation(elevation);
         }
 
-        private static byte compressElevation(double elevation) {
-            return (byte) Math.round(elevation / 6400 * 255);
+        private static short compressElevation(double elevation) {
+            elevation = Math.max(0, Math.min(elevation, 6400));
+            return (byte) Math.round(elevation / 6400 * Short.MAX_VALUE);
         }
 
-        private static double decompressElevation(byte elevation) {
-            return (((int) elevation) & 0xFF) * 6400.0 / 255;
+        private static double decompressElevation(short elevation) {
+            return elevation * 6400.0 / Short.MAX_VALUE;
         }
     }
 }

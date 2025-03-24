@@ -73,6 +73,6 @@ public class Weather {
     }
 
     private static byte compactToByte(long value) {
-        return (byte) Math.max(Byte.MIN_VALUE, Math.min(Byte.MAX_VALUE, value));
+        return (byte) Math.max(Byte.MIN_VALUE, Math.min(value, Byte.MAX_VALUE));
     }
 }
