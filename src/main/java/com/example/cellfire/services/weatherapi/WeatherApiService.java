@@ -27,11 +27,13 @@ public final class WeatherApiService implements WeatherService {
         this.monthlyRequestLimit = monthlyRequestLimit;
     }
 
-    public synchronized Optional<Weather> getWeather(LatLng point, Instant date) {
+    public Optional<Weather> getWeather(LatLng point, Instant date) {
         Coordinates coordinates = coordinatesOf(point);
         long currentTimePoint = timePointOf(Instant.now());
-        while (!cache.isEmpty() && cache.firstKey() < currentTimePoint) {
-            cache.remove(cache.firstKey());
+        synchronized (cache) {
+            while (!cache.isEmpty() && cache.firstKey() < currentTimePoint) {
+                cache.remove(cache.firstKey());
+            }
         }
         // If given date is beyond forecast period, weather at the latest forecasted moment is returned.
         long timePoint = Math.min(timePointOf(date), determineLatestTimePoint());
@@ -56,15 +58,19 @@ public final class WeatherApiService implements WeatherService {
             if (hourTimePoint < currentTimePoint) {
                 break;
             }
-            if (!cache.containsKey(hourTimePoint)) {
-                putTimePoint(hourTimePoint);
+            synchronized (cache) {
+                if (!cache.containsKey(hourTimePoint)) {
+                    putTimePoint(hourTimePoint);
+                }
+                cache.get(hourTimePoint).put(coordinates, forecast.getHourlyForecastedWeather().get(hourIndex));
             }
-            cache.get(hourTimePoint).put(coordinates, forecast.getHourlyForecastedWeather().get(hourIndex));
         }
-        if (!cache.containsKey(currentTimePoint)) {
-            putTimePoint(currentTimePoint);
+        synchronized (cache) {
+            if (!cache.containsKey(currentTimePoint)) {
+                putTimePoint(currentTimePoint);
+            }
+            cache.get(currentTimePoint).put(coordinates, forecast.getFactualWeather());
         }
-        cache.get(currentTimePoint).put(coordinates, forecast.getFactualWeather());
         return findCached(coordinates, timePoint);
     }
 
@@ -85,14 +91,18 @@ public final class WeatherApiService implements WeatherService {
     }
 
     private void putTimePoint(long timePoint) {
-        cache.put(timePoint, new HashMap<>());
+        synchronized (cache) {
+            cache.put(timePoint, new HashMap<>());
+        }
     }
 
     private Optional<Weather> findCached(Coordinates coordinates, long timePoint) {
-        if (cache.containsKey(timePoint)) {
-            Map<Coordinates, Weather> serialData = cache.get(timePoint);
-            if (serialData.containsKey(coordinates)) {
-                return Optional.of(serialData.get(coordinates));
+        synchronized (cache) {
+            if (cache.containsKey(timePoint)) {
+                Map<Coordinates, Weather> serialData = cache.get(timePoint);
+                if (serialData.containsKey(coordinates)) {
+                    return Optional.of(serialData.get(coordinates));
+                }
             }
         }
         return Optional.empty();
