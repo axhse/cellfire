@@ -1,13 +1,13 @@
-import { Grid } from '../../models/Grid';
-import { Simulation } from '../../models/Simulation';
-import { Timeline } from '../../models/Timeline';
+import { Grid } from "../../models/Grid";
+import { Simulation } from "../../models/Simulation";
+import { Timeline } from "../../models/Timeline";
 
 export class Simulator {
   async createSimulation(startLonLat, algorithm) {
     const stepDurationMs = 30 * 60 * 1000;
     const limitTicks = (7 * 24 * 60 * 60 * 1000) / stepDurationMs;
     const startDate = new Date(
-      ((new Date().valueOf() / stepDurationMs) >> 0) * stepDurationMs
+      ((new Date().valueOf() / stepDurationMs) >> 0) * stepDurationMs,
     );
     const gridScale = 200;
     const startCoordinates = {
@@ -18,11 +18,11 @@ export class Simulator {
       return undefined;
     }
     const simulation = new Simulation(
-      'DEMO-SIMULATION',
+      "DEMO-SIMULATION",
       new Grid(gridScale, startCoordinates),
       new Timeline(startDate, stepDurationMs, limitTicks),
       { ignitionTemperature: 280 },
-      algorithm
+      algorithm,
     );
     this.progressSimulation(simulation, 0);
     return simulation;
@@ -44,7 +44,7 @@ export class Simulator {
       const step = produceDemoSimulationStep(
         simulation.grid.startCoordinates,
         wantedTick,
-        wantedTick === finalTick
+        wantedTick === finalTick,
       );
       simulation.appendSteps([step], wantedTick);
     }
@@ -61,7 +61,7 @@ function produceDemoSimulationStep(startCoordinates, tick, final) {
         demoCells.push(produceDemoCell(startCoordinates, tick, -x, y, final));
         if (y > 0) {
           demoCells.push(
-            produceDemoCell(startCoordinates, tick, -x, -y, final)
+            produceDemoCell(startCoordinates, tick, -x, -y, final),
           );
         }
       }

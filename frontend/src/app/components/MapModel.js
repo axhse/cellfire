@@ -1,17 +1,17 @@
-import { Map as OLMap, View } from 'ol';
-import TileLayer from 'ol/layer/Tile';
-import OSM from 'ol/source/OSM';
-import { fromLonLat } from 'ol/proj';
-import VectorLayer from 'ol/layer/Vector';
-import VectorSource from 'ol/source/Vector';
-import Control from 'ol/control/Control';
+import { Map as OLMap, View } from "ol";
+import TileLayer from "ol/layer/Tile";
+import OSM from "ol/source/OSM";
+import { fromLonLat } from "ol/proj";
+import VectorLayer from "ol/layer/Vector";
+import VectorSource from "ol/source/Vector";
+import Control from "ol/control/Control";
 
 import {
   InfoControl,
   LayerControl,
   SimulationControl,
   TimelineControl,
-} from './MapControl';
+} from "./MapControl";
 
 const INITIAL_MAP_CENTER = [49.7, 37];
 const INITIAL_MAP_ZOOM = 10;
@@ -36,7 +36,7 @@ export function MapModel(tools) {
   const center = fromLonLat(INITIAL_MAP_CENTER);
   olMap.setView(new View({ center, zoom: INITIAL_MAP_ZOOM }));
 
-  olMap.on('singleclick', tools.handleMapClick);
+  olMap.on("singleclick", tools.handleMapClick);
 
   return { olMap, vectorSource, coreControls, runtimeControls };
 }

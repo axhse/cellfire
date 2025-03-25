@@ -52,19 +52,19 @@ export class Simulation {
 
   getBurnedCells() {
     return this.getSimulatedCells().filter(
-      (cell) => cell.state.damaged && !this.isBurning(cell)
+      (cell) => cell.state.damaged && !this.isBurning(cell),
     );
   }
 
   getIgnitingCells() {
     return this.getSimulatedCells().filter(
-      (cell) => !cell.state.damaged && !this.isBurning(cell)
+      (cell) => !cell.state.damaged && !this.isBurning(cell),
     );
   }
 
   getUnburnedCells() {
     return this.getSimulatedCells().filter(
-      (cell) => !cell.state.damaged || this.isBurning(cell)
+      (cell) => !cell.state.damaged || this.isBurning(cell),
     );
   }
 

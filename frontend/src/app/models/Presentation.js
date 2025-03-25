@@ -5,23 +5,23 @@ export function capitalizeText(text) {
 export function describeTimePeriod(period, verbose = true) {
   const sign = period < 0 ? -1 : 1;
   period *= sign;
-  let description = '';
+  let description = "";
   let sections = 0;
   const units = [
-    [verbose ? 'day' : 'd', 24 * 60],
-    [verbose ? 'hour' : 'h', 60],
-    [verbose ? 'minute' : 'm', 1],
+    [verbose ? "day" : "d", 24 * 60],
+    [verbose ? "hour" : "h", 60],
+    [verbose ? "minute" : "m", 1],
   ];
   for (const [unitName, unitMin] of units) {
     const unit = unitMin * 60 * 1000;
-    if (unit <= period || (sections === 0 && unitName[0] === 'm')) {
+    if (unit <= period || (sections === 0 && unitName[0] === "m")) {
       const amount = Math.floor(period / unit);
       period -= amount * unit;
       sections += 1;
-      description += ` ${amount}${verbose ? ' ' : ''}${unitName}${verbose && amount !== 1 ? 's' : ''}`;
+      description += ` ${amount}${verbose ? " " : ""}${unitName}${verbose && amount !== 1 ? "s" : ""}`;
     }
   }
-  return `${sign < 0 ? '-' : '+'}${verbose || sections > 1 ? ' ' : ''}${description.slice(1)}`;
+  return `${sign < 0 ? "-" : "+"}${verbose || sections > 1 ? " " : ""}${description.slice(1)}`;
 }
 
 export function formatDate(date) {
@@ -29,5 +29,5 @@ export function formatDate(date) {
 }
 
 function as2digits(unsignedIntNumber) {
-  return String(unsignedIntNumber).padStart(2, '0');
+  return String(unsignedIntNumber).padStart(2, "0");
 }

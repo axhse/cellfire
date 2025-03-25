@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
 export default function Instruction() {
   return (
-    <div className='section'>
+    <div className="section">
       <h3>Quick Start</h3>
       <p>
         To start a simulation, activate the lighter button 🔥 and select a point

@@ -1,4 +1,4 @@
-import { Indicator } from '../models/Enumerations';
+import { Indicator } from "../models/Enumerations";
 
 class Color {
   constructor(r, g, b, a) {
@@ -86,7 +86,7 @@ class Gradient {
     this.maxValue = maxValue;
     this.baseColor = minColor;
     this.colorRange = new Color(
-      ...[0, 1, 2, 3].map((i) => maxColor.rgba()[i] - minColor.rgba()[i])
+      ...[0, 1, 2, 3].map((i) => maxColor.rgba()[i] - minColor.rgba()[i]),
     );
   }
 
@@ -94,7 +94,7 @@ class Gradient {
     let gradient = (value - this.baseValue) / this.valueRange;
     gradient = Math.max(0, Math.min(1, gradient));
     let rgba = [0, 1, 2, 3].map(
-      (i) => this.baseColor.rgba()[i] + this.colorRange.rgba()[i] * gradient
+      (i) => this.baseColor.rgba()[i] + this.colorRange.rgba()[i] * gradient,
     );
     rgba = [...rgba.slice(0, 3).map(Math.round), rgba[3]];
     return new Color(...rgba);
@@ -112,19 +112,19 @@ class ElevationGradient {
         0,
         2000,
         LAYER_COLORS.elevation.seaLevel,
-        LAYER_COLORS.elevation.hill
+        LAYER_COLORS.elevation.hill,
       ),
       new Gradient(
         2000,
         4000,
         LAYER_COLORS.elevation.hill,
-        LAYER_COLORS.elevation.mountain
+        LAYER_COLORS.elevation.mountain,
       ),
       new Gradient(
         4000,
         6400,
         LAYER_COLORS.elevation.mountain,
-        LAYER_COLORS.elevation.peak
+        LAYER_COLORS.elevation.peak,
       ),
     ];
   }
@@ -151,7 +151,7 @@ export class IndicatorGradient {
     this.backgroundGradient = gradientOf(
       minValue,
       maxValue,
-      INDICATOR_COLORS.background
+      INDICATOR_COLORS.background,
     );
   }
 

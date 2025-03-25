@@ -1,6 +1,6 @@
-import Feature from 'ol/Feature';
-import Polygon from 'ol/geom/Polygon';
-import { fromLonLat } from 'ol/proj';
+import Feature from "ol/Feature";
+import Polygon from "ol/geom/Polygon";
+import { fromLonLat } from "ol/proj";
 
 export class Grid {
   constructor(scale, startCoordinates) {

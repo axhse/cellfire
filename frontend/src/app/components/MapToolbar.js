@@ -3,19 +3,19 @@ import {
   getCellCounterId,
   getLayerToggleId,
   getTickShifterId,
-} from './MapControl';
-import { INDICATOR_GRADIENTS } from './MapTheme';
+} from "./MapControl";
+import { INDICATOR_GRADIENTS } from "./MapTheme";
 import {
   Algorithm,
   Indicator,
   Layer,
   PointerMode,
-} from '../models/Enumerations';
+} from "../models/Enumerations";
 import {
   capitalizeText,
   describeTimePeriod,
   formatDate,
-} from '../models/Presentation';
+} from "../models/Presentation";
 
 export class MapToolbar {
   constructor(runtimeControls) {
@@ -42,8 +42,8 @@ export class MapToolbar {
 
   configureInfoControl(simulation) {
     setLabelContent(
-      'label-active-algorithm',
-      `Active algorithm: ${capitalizeText(simulation.algorithm)}`
+      "label-active-algorithm",
+      `Active algorithm: ${capitalizeText(simulation.algorithm)}`,
     );
   }
 
@@ -53,12 +53,12 @@ export class MapToolbar {
       const tickShifterId = getTickShifterId(tickDelta);
       const tickShifter = document.getElementById(tickShifterId);
       tickShifter.innerHTML = `${describeTimePeriod(period, false)}`;
-      tickShifter.title = `${tickDelta < 0 ? 'Rewind' : 'Advance'} simulation by ${describeTimePeriod(period).slice(2)}`;
+      tickShifter.title = `${tickDelta < 0 ? "Rewind" : "Advance"} simulation by ${describeTimePeriod(period).slice(2)}`;
       if (tickDelta < 0) {
         setElementAvailability(getTickShifterId(tickDelta), false);
       }
     }
-    setTimelineDate('label-start-date', 'Start', timeline.startDate);
+    setTimelineDate("label-start-date", "Start", timeline.startDate);
   }
 
   updateControls(simulation) {
@@ -71,7 +71,7 @@ export class MapToolbar {
     setCellCounters(
       simulation.getBurningCells().length,
       simulation.getIgnitingCells().length,
-      simulation.getBurnedCells().length
+      simulation.getBurnedCells().length,
     );
     setAirTemperature(simulation.calculateAverageAirTemperature());
     setAirHumidity(simulation.calculateAverageAirHumidity());
@@ -92,62 +92,62 @@ export class MapToolbar {
     setTimelinePeriod(simulatedPeriod);
     const startTs = timeline.startDate.valueOf();
     const simulatedDate = new Date(startTs + simulatedPeriod);
-    setTimelineDate('label-simulated-date', 'In-simulation', simulatedDate);
+    setTimelineDate("label-simulated-date", "In-simulation", simulatedDate);
   }
 
   setPointerMode(pointerMode) {
     this.pointerMode = pointerMode;
     const isLighter = pointerMode === PointerMode.Lighter;
-    switchElementClass('map-container', 'lighter-pointer', isLighter);
+    switchElementClass("map-container", "lighter-pointer", isLighter);
   }
 
   switchAlgorithm() {
     this.selectAlgorithm(
       this.algorithm === Algorithm.Thermal
         ? Algorithm.Probabilistic
-        : Algorithm.Thermal
+        : Algorithm.Thermal,
     );
   }
 
   selectAlgorithm(selectedAlgorithm) {
     this.algorithm = selectedAlgorithm;
-    setLabelContent('algorithm-switch', capitalizeText(selectedAlgorithm));
+    setLabelContent("algorithm-switch", capitalizeText(selectedAlgorithm));
   }
 
   selectLayer(selectedLayer) {
     this.layer = selectedLayer;
     for (const layer of Object.values(Layer)) {
       const toggleId = getLayerToggleId(layer);
-      switchElementClass(toggleId, 'selected', layer === selectedLayer);
+      switchElementClass(toggleId, "selected", layer === selectedLayer);
     }
   }
 }
 
 function nameRangeSection(value, moderateThreshold, highThreshold) {
   if (highThreshold <= value) {
-    return 'high';
+    return "high";
   }
   if (moderateThreshold <= value) {
-    return 'moderate';
+    return "moderate";
   }
-  return 'low';
+  return "low";
 }
 
 function setDamagedArea(damagedArea) {
   const content = `Damaged area: ${Math.round(damagedArea / 10000)} ha`;
-  setLabelContent('label-damaged-area', content);
+  setLabelContent("label-damaged-area", content);
 }
 
 function setCellCounters(burningCount, ignitingCount, burnedCount) {
   const cellStateCounts = [
-    ['burning', burningCount],
-    ['igniting', ignitingCount],
-    ['burned', burnedCount],
+    ["burning", burningCount],
+    ["igniting", ignitingCount],
+    ["burned", burnedCount],
   ];
   for (const [name, value] of cellStateCounts) {
     setLabelContent(
       getCellCounterId(name),
-      `- ${capitalizeText(name)}: ${value}`
+      `- ${capitalizeText(name)}: ${value}`,
     );
   }
 }
@@ -179,7 +179,7 @@ function setWindSpeed(roundedWindSpeed) {
 }
 
 function setWindDirection(windAngle, roundedWindSpeed) {
-  const icon = document.getElementById('wind-direction-icon');
+  const icon = document.getElementById("wind-direction-icon");
   const gradient = INDICATOR_GRADIENTS[Indicator.WindSpeed];
   icon.style.color = gradient.textFor(roundedWindSpeed).css();
   icon.style.transform = `rotate(${-windAngle.toFixed(3)}rad)`;
@@ -216,7 +216,7 @@ function setIndicator(indicator, value, content, title) {
 }
 
 function setTimelinePeriod(period) {
-  setLabelContent('label-period', describeTimePeriod(period));
+  setLabelContent("label-period", describeTimePeriod(period));
 }
 
 function setTimelineDate(dateLabelId, dateTitle, date) {

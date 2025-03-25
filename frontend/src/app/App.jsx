@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-import AppPage from './components/AppPage';
+import AppPage from "./components/AppPage";
 
 function App() {
   return <AppPage />;

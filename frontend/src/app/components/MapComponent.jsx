@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
-import { toLonLat } from 'ol/proj';
-import { Fill, Stroke, Style } from 'ol/style';
+import { toLonLat } from "ol/proj";
+import { Fill, Stroke, Style } from "ol/style";
 
-import { MapModel } from './MapModel';
-import { LayerGradients, START_RECTANGLE_STROKE_COLOR } from './MapTheme';
-import { MapToolbar } from './MapToolbar';
-import { Layer, PointerMode } from '../models/Enumerations';
-import { SIGNIFICANT_OVERHEAT } from '../models/Simulation';
-import { SIMULATOR } from '../services/Registry';
+import { MapModel } from "./MapModel";
+import { LayerGradients, START_RECTANGLE_STROKE_COLOR } from "./MapTheme";
+import { MapToolbar } from "./MapToolbar";
+import { Layer, PointerMode } from "../models/Enumerations";
+import { SIGNIFICANT_OVERHEAT } from "../models/Simulation";
+import { SIMULATOR } from "../services/Registry";
 
 export default class MapComponent extends Component {
   constructor() {
@@ -25,7 +25,7 @@ export default class MapComponent extends Component {
   }
 
   render() {
-    return <div id='map-container' ref={this.mapContainerRef}></div>;
+    return <div id="map-container" ref={this.mapContainerRef}></div>;
   }
 
   createTools() {
@@ -54,7 +54,7 @@ export default class MapComponent extends Component {
     this.toolbar.setPointerMode(PointerMode.Regular);
     this.simulation = await SIMULATOR.createSimulation(
       toLonLat(event.coordinate),
-      this.toolbar.algorithm
+      this.toolbar.algorithm,
     );
     if (this.simulation === undefined) {
       this.model.vectorSource.clear();

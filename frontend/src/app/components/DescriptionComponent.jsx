@@ -1,10 +1,10 @@
-import React from 'react';
+import React from "react";
 
-import { InlineMath } from 'react-katex';
+import { InlineMath } from "react-katex";
 
 export default function Description() {
   return (
-    <div className='section'>
+    <div className="section">
       <h3>Simulation Model</h3>
       <p>
         The simulation is based on real weather conditions, landscape features,
@@ -15,7 +15,7 @@ export default function Description() {
       <h3>Cellular Automaton Model</h3>
       <p>
         The automaton operates on a geographical grid, with each cell measuring
-        1/200th of a degree (grid scale: <InlineMath math={'S=200'} />
+        1/200th of a degree (grid scale: <InlineMath math={"S=200"} />
         ).
       </p>
       <p>The time interval between automaton states is 30 minutes.</p>
@@ -40,15 +40,15 @@ export default function Description() {
       <p>The automaton state transition occurs in 3 steps.</p>
       <p>
         First, burning cells combust at a rate calculated using the Arrhenius
-        equation: <InlineMath math={'k = A e^{-\\frac{E_a}{RT}}'} />
+        equation: <InlineMath math={"k = A e^{-\\frac{E_a}{RT}}"} />
       </p>
       <p>
-        The air humidity <InlineMath math={'a'} /> affects combustion rate with
-        the effect <InlineMath math={'e^{\\beta_a a}'} />.
+        The air humidity <InlineMath math={"a"} /> affects combustion rate with
+        the effect <InlineMath math={"e^{\\beta_a a}"} />.
       </p>
       <p>
-        A fraction <InlineMath math={'f = \\min(1, k e^{\\beta_a a} \\tau)'} />{' '}
-        of the fuel is consumed, where <InlineMath math={'\\tau'} /> is the step
+        A fraction <InlineMath math={"f = \\min(1, k e^{\\beta_a a} \\tau)"} />{" "}
+        of the fuel is consumed, where <InlineMath math={"\\tau"} /> is the step
         duration.
       </p>
       <p>
@@ -63,24 +63,24 @@ export default function Description() {
         distance between the centers of the cells.
       </p>
       <p>
-        To account for the grid scale, the proximity is divided by{' '}
-        <InlineMath math={'\\beta_S S'} /> — proximity to neighboring cells
+        To account for the grid scale, the proximity is divided by{" "}
+        <InlineMath math={"\\beta_S S"} /> — proximity to neighboring cells
         depends linearly on grid scale compared to proximity within the cell.
       </p>
       <p>
-        Wind speed in the direction between cells <InlineMath math={'w'} />{' '}
-        affects proximity with the effect <InlineMath math={'e^{\\beta_w w}'} />
+        Wind speed in the direction between cells <InlineMath math={"w"} />{" "}
+        affects proximity with the effect <InlineMath math={"e^{\\beta_w w}"} />
         .
       </p>
       <p>
-        The slope angle between cells <InlineMath math={'\\phi'} /> affects
-        proximity with the effect <InlineMath math={'e^{\\beta_\\phi \\phi}'} />
+        The slope angle between cells <InlineMath math={"\\phi"} /> affects
+        proximity with the effect <InlineMath math={"e^{\\beta_\\phi \\phi}"} />
         .
       </p>
       <p>
-        Finally, cells cool down according to the Stefan-Boltzmann law:{' '}
-        <InlineMath math={'dT = -\\beta_r T^4'} /> and Newton&apos;s law of
-        cooling: <InlineMath math={'dT = -\\beta_c (T - T_{env})'} />.
+        Finally, cells cool down according to the Stefan-Boltzmann law:{" "}
+        <InlineMath math={"dT = -\\beta_r T^4"} /> and Newton&apos;s law of
+        cooling: <InlineMath math={"dT = -\\beta_c (T - T_{env})"} />.
       </p>
 
       <h3>Input Data</h3>
@@ -90,15 +90,15 @@ export default function Description() {
       </p>
       <p>These maps are derived from open datasets.</p>
       <p>
-        The elevation map uses the{' '}
-        <a href='https://visibleearth.nasa.gov/images/73934/topography/83040l'>
+        The elevation map uses the{" "}
+        <a href="https://visibleearth.nasa.gov/images/73934/topography/83040l">
           Topography map
         </a>
         .
       </p>
       <p>
-        The forest type map is derived from the{' '}
-        <a href='https://no.m.wikipedia.org/wiki/Fil:Land_cover_IGBP.png'>
+        The forest type map is derived from the{" "}
+        <a href="https://no.m.wikipedia.org/wiki/Fil:Land_cover_IGBP.png">
           Land cover IGBP map
         </a>
         . For each point on the globe, one of five forest types is assigned
@@ -106,8 +106,8 @@ export default function Description() {
         different types have varying activation energies for burning.
       </p>
       <p>
-        The forest density map is based on the{' '}
-        <a href='https://nlang.users.earthengine.app/view/global-canopy-height-2020'>
+        The forest density map is based on the{" "}
+        <a href="https://nlang.users.earthengine.app/view/global-canopy-height-2020">
           Canopy height map
         </a>
         . Forest density at each point is calculated from canopy height using
@@ -116,7 +116,7 @@ export default function Description() {
       <p>
         <InlineMath
           math={
-            'd(h) = \\begin{cases} 1, & h > 15 \\\\ \\frac{h}{15}, & 5 < h \\leq 15 \\\\ \\frac{h^2}{75}, & h \\leq 5 \\end{cases}'
+            "d(h) = \\begin{cases} 1, & h > 15 \\\\ \\frac{h}{15}, & 5 < h \\leq 15 \\\\ \\frac{h^2}{75}, & h \\leq 5 \\end{cases}"
           }
         />
       </p>
