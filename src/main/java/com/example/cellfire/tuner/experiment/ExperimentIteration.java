@@ -4,15 +4,15 @@ import java.util.List;
 
 public final class ExperimentIteration {
     private final List<Integer> parameterValueIndices;
-    private final List<TuneCase.ModelScore> caseScores;
+    private final List<Criterion.ModelScore> caseScores;
     private final int failureCount;
     private final double totalScore;
 
-    public ExperimentIteration(List<Integer> parameterValueIndices, List<TuneCase.ModelScore> caseScores) {
+    public ExperimentIteration(List<Integer> parameterValueIndices, List<Criterion.ModelScore> caseScores) {
         this.parameterValueIndices = parameterValueIndices;
         this.caseScores = caseScores;
-        this.failureCount = (int) caseScores.stream().filter(TuneCase.ModelScore::isFailure).count();
-        this.totalScore = caseScores.stream().filter(TuneCase.ModelScore::isSuccess).map(TuneCase.ModelScore::getScore).reduce(0.0, Double::sum);
+        this.failureCount = (int) caseScores.stream().filter(Criterion.ModelScore::isFailure).count();
+        this.totalScore = caseScores.stream().filter(Criterion.ModelScore::isSuccess).map(Criterion.ModelScore::getScore).reduce(0.0, Double::sum);
     }
 
     public static int compareByScore(ExperimentIteration iteration1, ExperimentIteration iteration2) {
@@ -29,7 +29,7 @@ public final class ExperimentIteration {
         return parameterValueIndices;
     }
 
-    public List<TuneCase.ModelScore> getCaseScores() {
+    public List<Criterion.ModelScore> getCaseScores() {
         return caseScores;
     }
 

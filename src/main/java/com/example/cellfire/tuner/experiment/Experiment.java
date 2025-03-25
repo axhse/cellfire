@@ -24,7 +24,7 @@ public final class Experiment {
         List<ExperimentIteration> iterations = new ArrayList<>(iterationQuantity);
         for (int iterationIndex = 0; iterationIndex < iterationQuantity; iterationIndex++) {
             int n = iterationIndex;
-            List<TuneCase.ModelScore> caseScores = new ArrayList<>();
+            List<Criterion.ModelScore> caseScores = new ArrayList<>();
             List<Double> parameterValues = new ArrayList<>();
             List<Integer> parameterValueIndices = new ArrayList<>();
             for (ModelParameter parameter : tuneTask.getParameters()) {
@@ -37,8 +37,8 @@ public final class Experiment {
             ThermalAlgorithm algorithm = new ThermalAlgorithm(
                     parameterValues.stream().mapToDouble(Double::doubleValue).toArray()
             );
-            for (TuneCase tuneCase : tuneTask.getTuneCases()) {
-                TuneCase.ModelScore modelScore = tuneCase.evaluate(algorithm);
+            for (Criterion criterion : tuneTask.getCriteria()) {
+                Criterion.ModelScore modelScore = criterion.assess(algorithm);
                 caseScores.add(modelScore);
                 if (modelScore.isFailure() && isFastToFail) {
                     break;

@@ -11,12 +11,12 @@ import java.util.List;
 
 public final class TuneTask {
     private final String name;
-    private final List<TuneCase> tuneCases;
+    private final List<Criterion> criteria;
     private final List<ModelParameter> parameters;
 
-    public TuneTask(String name, List<TuneCase> tuneCases, List<ModelParameter> targetParameters) {
+    public TuneTask(String name, List<Criterion> criteria, List<ModelParameter> targetParameters) {
         this.name = name;
-        this.tuneCases = tuneCases;
+        this.criteria = criteria;
         this.parameters = specifyParameters(targetParameters);
     }
 
@@ -24,8 +24,8 @@ public final class TuneTask {
         return name;
     }
 
-    public List<TuneCase> getTuneCases() {
-        return tuneCases;
+    public List<Criterion> getCriteria() {
+        return criteria;
     }
 
     public List<ModelParameter> getParameters() {

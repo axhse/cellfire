@@ -1,50 +1,45 @@
 package com.example.cellfire.tuner;
 
-import com.example.cellfire.tuner.cases.accuracy.simulation.FlammableForestHumidAir;
-import com.example.cellfire.tuner.cases.accuracy.simulation.ResilientForestModerateFactors;
 import com.example.cellfire.tuner.cases.accuracy.process.CombustionRate;
 import com.example.cellfire.tuner.cases.accuracy.process.HeatExchange;
+import com.example.cellfire.tuner.cases.accuracy.simulation.FlammableForestHumidAir;
+import com.example.cellfire.tuner.cases.accuracy.simulation.ResilientForestModerateFactors;
 import com.example.cellfire.tuner.cases.efficiency.DraftStepCreation;
-import com.example.cellfire.tuner.experiment.Experiment;
+import com.example.cellfire.tuner.experiment.Criterion;
 import com.example.cellfire.tuner.experiment.ModelParameter;
 import com.example.cellfire.tuner.experiment.TuneTask;
 
 import java.util.List;
 
-public final class Tuner {
-    public void run() {
-        createExperiment().run().print();
-    }
-
-    private Experiment createExperiment() {
-        return new Experiment(true, validateDefault());
-    }
-
-    private TuneTask validateDefault() {
+public final class Tasks {
+    public static TuneTask validateDefault() {
         return new TuneTask(
                 "Default model validation",
                 List.of(
-                        new CombustionRate(),
-                        new HeatExchange(),
-                        new FlammableForestHumidAir(),
-                        new ResilientForestModerateFactors()
+                        new Criterion(new CombustionRate()),
+                        new Criterion(new HeatExchange()),
+                        new Criterion(new FlammableForestHumidAir()),
+                        new Criterion(new ResilientForestModerateFactors())
                 ),
                 List.of()
         );
     }
 
-    private TuneTask optimizeDraftStepCreation() {
+    public static TuneTask optimizeDraftStepCreation() {
+        DraftStepCreation.CopyingAlgorithm copyingAlgorithm
+                = DraftStepCreation.CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_HASHMAP;
+
         return new TuneTask(
                 "Draft step creation",
-                List.of(new DraftStepCreation(DraftStepCreation.CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_HASHMAP)),
+                List.of(new Criterion(new DraftStepCreation(copyingAlgorithm))),
                 List.of()
         );
     }
 
-    private TuneTask tuneHeatExchange() {
+    public static TuneTask tuneHeatExchange() {
         return new TuneTask(
                 "Heat exchange",
-                List.of(new HeatExchange()),
+                List.of(new Criterion(new HeatExchange())),
                 List.of(
                         new ModelParameter(
                                 ModelParameter.HEAT_REGULATION_INTENSITY,
@@ -58,10 +53,10 @@ public final class Tuner {
         );
     }
 
-    private TuneTask tuneCombustionRate() {
+    public static TuneTask tuneCombustionRate() {
         return new TuneTask(
                 "Combustion rate",
-                List.of(new CombustionRate()),
+                List.of(new Criterion(new CombustionRate())),
                 List.of(
                         new ModelParameter(
                                 ModelParameter.COMBUSTION_INTENSITY,
@@ -75,13 +70,13 @@ public final class Tuner {
         );
     }
 
-    private TuneTask adjustHumidityEffect() {
+    public static TuneTask adjustHumidityEffect() {
         return new TuneTask(
                 "Humidity effect",
                 List.of(
-                        new CombustionRate(),
-                        new FlammableForestHumidAir(),
-                        new ResilientForestModerateFactors()
+                        new Criterion(new CombustionRate()),
+                        new Criterion(new FlammableForestHumidAir()),
+                        new Criterion(new ResilientForestModerateFactors())
                 ),
                 List.of(
                         new ModelParameter(

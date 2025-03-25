@@ -5,6 +5,7 @@ import com.example.cellfire.data.ForestTypeConditions;
 import com.example.cellfire.models.Cell;
 import com.example.cellfire.models.Simulation;
 import com.example.cellfire.services.Simulator;
+import com.example.cellfire.tuner.experiment.Assessment;
 import com.example.cellfire.tuner.experiment.TuneCase;
 import com.example.cellfire.tuner.services.UniformTerrainService;
 import com.example.cellfire.tuner.services.UniformWeatherService;
@@ -19,24 +20,8 @@ public final class FlammableForestHumidAir extends TuneCase {
     private static final double WIND_X = 1;
     private static final double WIND_Y = 1;
 
-    public FlammableForestHumidAir(double weight, boolean isObligatory) {
-        super(weight, isObligatory);
-    }
-
-    public FlammableForestHumidAir(double weight) {
-        super(weight);
-    }
-
-    public FlammableForestHumidAir(boolean isObligatory) {
-        super(isObligatory);
-    }
-
-    public FlammableForestHumidAir() {
-        super();
-    }
-
     @Override
-    protected ModelScore score(ThermalAlgorithm algorithm) {
+    public void assess(ThermalAlgorithm algorithm, Assessment assessment) throws TuneCaseFailedException {
         Simulator simulator = new Simulator(
                 new UniformTerrainService(FOREST_TYPE, FUEL, 0),
                 new UniformWeatherService(AIR_TEMPERATURE, AIR_HUMIDITY, WIND_X, WIND_Y),
@@ -50,9 +35,9 @@ public final class FlammableForestHumidAir extends TuneCase {
             List<Cell> cells = simulation.getSteps().getLast().getCells();
             long damagedCellCount = cells.stream().filter(cell -> cell.getState().isDamaged()).count();
             if (9 <= damagedCellCount) {
-                return ModelScore.failure("Flammable forest always burns.");
+                assessment.failure("Flammable forest always burns.");
             }
         }
-        return ModelScore.victory();
+        assessment.victory();
     }
 }

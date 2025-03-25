@@ -2,6 +2,7 @@ package com.example.cellfire.tuner.cases.efficiency;
 
 import com.example.cellfire.algorithms.ThermalAlgorithm;
 import com.example.cellfire.models.*;
+import com.example.cellfire.tuner.experiment.Assessment;
 import com.example.cellfire.tuner.experiment.TuneCase;
 
 import java.util.HashMap;
@@ -17,7 +18,7 @@ public final class DraftStepCreation extends TuneCase {
     }
 
     @Override
-    protected TuneCase.ModelScore score(ThermalAlgorithm algorithm) {
+    public void assess(ThermalAlgorithm algorithm, Assessment assessment) throws TuneCaseFailedException {
         Map<CopyingAlgorithm, Function<Simulation.Step, Simulation.Step>> creators = Map.of(
                 CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_SEARCH,
                 DraftStepCreation::randomPointerNeighborSearch,
@@ -39,7 +40,7 @@ public final class DraftStepCreation extends TuneCase {
         }
         double bestTime = results.values().stream().min(Double::compareTo).orElseThrow();
         results.keySet().forEach(key -> results.put(key, results.get(key) / bestTime));
-        return ModelScore.success(1.0 / results.get(copyingAlgorithm));
+        assessment.score(1.0 / results.get(copyingAlgorithm));
     }
 
     private static Simulation.Step randomPointerNeighborSearch(Simulation.Step lastStep) {

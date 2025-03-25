@@ -3,6 +3,7 @@ package com.example.cellfire.tuner.cases.accuracy.process;
 import com.example.cellfire.algorithms.ThermalAlgorithm;
 import com.example.cellfire.data.ForestTypeConditions;
 import com.example.cellfire.models.*;
+import com.example.cellfire.tuner.experiment.Assessment;
 import com.example.cellfire.tuner.experiment.TuneCase;
 
 import java.lang.reflect.InvocationTargetException;
@@ -10,24 +11,8 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 
 public final class CombustionRate extends TuneCase {
-    public CombustionRate(double weight, boolean isObligatory) {
-        super(weight, isObligatory);
-    }
-
-    public CombustionRate(double weight) {
-        super(weight);
-    }
-
-    public CombustionRate(boolean isObligatory) {
-        super(isObligatory);
-    }
-
-    public CombustionRate() {
-        super();
-    }
-
     @Override
-    protected ModelScore score(ThermalAlgorithm algorithm) {
+    public void assess(ThermalAlgorithm algorithm, Assessment assessment) throws TuneCaseFailedException {
         try {
             Method rateCalculator = ThermalAlgorithm.class.getDeclaredMethod(
                     "calculateCombustionRate", Cell.class, Simulation.Conditions.class
@@ -40,50 +25,31 @@ public final class CombustionRate extends TuneCase {
             long duration = Duration.ofMinutes(30).toSeconds();
 
             Cell initiallCell = createCell(1000, 0.5f);
-            double initialCombustionRate = (double) rateCalculator.invoke(algorithm, initiallCell, conditions);
-            if (initialCombustionRate * duration < 0.3) {
-                return ModelScore.failure("Initial combustion is too slow.");
-            }
+            double rate = (double) rateCalculator.invoke(algorithm, initiallCell, conditions);
+            assessment.requireMoreThan(rate * duration, 0.3, "Initial rate");
 
             Cell burningCell = createCell(800, 0.2f);
-            double highCombustionRate = (double) rateCalculator.invoke(algorithm, burningCell, conditions);
-            if (0.8 < highCombustionRate * duration) {
-                return ModelScore.failure("Intensive combustion is too fast.");
-            }
+            rate = (double) rateCalculator.invoke(algorithm, burningCell, conditions);
+            assessment.requireInRange(rate * duration, 0, 0.8, "Intensive rate");
 
             burningCell = createCell(750, 0.4f);
-            double moderateCombustionRate = (double) rateCalculator.invoke(algorithm, burningCell, conditions);
-            if (moderateCombustionRate * duration < 0.1) {
-                return ModelScore.failure("Moderate combustion is too slow.");
-            }
-            if (0.5 < moderateCombustionRate * duration) {
-                return ModelScore.failure("Moderate combustion is too fast.");
-            }
+            rate = (double) rateCalculator.invoke(algorithm, burningCell, conditions);
+            assessment.requireInRange(rate * duration, 0.1, 0.5, "Moderate rate");
 
             burningCell = createCell(700, 0.2f);
-            moderateCombustionRate = (double) rateCalculator.invoke(algorithm, burningCell, conditions);
-            if (moderateCombustionRate * duration < 0.1) {
-                return ModelScore.failure("Moderate combustion is too slow.");
-            }
-            if (0.5 < moderateCombustionRate * duration) {
-                return ModelScore.failure("Moderate combustion is too fast.");
-            }
+            rate = (double) rateCalculator.invoke(algorithm, burningCell, conditions);
+            assessment.requireInRange(rate * duration, 0.1, 0.5, "Moderate rate");
 
             Cell smolderingCell = createCell(600, 0.3f);
-            double smolderingRate = (double) rateCalculator.invoke(algorithm, smolderingCell, conditions);
-            if (0.1 < smolderingRate * duration) {
-                return ModelScore.failure("Smoldering is too fast.");
-            }
+            rate = (double) rateCalculator.invoke(algorithm, smolderingCell, conditions);
+            assessment.requireInRange(rate * duration, 0, 0.1, "Smoldering rate");
 
             Cell boilingCell = createCell(800, 0.8f);
-            double boilingRate = (double) rateCalculator.invoke(algorithm, boilingCell, conditions);
-            if (0.1 < boilingRate * duration) {
-                return ModelScore.failure("Boiling is too fast.");
-            }
+            rate = (double) rateCalculator.invoke(algorithm, boilingCell, conditions);
+            assessment.requireInRange(rate * duration, 0, 0.1, "Boiling rate");
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException exception) {
-            return ModelScore.failure(exception.getClass().getSimpleName() + ": " + exception.getMessage());
+            assessment.failure(exception.getClass().getSimpleName() + ": " + exception.getMessage());
         }
-        return ModelScore.victory();
     }
 
     private static Cell createCell(double heat, double airHumidity) {

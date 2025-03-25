@@ -16,7 +16,7 @@ public final class ExperimentResult {
     }
 
     public void print() {
-        List<TuneCase> tuneCases = experiment.getTuneTask().getTuneCases();
+        List<Criterion> criteria = experiment.getTuneTask().getCriteria();
         List<ModelParameter> parameters = experiment.getTuneTask().getParameters();
 
         System.out.println();
@@ -30,9 +30,9 @@ public final class ExperimentResult {
             System.out.println(styledText(formattedFailureCount, TextStyle.BOLD, TextStyle.RED));
             for (int tuneCaseIndex = 0; tuneCaseIndex < bestIteration.getCaseScores().size(); tuneCaseIndex++) {
                 if (bestIteration.getCaseScores().get(tuneCaseIndex).isFailure()) {
-                    String title = tuneCases.get(tuneCaseIndex).getName() + "  ";
+                    String title = criteria.get(tuneCaseIndex).getName() + "  ";
                     System.out.print(styledText(title, TextStyle.CYAN));
-                    String description = bestIteration.getCaseScores().get(tuneCaseIndex).getDescription();
+                    String description = bestIteration.getCaseScores().get(tuneCaseIndex).getFailureDescription();
                     System.out.println(styledText(description, TextStyle.RED));
                 }
             }
@@ -43,14 +43,14 @@ public final class ExperimentResult {
         String formattedScore = String.format(Locale.US, "%.2f", bestIteration.countScore());
         System.out.println(styledText(formattedScore, TextStyle.BOLD, scoreStyle));
         for (int tuneCaseIndex = 0; tuneCaseIndex < bestIteration.getCaseScores().size(); tuneCaseIndex++) {
-            TuneCase.ModelScore modelScore = bestIteration.getCaseScores().get(tuneCaseIndex);
+            Criterion.ModelScore modelScore = bestIteration.getCaseScores().get(tuneCaseIndex);
             if (modelScore.isFailure()) {
                 continue;
             }
             int colorStyle = modelScore.getScore() > 0.2 ? TextStyle.GREEN : TextStyle.YELLOW;
             formattedScore = String.format(Locale.US, "%.2f", modelScore.getScore());
             System.out.print(styledText(formattedScore, TextStyle.BOLD, colorStyle));
-            String tuneCaseName = tuneCases.get(tuneCaseIndex).getName();
+            String tuneCaseName = criteria.get(tuneCaseIndex).getName();
             System.out.println(styledText("  " + tuneCaseName, TextStyle.CYAN));
         }
         System.out.println();
