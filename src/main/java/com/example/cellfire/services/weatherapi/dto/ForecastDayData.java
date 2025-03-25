@@ -1,7 +1,6 @@
 package com.example.cellfire.services.weatherapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.Instant;
 import java.util.List;
 
@@ -19,11 +18,11 @@ public final class ForecastDayData {
         return hourlyWeather;
     }
 
-    public void setDateEpoch(long dateEpoch) {
-        this.dateEpoch = dateEpoch;
-    }
-
     public void setHourlyWeather(List<WeatherData> hourlyWeather) {
         this.hourlyWeather = hourlyWeather;
+    }
+
+    public void setDateEpoch(long dateEpoch) {
+        this.dateEpoch = dateEpoch;
     }
 }

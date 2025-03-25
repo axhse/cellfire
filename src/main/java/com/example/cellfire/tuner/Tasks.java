@@ -8,7 +8,6 @@ import com.example.cellfire.tuner.cases.efficiency.DraftStepCreation;
 import com.example.cellfire.tuner.experiment.Criterion;
 import com.example.cellfire.tuner.experiment.ModelParameter;
 import com.example.cellfire.tuner.experiment.TuneTask;
-
 import java.util.List;
 
 public final class Tasks {

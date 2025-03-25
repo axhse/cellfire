@@ -3,76 +3,75 @@ package com.example.cellfire.models;
 import java.util.Objects;
 
 public class Weather {
-    protected final byte airTemperature;
-    protected final byte airHumidity;
-    protected final byte windX;
-    protected final byte windY;
+  protected final byte airTemperature;
+  protected final byte airHumidity;
+  protected final byte windX;
+  protected final byte windY;
 
-    public Weather(double airTemperature, double airHumidity, double windX, double windY) {
-        this.airTemperature = compressTemperature(airTemperature);
-        this.airHumidity = compressRelativeHumidity(airHumidity);
-        this.windX = compressWindSpeed(windX);
-        this.windY = compressWindSpeed(windY);
-    }
+  public Weather(double airTemperature, double airHumidity, double windX, double windY) {
+    this.airTemperature = compressTemperature(airTemperature);
+    this.airHumidity = compressRelativeHumidity(airHumidity);
+    this.windX = compressWindSpeed(windX);
+    this.windY = compressWindSpeed(windY);
+  }
 
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if (other == null || getClass() != other.getClass()) return false;
-        Weather otherWeather = (Weather) other;
-        return (airTemperature == otherWeather.airTemperature
-                && airHumidity == otherWeather.airHumidity
-                && windX == otherWeather.windX
-                && windY == otherWeather.windY
-        );
-    }
+  private static byte compressTemperature(double temperature) {
+    return compactToByte(Math.round(temperature));
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(airTemperature, airHumidity, windX, windY);
-    }
+  private static byte compressRelativeHumidity(double humidity) {
+    return (byte) Math.round(humidity * 100);
+  }
 
-    public double getAirTemperature() {
-        return decompressTemperature(airTemperature);
-    }
+  private static byte compressWindSpeed(double speed) {
+    return compactToByte(Math.round(speed * 10));
+  }
 
-    public double getAirHumidity() {
-        return decompressRelativeHumidity(airHumidity);
-    }
+  private static double decompressTemperature(byte temperature) {
+    return temperature;
+  }
 
-    public double getWindX() {
-        return decompressWindSpeed(windX);
-    }
+  private static double decompressRelativeHumidity(byte humidity) {
+    return humidity / 100.0;
+  }
 
-    public double getWindY() {
-        return decompressWindSpeed(windY);
-    }
+  private static double decompressWindSpeed(byte speed) {
+    return speed / 10.0;
+  }
 
-    private static byte compressTemperature(double temperature) {
-        return compactToByte(Math.round(temperature));
-    }
+  private static byte compactToByte(long value) {
+    return (byte) Math.max(Byte.MIN_VALUE, Math.min(value, Byte.MAX_VALUE));
+  }
 
-    private static byte compressRelativeHumidity(double humidity) {
-        return (byte) Math.round(humidity * 100);
-    }
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (other == null || getClass() != other.getClass()) return false;
+    Weather otherWeather = (Weather) other;
+    return (airTemperature == otherWeather.airTemperature
+        && airHumidity == otherWeather.airHumidity
+        && windX == otherWeather.windX
+        && windY == otherWeather.windY);
+  }
 
-    private static byte compressWindSpeed(double speed) {
-        return compactToByte(Math.round(speed * 10));
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(airTemperature, airHumidity, windX, windY);
+  }
 
-    private static double decompressTemperature(byte temperature) {
-        return temperature;
-    }
+  public double getAirTemperature() {
+    return decompressTemperature(airTemperature);
+  }
 
-    private static double decompressRelativeHumidity(byte humidity) {
-        return humidity / 100.0;
-    }
+  public double getAirHumidity() {
+    return decompressRelativeHumidity(airHumidity);
+  }
 
-    private static double decompressWindSpeed(byte speed) {
-        return speed / 10.0;
-    }
+  public double getWindX() {
+    return decompressWindSpeed(windX);
+  }
 
-    private static byte compactToByte(long value) {
-        return (byte) Math.max(Byte.MIN_VALUE, Math.min(value, Byte.MAX_VALUE));
-    }
+  public double getWindY() {
+    return decompressWindSpeed(windY);
+  }
 }

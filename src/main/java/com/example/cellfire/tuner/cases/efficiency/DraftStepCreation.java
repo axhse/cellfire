@@ -4,7 +4,6 @@ import com.example.cellfire.algorithms.ThermalAlgorithm;
 import com.example.cellfire.models.*;
 import com.example.cellfire.tuner.experiment.Assessment;
 import com.example.cellfire.tuner.experiment.TuneCase;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -15,32 +14,6 @@ public final class DraftStepCreation extends TuneCase {
     public DraftStepCreation(CopyingAlgorithm copyingAlgorithm) {
         super();
         this.copyingAlgorithm = copyingAlgorithm;
-    }
-
-    @Override
-    public void assess(ThermalAlgorithm algorithm, Assessment assessment) {
-        Map<CopyingAlgorithm, Function<Simulation.Step, Simulation.Step>> creators = Map.of(
-                CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_SEARCH,
-                DraftStepCreation::randomPointerNeighborSearch,
-                CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_HASHMAP,
-                DraftStepCreation::randomPointerNeighborHashmap,
-                CopyingAlgorithm.HASHMAP,
-                DraftStepCreation::hashmap
-        );
-        Map<CopyingAlgorithm, Double> results = new HashMap<>();
-        for (Map.Entry<CopyingAlgorithm, Function<Simulation.Step, Simulation.Step>> entry : creators.entrySet()) {
-            Simulation.Step step = createInitialStep();
-            long timeStart = System.nanoTime();
-            step = entry.getValue().apply(step);
-            for (int i = 0; i < 50; i++) {
-                step = entry.getValue().apply(step);
-            }
-            long timeEnd = System.nanoTime();
-            results.put(entry.getKey(), (double) timeEnd - timeStart);
-        }
-        double bestTime = results.values().stream().min(Double::compareTo).orElseThrow();
-        results.keySet().forEach(key -> results.put(key, results.get(key) / bestTime));
-        assessment.score(1.0 / results.get(copyingAlgorithm));
     }
 
     private static Simulation.Step randomPointerNeighborSearch(Simulation.Step lastStep) {
@@ -247,6 +220,32 @@ public final class DraftStepCreation extends TuneCase {
         Cell initialCell = new Cell(new Coordinates(123, 456), cellState, factors);
         initialStep.getCells().add(initialCell);
         return initialStep;
+    }
+
+    @Override
+    public void assess(ThermalAlgorithm algorithm, Assessment assessment) {
+        Map<CopyingAlgorithm, Function<Simulation.Step, Simulation.Step>> creators = Map.of(
+                CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_SEARCH,
+                DraftStepCreation::randomPointerNeighborSearch,
+                CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_HASHMAP,
+                DraftStepCreation::randomPointerNeighborHashmap,
+                CopyingAlgorithm.HASHMAP,
+                DraftStepCreation::hashmap
+        );
+        Map<CopyingAlgorithm, Double> results = new HashMap<>();
+        for (Map.Entry<CopyingAlgorithm, Function<Simulation.Step, Simulation.Step>> entry : creators.entrySet()) {
+            Simulation.Step step = createInitialStep();
+            long timeStart = System.nanoTime();
+            step = entry.getValue().apply(step);
+            for (int i = 0; i < 50; i++) {
+                step = entry.getValue().apply(step);
+            }
+            long timeEnd = System.nanoTime();
+            results.put(entry.getKey(), (double) timeEnd - timeStart);
+        }
+        double bestTime = results.values().stream().min(Double::compareTo).orElseThrow();
+        results.keySet().forEach(key -> results.put(key, results.get(key) / bestTime));
+        assessment.score(1.0 / results.get(copyingAlgorithm));
     }
 
     public enum CopyingAlgorithm {

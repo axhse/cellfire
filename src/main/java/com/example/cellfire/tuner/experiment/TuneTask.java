@@ -1,7 +1,6 @@
 package com.example.cellfire.tuner.experiment;
 
 import com.example.cellfire.algorithms.ThermalAlgorithm;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
@@ -18,18 +17,6 @@ public final class TuneTask {
         this.name = name;
         this.criteria = criteria;
         this.parameters = specifyParameters(targetParameters);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public List<Criterion> getCriteria() {
-        return criteria;
-    }
-
-    public List<ModelParameter> getParameters() {
-        return parameters;
     }
 
     public static List<ModelParameter> specifyParameters(List<ModelParameter> targetParameters) {
@@ -58,6 +45,18 @@ public final class TuneTask {
                 throw new RuntimeException(e);
             }
         }
+        return parameters;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<Criterion> getCriteria() {
+        return criteria;
+    }
+
+    public List<ModelParameter> getParameters() {
         return parameters;
     }
 }

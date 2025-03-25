@@ -8,13 +8,14 @@ import java.time.Instant;
 import java.util.Optional;
 
 public final class UniformWeatherService implements WeatherService {
-    private final Weather weather;
+  private final Weather weather;
 
-    public UniformWeatherService(double airTemperature, double airHumidity, double windX, double windY) {
-        this.weather = new Weather(airTemperature, airHumidity, windX, windY);
-    }
+  public UniformWeatherService(
+      double airTemperature, double airHumidity, double windX, double windY) {
+    this.weather = new Weather(airTemperature, airHumidity, windX, windY);
+  }
 
-    public Optional<Weather> getWeather(LatLng point, Instant date) {
-        return Optional.of(weather);
-    }
+  public Optional<Weather> getWeather(LatLng point, Instant date) {
+    return Optional.of(weather);
+  }
 }

@@ -1,7 +1,6 @@
 package com.example.cellfire.algorithms;
 
 import com.example.cellfire.models.*;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -68,14 +67,6 @@ public final class ThermalAlgorithm implements Algorithm {
         );
     }
 
-    @Override
-    public void refineDraftStep(Simulation.Step draftStep, Simulation simulation) {
-        List<Cell> burningCells = draftStep.getCells().stream().filter(cell -> isBurning(cell, simulation)).toList();
-        burningCells.forEach((cell) -> burnFuel(cell, simulation));
-        burningCells.forEach((cell) -> transferEnergy(cell, simulation));
-        draftStep.getCells().forEach((cell) -> regulateHeat(cell, simulation));
-    }
-
     private static boolean isBurning(Cell cell, Simulation simulation) {
         return cell.getState().getFuel() > 0
                 && simulation.getConditions().getIgnitionTemperature() <= cell.getState().getHeat()
@@ -104,6 +95,14 @@ public final class ThermalAlgorithm implements Algorithm {
 
     private static double getEmittedEnergy(Cell cell) {
         return cell.getTwin().getState().getHeat();
+    }
+
+    @Override
+    public void refineDraftStep(Simulation.Step draftStep, Simulation simulation) {
+        List<Cell> burningCells = draftStep.getCells().stream().filter(cell -> isBurning(cell, simulation)).toList();
+        burningCells.forEach((cell) -> burnFuel(cell, simulation));
+        burningCells.forEach((cell) -> transferEnergy(cell, simulation));
+        draftStep.getCells().forEach((cell) -> regulateHeat(cell, simulation));
     }
 
     private void burnFuel(Cell cell, Simulation simulation) {

@@ -1,7 +1,6 @@
 package com.example.cellfire.services.weatherapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.TimeZone;
 
 public final class ForecastResponseData {

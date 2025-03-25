@@ -7,5 +7,5 @@ import java.time.Instant;
 import java.util.Optional;
 
 public interface WeatherService {
-    Optional<Weather> getWeather(LatLng point, Instant date);
+  Optional<Weather> getWeather(LatLng point, Instant date);
 }

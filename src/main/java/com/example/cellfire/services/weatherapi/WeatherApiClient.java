@@ -5,12 +5,11 @@ import com.example.cellfire.models.Weather;
 import com.example.cellfire.services.weatherapi.dto.ForecastDayData;
 import com.example.cellfire.services.weatherapi.dto.ForecastResponseData;
 import com.example.cellfire.services.weatherapi.dto.WeatherData;
-import org.springframework.web.reactive.function.client.WebClient;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 public final class WeatherApiClient {
     public static final int FORECASTED_DAYS = 3;

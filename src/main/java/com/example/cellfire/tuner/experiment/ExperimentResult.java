@@ -15,6 +15,33 @@ public final class ExperimentResult {
         this.iterations = iterations;
     }
 
+    private static String formatValue(double value) {
+        if (value < 0.0001 || 10000000 <= value) {
+            return String.format(Locale.US, "%.1e", value);
+        }
+        if (10 <= Math.abs(value)) {
+            int factor = 1;
+            long n = Math.abs(Math.round(value));
+            while (100 <= n) {
+                n /= 10;
+                factor *= 10;
+            }
+            return String.valueOf(Math.round(value) / factor * factor);
+        }
+        int scale = 1 - (int) Math.floor(Math.log10(value));
+        BigDecimal decimal = new BigDecimal(value).setScale(scale, RoundingMode.HALF_UP);
+        return decimal.stripTrailingZeros().toPlainString();
+    }
+
+    private static String styledText(String text, int... styles) {
+        StringBuilder textBuilder = new StringBuilder(text);
+        for (int style : styles) {
+            textBuilder = new StringBuilder("\u001B[%dm".formatted(style) + textBuilder + "\u001B[0m");
+        }
+        text = textBuilder.toString();
+        return text;
+    }
+
     public void print() {
         List<Criterion> criteria = experiment.getTuneTask().getCriteria();
         List<ModelParameter> parameters = experiment.getTuneTask().getParameters();
@@ -106,33 +133,6 @@ public final class ExperimentResult {
             }
         }
         System.out.println();
-    }
-
-    private static String formatValue(double value) {
-        if (value < 0.0001 || 10000000 <= value) {
-            return String.format(Locale.US, "%.1e", value);
-        }
-        if (10 <= Math.abs(value)) {
-            int factor = 1;
-            long n = Math.abs(Math.round(value));
-            while (100 <= n) {
-                n /= 10;
-                factor *= 10;
-            }
-            return String.valueOf(Math.round(value) / factor * factor);
-        }
-        int scale = 1 - (int) Math.floor(Math.log10(value));
-        BigDecimal decimal = new BigDecimal(value).setScale(scale, RoundingMode.HALF_UP);
-        return decimal.stripTrailingZeros().toPlainString();
-    }
-
-    private static String styledText(String text, int... styles) {
-        StringBuilder textBuilder = new StringBuilder(text);
-        for (int style : styles) {
-            textBuilder = new StringBuilder("\u001B[%dm".formatted(style) + textBuilder + "\u001B[0m");
-        }
-        text = textBuilder.toString();
-        return text;
     }
 
     private static final class TextStyle {

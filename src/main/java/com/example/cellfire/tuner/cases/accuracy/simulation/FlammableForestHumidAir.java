@@ -9,7 +9,6 @@ import com.example.cellfire.tuner.experiment.Assessment;
 import com.example.cellfire.tuner.experiment.TuneCase;
 import com.example.cellfire.tuner.services.UniformTerrainService;
 import com.example.cellfire.tuner.services.UniformWeatherService;
-
 import java.util.List;
 
 public final class FlammableForestHumidAir extends TuneCase {

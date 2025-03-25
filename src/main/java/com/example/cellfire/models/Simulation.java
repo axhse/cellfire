@@ -1,7 +1,6 @@
 package com.example.cellfire.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;

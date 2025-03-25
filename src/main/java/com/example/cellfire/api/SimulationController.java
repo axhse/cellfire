@@ -1,21 +1,19 @@
 package com.example.cellfire.api;
 
 import com.example.cellfire.api.params.SimulationCreationParams;
-import com.example.cellfire.api.params.SimulationProgressParams;
 import com.example.cellfire.api.params.SimulationIdParams;
+import com.example.cellfire.api.params.SimulationProgressParams;
 import com.example.cellfire.models.Simulation;
 import com.example.cellfire.services.SimulationManager;
 import com.example.cellfire.services.Simulator;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public final class SimulationController {

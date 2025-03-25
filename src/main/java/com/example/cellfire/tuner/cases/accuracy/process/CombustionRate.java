@@ -5,12 +5,19 @@ import com.example.cellfire.data.ForestTypeConditions;
 import com.example.cellfire.models.*;
 import com.example.cellfire.tuner.experiment.Assessment;
 import com.example.cellfire.tuner.experiment.TuneCase;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Duration;
 
 public final class CombustionRate extends TuneCase {
+    private static Cell createCell(double heat, double airHumidity) {
+        return new Cell(
+                new Coordinates(0, 0),
+                new Cell.State(heat, 0, true),
+                new Cell.Factors(0, new Weather(0, airHumidity, 0, 0))
+        );
+    }
+
     @Override
     public void assess(ThermalAlgorithm algorithm, Assessment assessment) throws TuneCaseFailedException {
         try {
@@ -50,13 +57,5 @@ public final class CombustionRate extends TuneCase {
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException exception) {
             assessment.failure(exception.getClass().getSimpleName() + ": " + exception.getMessage());
         }
-    }
-
-    private static Cell createCell(double heat, double airHumidity) {
-        return new Cell(
-                new Coordinates(0, 0),
-                new Cell.State(heat, 0, true),
-                new Cell.Factors(0, new Weather(0, airHumidity, 0, 0))
-        );
     }
 }

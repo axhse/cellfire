@@ -1,7 +1,6 @@
 package com.example.cellfire.data;
 
 import com.example.cellfire.services.MosaicTerrainService;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;

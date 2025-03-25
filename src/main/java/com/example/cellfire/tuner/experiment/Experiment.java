@@ -1,7 +1,6 @@
 package com.example.cellfire.tuner.experiment;
 
 import com.example.cellfire.algorithms.ThermalAlgorithm;
-
 import java.util.ArrayList;
 import java.util.List;
 

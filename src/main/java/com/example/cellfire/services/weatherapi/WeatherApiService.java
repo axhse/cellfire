@@ -5,7 +5,6 @@ import com.example.cellfire.models.Grid;
 import com.example.cellfire.models.LatLng;
 import com.example.cellfire.models.Weather;
 import com.example.cellfire.services.WeatherService;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;

@@ -1,7 +1,6 @@
 package com.example.cellfire.algorithms;
 
 import com.example.cellfire.models.*;
-
 import java.util.Random;
 
 public final class ProbabilisticAlgorithm implements Algorithm {

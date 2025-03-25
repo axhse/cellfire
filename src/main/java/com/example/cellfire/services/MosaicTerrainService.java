@@ -1,8 +1,8 @@
 package com.example.cellfire.services;
 
 import com.example.cellfire.data.ForestTypeConditions;
-import com.example.cellfire.data.ResourceLoader;
 import com.example.cellfire.data.Mosaic;
+import com.example.cellfire.data.ResourceLoader;
 import com.example.cellfire.models.LatLng;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,6 @@
 package com.example.cellfire.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -107,6 +106,15 @@ public final class Cell {
             this.elevation = compressElevation(elevation);
         }
 
+        private static short compressElevation(double elevation) {
+            elevation = Math.max(0, Math.min(elevation, 6400));
+            return (byte) Math.round(elevation / 6400 * Short.MAX_VALUE);
+        }
+
+        private static double decompressElevation(short elevation) {
+            return elevation * 6400.0 / Short.MAX_VALUE;
+        }
+
         @Override
         public boolean equals(Object other) {
             if (this == other) return true;
@@ -127,15 +135,6 @@ public final class Cell {
 
         public double getElevation() {
             return decompressElevation(elevation);
-        }
-
-        private static short compressElevation(double elevation) {
-            elevation = Math.max(0, Math.min(elevation, 6400));
-            return (byte) Math.round(elevation / 6400 * Short.MAX_VALUE);
-        }
-
-        private static double decompressElevation(short elevation) {
-            return elevation * 6400.0 / Short.MAX_VALUE;
         }
     }
 }

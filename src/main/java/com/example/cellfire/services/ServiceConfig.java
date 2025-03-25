@@ -7,16 +7,17 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ServiceConfig {
-    @Value("${WEATHER_API_KEY:}")
-    private String weatherApiKey;
-    @Value("${WEATHER_REQUEST_LIMIT:-1}")
-    private Integer weatherRequestLimit;
+  @Value("${WEATHER_API_KEY:}")
+  private String weatherApiKey;
 
-    @Bean
-    public WeatherService weatherService() {
-        if (weatherApiKey.isEmpty()) {
-            return new StandaloneWeatherService();
-        }
-        return new WeatherApiService(weatherApiKey, weatherRequestLimit);
+  @Value("${WEATHER_REQUEST_LIMIT:-1}")
+  private Integer weatherRequestLimit;
+
+  @Bean
+  public WeatherService weatherService() {
+    if (weatherApiKey.isEmpty()) {
+      return new StandaloneWeatherService();
     }
+    return new WeatherApiService(weatherApiKey, weatherRequestLimit);
+  }
 }

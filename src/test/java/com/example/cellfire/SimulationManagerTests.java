@@ -8,16 +8,34 @@ import com.example.cellfire.services.SimulationManager;
 import com.example.cellfire.services.Simulator;
 import com.example.cellfire.tuner.services.UniformTerrainService;
 import com.example.cellfire.tuner.services.UniformWeatherService;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public final class SimulationManagerTests {
+    private static Simulation createSimulation(Duration stepDuration, Duration limitDuration) {
+        return new Simulation(
+                new Simulation.MarkedGrid(1, new LatLng(0, 0)),
+                new Simulation.Timeline(Instant.now(), stepDuration, limitDuration),
+                new Simulation.Conditions(100000),
+                Simulation.Algorithm.THERMAL
+        );
+    }
+
+    private static Simulation createSimulation() {
+        Simulator simulator = new Simulator(
+                new UniformTerrainService(ForestTypeConditions.ForestType.MIXED, 0, 0),
+                new UniformWeatherService(200, 0, 0, 0),
+                new ThermalAlgorithm()
+        );
+
+        return simulator.createSimulation(new LatLng(0, 0), Simulation.Algorithm.THERMAL);
+    }
+
     @Test
     public void testAdditionToManager() {
         SimulationManager manager = new SimulationManager();
@@ -168,24 +186,5 @@ public final class SimulationManagerTests {
             Assertions.assertTrue(result.isPresent());
             Assertions.assertEquals(simulations.get(index), result.get());
         }
-    }
-
-    private static Simulation createSimulation(Duration stepDuration, Duration limitDuration) {
-        return new Simulation(
-                new Simulation.MarkedGrid(1, new LatLng(0, 0)),
-                new Simulation.Timeline(Instant.now(), stepDuration, limitDuration),
-                new Simulation.Conditions(100000),
-                Simulation.Algorithm.THERMAL
-        );
-    }
-
-    private static Simulation createSimulation() {
-        Simulator simulator = new Simulator(
-                new UniformTerrainService(ForestTypeConditions.ForestType.MIXED, 0, 0),
-                new UniformWeatherService(200, 0, 0, 0),
-                new ThermalAlgorithm()
-        );
-
-        return simulator.createSimulation(new LatLng(0, 0), Simulation.Algorithm.THERMAL);
     }
 }
