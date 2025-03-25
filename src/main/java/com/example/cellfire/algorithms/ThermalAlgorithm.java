@@ -6,9 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class ThermalAlgorithm implements Algorithm {
-    public static final double DEFAULT_COMBUSTION_INTENSITY = 20000;
-    public static final double DEFAULT_ENERGY_EMISSION = 33000;
-    public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 4;
+    public static final double DEFAULT_COMBUSTION_INTENSITY = 23000;
+    public static final double DEFAULT_ENERGY_EMISSION = 40000;
+    public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 4.8;
     /**
      * 3.5 in some research.
      */
@@ -17,7 +17,7 @@ public final class ThermalAlgorithm implements Algorithm {
      * 0.13 in some research.
      */
     public static final double DEFAULT_WIND_EFFECT = 0.15;
-    public static final double DEFAULT_DISTANCE_EFFECT = 1.0 / 200;
+    public static final double DEFAULT_DISTANCE_EFFECT = 1.0 / 10;
     public static final double DEFAULT_HEAT_REGULATION_INTENSITY = 0.00018;
     public static final double DEFAULT_RADIATION_PREVALENCE = 4 * Math.pow(10, -10);
 
@@ -82,13 +82,11 @@ public final class ThermalAlgorithm implements Algorithm {
                 && cell.getFactors().getAirTemperature() > 0;
     }
 
-    private static double estimateAverageDistance(Grid grid, Coordinates first, Coordinates second) {
-        double localCos = Math.cos(Math.toRadians(grid.pointOf(first).lat));
+    private static double estimateDistance(Grid grid, Coordinates base, Coordinates neighbor) {
+        double localCos = Math.cos(Math.toRadians(grid.pointOf(base).lat));
         // Cells neighboring through the poles are not expected.
-        double distanceX = Math.abs(first.getX() - second.getX()) * localCos;
-        double distanceY = Math.abs(first.getY() - second.getY());
-        distanceX += distanceX == 0 ? 0.5 * localCos : 0;
-        distanceY += distanceY == 0 ? 0.5 : 0;
+        double distanceX = Math.abs(base.getX() - neighbor.getX()) * localCos;
+        double distanceY = Math.abs(base.getY() - neighbor.getY());
         return Math.sqrt(distanceX * distanceX + distanceY * distanceY);
     }
 
@@ -123,13 +121,12 @@ public final class ThermalAlgorithm implements Algorithm {
     private void transferEnergy(Cell cell, Simulation simulation) {
         Grid grid = simulation.getGrid();
         double[] proximity = new double[9];
-        double averageDistance = estimateAverageDistance(grid, cell.getCoordinates(), cell.getCoordinates());
-        proximity[8] = 1.0 / averageDistance;
+        proximity[8] = distanceEffect;
         int neighborIndex = 0;
         for (Cell neighbor : cell.iterateNeighbors()) {
-            averageDistance = estimateAverageDistance(grid, cell.getCoordinates(), neighbor.getCoordinates());
+            double distance = estimateDistance(grid, cell.getCoordinates(), neighbor.getCoordinates());
             double environmentalEffect = calculateEnvironmentalEffect(grid, cell, neighbor);
-            proximity[neighborIndex++] = environmentalEffect / averageDistance * grid.getScale() / distanceEffect;
+            proximity[neighborIndex++] = environmentalEffect / distance;
         }
         double totalProximity = Arrays.stream(proximity).sum();
 
