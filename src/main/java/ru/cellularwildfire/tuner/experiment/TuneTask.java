@@ -1,10 +1,6 @@
 package ru.cellularwildfire.tuner.experiment;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import ru.cellularwildfire.algorithms.ThermalAlgorithm;
 
@@ -20,7 +16,7 @@ public final class TuneTask {
   }
 
   public static List<ModelParameter> specifyParameters(List<ModelParameter> targetParameters) {
-    List<ModelParameter> parameters = createDefaultParameters();
+    ArrayList<ModelParameter> parameters = createDefaultParameters();
     for (ModelParameter parameter : targetParameters) {
       for (int i = 0; i < parameters.size(); i++) {
         if (parameters.get(i).getName().equals(parameter.getName())) {
@@ -31,25 +27,25 @@ public final class TuneTask {
     return parameters;
   }
 
-  private static List<ModelParameter> createDefaultParameters() {
-    List<ModelParameter> parameters = new ArrayList<>();
-    Constructor<?>[] constructors = ThermalAlgorithm.class.getConstructors();
-    Constructor<?> explicitConstructor =
-        Arrays.stream(constructors)
-            .filter(c -> c.getParameterCount() > 1)
-            .findFirst()
-            .orElseThrow();
-    for (Parameter parameter : explicitConstructor.getParameters()) {
-      try {
-        Field field = ThermalAlgorithm.class.getDeclaredField(parameter.getName());
-        field.setAccessible(true);
-        double defaultValue = field.getDouble(new ThermalAlgorithm());
-        parameters.add(new ModelParameter(parameter.getName(), defaultValue));
-      } catch (NoSuchFieldException | IllegalAccessException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    return parameters;
+  private static ArrayList<ModelParameter> createDefaultParameters() {
+    return new ArrayList<>(
+        List.of(
+            new ModelParameter(
+                ModelParameter.COMBUSTION_INTENSITY, ThermalAlgorithm.DEFAULT_COMBUSTION_INTENSITY),
+            new ModelParameter(
+                ModelParameter.ENERGY_EMISSION, ThermalAlgorithm.DEFAULT_ENERGY_EMISSION),
+            new ModelParameter(
+                ModelParameter.AIR_HUMIDITY_EFFECT, ThermalAlgorithm.DEFAULT_AIR_HUMIDITY_EFFECT),
+            new ModelParameter(ModelParameter.SLOPE_EFFECT, ThermalAlgorithm.DEFAULT_SLOPE_EFFECT),
+            new ModelParameter(ModelParameter.WIND_EFFECT, ThermalAlgorithm.DEFAULT_WIND_EFFECT),
+            new ModelParameter(
+                ModelParameter.DISTANCE_EFFECT, ThermalAlgorithm.DEFAULT_DISTANCE_EFFECT),
+            new ModelParameter(
+                ModelParameter.HEAT_REGULATION_INTENSITY,
+                ThermalAlgorithm.DEFAULT_HEAT_REGULATION_INTENSITY),
+            new ModelParameter(
+                ModelParameter.RADIATION_PREVALENCE,
+                ThermalAlgorithm.DEFAULT_RADIATION_PREVALENCE)));
   }
 
   public String getName() {
