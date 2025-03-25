@@ -18,7 +18,7 @@ public final class DraftStepCreation extends TuneCase {
     }
 
     @Override
-    public void assess(ThermalAlgorithm algorithm, Assessment assessment) throws TuneCaseFailedException {
+    public void assess(ThermalAlgorithm algorithm, Assessment assessment) {
         Map<CopyingAlgorithm, Function<Simulation.Step, Simulation.Step>> creators = Map.of(
                 CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_SEARCH,
                 DraftStepCreation::randomPointerNeighborSearch,

@@ -76,7 +76,8 @@ public final class SimulatorTests {
         Assertions.assertEquals(6, simulation.getSteps().get(1).getCells().size());
 
         for (Cell cell : simulation.getSteps().get(1).getCells()) {
-            Assertions.assertTrue(-1 <= cell.getCoordinates().getX() && cell.getCoordinates().getX() <= 1);
+            Assertions.assertTrue(-1 <= cell.getCoordinates().getX());
+            Assertions.assertTrue(cell.getCoordinates().getX() <= 1);
         }
     }
 

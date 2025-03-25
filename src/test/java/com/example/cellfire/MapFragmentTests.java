@@ -101,15 +101,12 @@ public final class MapFragmentTests {
 
         point = new LatLng(67 + (13 + 0.5 + 0.11) / 7, 45 + (11 + 0.5) / 7);
         int leftValue = fragment.at(point);
-        Assertions.assertTrue(9 < leftValue && leftValue < 88);
-
-        point = new LatLng(67 + (13 + 0.5 + 0.11) / 7, 45 + (11 + 0.5) / 7);
-        int rightValue = fragment.at(point);
-        Assertions.assertEquals(leftValue, rightValue);
+        Assertions.assertTrue(9 < leftValue);
 
         point = new LatLng(67 + (13 + 0.5 + 0.2) / 7, 45 + (11 + 0.5 + 0.8) / 7);
         int diagonalValue = fragment.at(point);
-        Assertions.assertTrue(leftValue < diagonalValue && diagonalValue < 88);
+        Assertions.assertTrue(leftValue < diagonalValue);
+        Assertions.assertTrue(diagonalValue < 88);
     }
 
     @Test
