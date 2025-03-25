@@ -46,11 +46,25 @@ export class Simulation {
     return this.getSimulatedCells().filter((cell) => cell.state.damaged);
   }
 
+  getBurningCells() {
+    return this.getSimulatedCells().filter((cell) => this.isBurning(cell));
+  }
+
+  getBurnedCells() {
+    return this.getSimulatedCells().filter(
+      (cell) => cell.state.damaged && !this.isBurning(cell)
+    );
+  }
+
+  getIgnitingCells() {
+    return this.getSimulatedCells().filter(
+      (cell) => !cell.state.damaged && !this.isBurning(cell)
+    );
+  }
+
   getUnburnedCells() {
     return this.getSimulatedCells().filter(
-      (cell) =>
-        !cell.state.damaged ||
-        this.conditions.ignitionTemperature <= cell.state.heat
+      (cell) => !cell.state.damaged || this.isBurning(cell)
     );
   }
 
@@ -97,6 +111,14 @@ export class Simulation {
     return this.getDamagedCells()
       .map((cell) => estimateCellArea(this.grid.scale, cell.coordinates))
       .reduce((a, ai) => a + ai, 0);
+  }
+
+  isBurning(cell) {
+    return (
+      cell.state.fuel > 0 &&
+      this.conditions.ignitionTemperature <= cell.state.heat &&
+      cell.factors.airTemperature > 0
+    );
   }
 }
 

@@ -53,6 +53,11 @@ export function InfoControl() {
   textBlock.appendChild(createLabel('label-active-algorithm', 'first'));
   textBlock.appendChild(createLabel('label-damaged-area'));
 
+  textBlock.appendChild(createLabel('', '', 'Cell states:'));
+  for (const stateName of ['burning', 'igniting', 'burned']) {
+    textBlock.appendChild(createLabel(getCellCounterId(stateName)));
+  }
+
   const indicatorPanel = createContainer('indicator-panel');
   control.append(indicatorPanel);
 
@@ -145,6 +150,10 @@ export function TimelineControl(tools) {
   textBlock.appendChild(createLabel('label-simulated-date'));
 
   return control;
+}
+
+export function getCellCounterId(stateName) {
+  return `cell-counter-${stateName}`;
 }
 
 export function getLayerToggleId(layer) {

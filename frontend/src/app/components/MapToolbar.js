@@ -1,4 +1,9 @@
-import { TICK_DELTAS, getLayerToggleId, getTickShifterId } from './MapControl';
+import {
+  TICK_DELTAS,
+  getCellCounterId,
+  getLayerToggleId,
+  getTickShifterId,
+} from './MapControl';
 import { INDICATOR_GRADIENTS } from './MapTheme';
 import {
   Algorithm,
@@ -63,6 +68,11 @@ export class MapToolbar {
 
   updateInfoControl(simulation) {
     setDamagedArea(simulation.estimateDamagedArea());
+    setCellCounters(
+      simulation.getBurningCells().length,
+      simulation.getIgnitingCells().length,
+      simulation.getBurnedCells().length
+    );
     setAirTemperature(simulation.calculateAverageAirTemperature());
     setAirHumidity(simulation.calculateAverageAirHumidity());
     const windSpeed = roundWindSpeed(simulation.calculateAverageWindSpeed());
@@ -126,6 +136,20 @@ function nameRangeSection(value, moderateThreshold, highThreshold) {
 function setDamagedArea(damagedArea) {
   const content = `Damaged area: ${Math.round(damagedArea / 10000)} ha`;
   setLabelContent('label-damaged-area', content);
+}
+
+function setCellCounters(burningCount, ignitingCount, burnedCount) {
+  const cellStateCounts = [
+    ['burning', burningCount],
+    ['igniting', ignitingCount],
+    ['burned', burnedCount],
+  ];
+  for (const [name, value] of cellStateCounts) {
+    setLabelContent(
+      getCellCounterId(name),
+      `- ${capitalizeText(name)}: ${value}`
+    );
+  }
 }
 
 function setAirTemperature(airTemperature) {
