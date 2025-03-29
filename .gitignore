@@ -12,7 +12,6 @@ __pycache__
 /data_processor/venv
 /data_processor/input
 /data_processor/output
-/data_processor/exploration
 /data_processor/main.py
 
 ### IDE ###
