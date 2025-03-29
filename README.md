@@ -12,9 +12,9 @@ The model replicates the fire spread process by incorporating physical principle
 
 The project is structured into three main modules:
 
-1. [src](./src/README.md) - Backend module responsible for core simulation logic and data processing.
-2. [frontend](./frontend/README.md) - Frontend module providing the web interface for visualization and interaction.
-3. [data_processor](./data_processor/README.md) - Auxiliary module for processing forest and landscape data from open datasets.
+1. [src](./src/) - Backend module responsible for core simulation logic and data processing.
+2. [frontend](./frontend/) - Frontend module providing the web interface for visualization and interaction.
+3. [data_processor](./data_processor/) - Auxiliary module for processing forest and landscape data from open datasets.
 
 ## Development
 
