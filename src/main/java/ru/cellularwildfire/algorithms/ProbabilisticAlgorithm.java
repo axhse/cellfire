@@ -10,7 +10,7 @@ public final class ProbabilisticAlgorithm implements Algorithm {
 
   private static final Random random = new Random();
 
-  private static final double BASIC_PROBABILITY = 0.58 / 3;
+  private static final double BASIC_PROBABILITY = 0.58 / 2.5;
   private static final double SLOPE_EFFECT = 0.078;
   private static final double WIND_SPEED_EFFECT = 0.045;
   private static final double WIND_COS_EFFECT = 0.131;
@@ -61,13 +61,13 @@ public final class ProbabilisticAlgorithm implements Algorithm {
 
   private double calculateFuelDensityEffect(Cell cell) {
     double fuel = cell.getState().getFuel();
-    if (fuel > 2) {
+    if (fuel > 0.7) {
       return 0.3;
     }
-    if (fuel > 1) {
+    if (fuel > 0.45) {
       return 0;
     }
-    if (fuel > 0.5) {
+    if (fuel > 0.2) {
       return -0.3;
     }
     return -1;
