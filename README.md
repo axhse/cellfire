@@ -1,5 +1,7 @@
 # Cellular Wildfire
 
+![demo](./img/demo.png)
+
 Cellular Wildfire is a web application designed for wildfire simulation using a model based on cellular automata.
 
 It utilizes predefined landscape and forest data along with real-time weather data to provide accurate simulations.
