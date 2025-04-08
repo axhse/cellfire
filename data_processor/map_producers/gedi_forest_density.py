@@ -45,19 +45,19 @@ class Region(Enum):
     @property
     def __box(self):
         if self == Region.AUSTRALIA:
-            return 0, 0, 68, 37
+            return 112, -48, 68, 37
         if self == Region.NORTH_AMERICA:
-            return 0, 0, 0, 0
+            return -161, 13, 109, 39
         if self == Region.NORTH_AFRICA:
             return -26, 10, 89, 42
         if self == Region.NORTH_ASIA:
-            return 0, 0, 0, 0
+            return 63, 25, 96, 27
         if self == Region.SOUTH_AMERICA:
-            return 0, 0, 0, 0
+            return -88, -56, 54, 69
         if self == Region.SOUTH_AFRICA:
-            return 66, -35, 66, 45
+            return -15, -35, 66, 45
         if self == Region.SOUTH_ASIA:
-            return 0, 0, 0, 0
+            return 66, -11, 102, 36
         return 0, 0, 0, 0
 
 
