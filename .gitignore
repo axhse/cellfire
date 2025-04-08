@@ -1,0 +1,18 @@
+### Large resources ###
+/data_processor/input
+/data_processor/output
+
+### IDE ###
+.idea
+
+### Backend ###
+/target
+
+### Frontend ###
+/frontend/build
+/frontend/node_modules
+/frontend/package-lock.json
+
+### Data processor ###
+__pycache__
+/data_processor/venv
