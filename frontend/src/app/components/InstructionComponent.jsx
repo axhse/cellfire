@@ -16,24 +16,24 @@ export default function Instruction() {
 
       <h3>Information</h3>
       <p>
-        The information section displays details about the current simulation
-        step, including influencing factors.
+        The information section displays details about current simulation step,
+        including fire influencing factors.
       </p>
       <p>
-        Indicators use a gradient color scheme: red for factors that promote
-        fire, green for those that inhibit it.
+        Indicators use a gradient color scheme: from red for factors that
+        promote fire to green for those that restrain it.
       </p>
 
       <h3>Layers</h3>
-      <p>Use the layer toggles to switch between different layers.</p>
-      <p>Each layer represents data using color gradients.</p>
+      <p>Use the layer toggles to switch between layers.</p>
+      <p>Each layer represents data with color gradients.</p>
       <p>
-        The fire status layer colors: red for active burning (highest heat),
-        gray for cooled damaged cells, and green for cold igniting cells.
+        The fire status layer colors: red for actively burning cells, gray for
+        cooled burned cells and green for cold igniting cells.
       </p>
       <p>
-        The fuel density layer colors: gray to purple, indicating fuel density
-        from 0 to 1.
+        The fuel density layer colors: from gray to purple, indicating fuel
+        density from 0 to 1.
       </p>
       <p>
         The elevation layer colors: green for areas at sea level or below,

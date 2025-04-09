@@ -5,41 +5,39 @@ import { InlineMath } from "react-katex";
 export default function Description() {
   return (
     <div className="section">
-      <h3>Simulation Model</h3>
+      <h3>Simulation</h3>
       <p>
-        The simulation is based on real weather conditions, landscape features,
-        and forest density arrangements.
+        The simulation is performed with a model based on cellular automaton.
       </p>
-      <p>It uses a cellular automaton model.</p>
+      <p>
+        It runs with respect for landscape and forest density features and goes
+        under real weather conditions.
+      </p>
 
       <h3>Cellular Automaton Model</h3>
       <p>
-        The automaton operates on a geographical grid, with each cell measuring
-        1/200th of a degree (grid scale: <InlineMath math={"S=200"} />
+        The automaton operates on a square geographical grid with cell having
+        width of 1/200th of a degree (grid scale: <InlineMath math={"S=200"} />
         ).
       </p>
-      <p>The time interval between automaton states is 30 minutes.</p>
+      <p>The time interval between simulation steps is 30 minutes.</p>
 
       <h3>Cellular Automaton State</h3>
-      <p>Each cell holds information about fuel and heat levels.</p>
+      <p>Each cell holds information about its heat and fuel amounts.</p>
       <p>
-        A cell is considered burning if its heat exceeds a specific threshold.
+        A cell is burning if its heat exceeds a specific threshold. These cells
+        emit and transfer energy to their neighboring cells.
       </p>
       <p>
-        Neighboring cells are either damaged and burned down or undamaged and
-        igniting.
-      </p>
-      <p>Burning cells transfer energy to 8 neighboring cells.</p>
-      <p>
-        Cells that have never been adjacent to burning cells are considered
-        intact and are excluded from the simulation.
+        Burning cells can ignite other neighboring cells and after some time
+        they burn out.
       </p>
       <p>The simulation starts with a single burning cell, set by the user.</p>
 
-      <h3>Cellular Automaton Rule</h3>
+      <h3>Cellular Automaton Transition Rule</h3>
       <p>The automaton state transition occurs in 3 steps.</p>
       <p>
-        First, burning cells combust at a rate calculated using the Arrhenius
+        Firstly, burning cells combust at a rate calculated using the Arrhenius
         equation: <InlineMath math={"k = A e^{-\\frac{E_a}{RT}}"} />
       </p>
       <p>
@@ -52,30 +50,24 @@ export default function Description() {
         duration.
       </p>
       <p>
-        The reaction emits energy proportional to the amount of fuel consumed.
+        The reaction emits energy amount proportional to the volume of consumed
+        fuel.
       </p>
       <p>
-        In the second step, the emitted energy is distributed between the
-        burning cell and its neighbors, based on proximity.
+        Then, the emitted energy is distributed between the burning cell itself
+        and its neighbors, proportional to the proximity measure.
       </p>
       <p>
-        Initially, proximity is calculated as the inverse of the average
-        distance between the centers of the cells.
+        For the cell itself, the proximity is defined as the scale effect
+        divided by the grid scale: <InlineMath math={"\\frac{\\beta_s}{S}"} />.
       </p>
       <p>
-        To account for the grid scale, the proximity is divided by{" "}
-        <InlineMath math={"\\beta_S S"} /> — proximity to neighboring cells
-        depends linearly on grid scale compared to proximity within the cell.
-      </p>
-      <p>
-        Wind speed in the direction between cells <InlineMath math={"w"} />{" "}
-        affects proximity with the effect <InlineMath math={"e^{\\beta_w w}"} />
-        .
-      </p>
-      <p>
-        The slope angle between cells <InlineMath math={"\\phi"} /> affects
-        proximity with the effect <InlineMath math={"e^{\\beta_\\phi \\phi}"} />
-        .
+        For neighboring cells, proximity is calculated as the inverse of the
+        distance <InlineMath math={"d"} /> between the cells, multiplied by the
+        effects of wind speed projection and slope angle:{" "}
+        <InlineMath
+          math={"\\frac{1}{d} e^{\\beta_w w} e^{\\beta_\\phi \\phi}"}
+        />
       </p>
       <p>
         Finally, cells cool down according to the Stefan-Boltzmann law:{" "}
@@ -92,7 +84,7 @@ export default function Description() {
       <p>
         The elevation map uses the{" "}
         <a href="https://visibleearth.nasa.gov/images/73934/topography/83040l">
-          Topography map
+          Topography dataset
         </a>
         .
       </p>
@@ -107,8 +99,12 @@ export default function Description() {
       </p>
       <p>
         The forest density map is based on the{" "}
-        <a href="https://nlang.users.earthengine.app/view/global-canopy-height-2020">
-          Canopy height map
+        <a href="https://glad.umd.edu/dataset/gedi">
+          Canopy height GEDI dataset
+        </a>{" "}
+        and{" "}
+        <a href="https://www.research-collection.ethz.ch/handle/20.500.11850/609802">
+          Canopy height langnico dataset
         </a>
         . Forest density at each point is calculated from canopy height using
         the following formula:
@@ -128,16 +124,15 @@ export default function Description() {
       <h3>Parameter Adjustment</h3>
       <p>
         The model has numerous parameters that can be tuned: combustion
-        intensity, energy emission, air humidity effect, slope effect, wind
-        effect, distance effect, heat regulation intensity, and radiation
-        prevalence.
+        intensity, energy emission, convection intensity, radiation intensity,
+        scope effect, air humidity effect, slope effect and wind effect.
       </p>
       <p>
-        These parameters are automatically adjusted through a set of
-        verification cases, which define the desired model behavior.
+        These parameters are adjusted with a tuner module that specifies a set
+        of verification cases describing desired behavior of the model.
       </p>
       <p>
-        The model iterates over parameter combinations to find the optimal set
+        The tuner iterates over parameter combinations to find the optimal set
         that satisfies all cases.
       </p>
     </div>

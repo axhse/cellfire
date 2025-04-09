@@ -13,10 +13,10 @@ public final class ThermalAlgorithm implements Algorithm {
   public static final double DEFAULT_CONVECTION_INTENSITY = 0.00017;
   public static final double DEFAULT_RADIATION_INTENSITY = 2.2 * Math.pow(10, -14);
   public static final double DEFAULT_SCALE_EFFECT = 174;
-  public static final double DEFAULT_SLOPE_EFFECT = 3;
 
   /** 3.5 in some research. */
   public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 6.1;
+  public static final double DEFAULT_SLOPE_EFFECT = 3;
 
   /** 0.13 in some research. */
   public static final double DEFAULT_WIND_EFFECT = 0.13;

@@ -13,8 +13,8 @@ import {
   TimelineControl,
 } from "./MapControl";
 
-const INITIAL_MAP_CENTER = [49.7, 37];
-const INITIAL_MAP_ZOOM = 10;
+const INITIAL_MAP_CENTER = [20, 45];
+const INITIAL_MAP_ZOOM = 5;
 
 export function MapModel(tools) {
   const olMap = new OLMap();

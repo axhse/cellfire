@@ -101,5 +101,6 @@ def load_and_draw_forest_type_map(resource_manager: ResourceManager):
 
 if __name__ == "__main__":
     manager = ResourceManager("input", "output")
-    map_fragment = produce_forest_type_map(manager)
-    draw_forest_type(map_fragment)
+    produce_and_save_forest_density_region_tiles(manager, Region.NORTH_AMERICA, (6, 3))
+    # map_fragment = combine_and_save_forest_density_region_tiles(manager, Region.NORTH_AMERICA)
+    # draw_forest_density(map_fragment)
