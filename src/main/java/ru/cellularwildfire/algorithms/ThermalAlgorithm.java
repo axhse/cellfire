@@ -16,6 +16,7 @@ public final class ThermalAlgorithm implements Algorithm {
 
   /** 3.5 in some research. */
   public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 6.1;
+
   public static final double DEFAULT_SLOPE_EFFECT = 3;
 
   /** 0.13 in some research. */
@@ -81,7 +82,8 @@ public final class ThermalAlgorithm implements Algorithm {
   private static boolean isBurning(Cell cell, Simulation simulation) {
     return cell.getState().getFuel() > 0
         && simulation.getConditions().getIgnitionTemperature() <= cell.getState().getHeat()
-        && cell.getFactors().getAirTemperature() > 0;
+        && cell.getFactors().getAirTemperature() > 0
+        && cell.getFactors().getAirHumidity() < 1;
   }
 
   private static double estimateDistance(Grid grid, Coordinates base, Coordinates neighbor) {

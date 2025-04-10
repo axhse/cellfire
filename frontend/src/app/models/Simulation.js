@@ -117,7 +117,8 @@ export class Simulation {
     return (
       cell.state.fuel > 0 &&
       this.conditions.ignitionTemperature <= cell.state.heat &&
-      cell.factors.airTemperature > 0
+      cell.factors.airTemperature > 0 &&
+      cell.factors.airHumidity < 1
     );
   }
 }

@@ -22,6 +22,7 @@ public final class ResourceLoader {
   public static Mosaic loadForestDensityMap() {
     List<MapFragment> fragments = new ArrayList<>();
     fragments.add(loadMapFragment("ForestDensity", 200, -26, 10, 89, 42));
+    fragments.add(loadMapFragment("ForestDensity", 200, -15, -35, 66, 45));
     return new Mosaic(fragments);
   }
 

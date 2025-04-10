@@ -7,7 +7,7 @@ import ru.cellularwildfire.models.Simulation;
 
 @Service
 public final class SimulationManager {
-  private static final int SIMULATION_LIMIT_QUANTITY = 20;
+  private static final int CAPACITY = 50;
 
   private final List<Simulation> simulations = new ArrayList<>();
   private final Map<String, Instant> accessDates = new HashMap<>();
@@ -26,7 +26,7 @@ public final class SimulationManager {
 
   public void addSimulation(Simulation simulation) {
     synchronized (simulations) {
-      if (simulations.size() == SIMULATION_LIMIT_QUANTITY) {
+      if (simulations.size() == CAPACITY) {
         simulations.sort(Comparator.comparing(s -> accessDates.get(s.getId())));
         simulations.remove(0);
       }
