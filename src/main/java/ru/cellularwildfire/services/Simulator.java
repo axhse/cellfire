@@ -36,6 +36,10 @@ public final class Simulator {
     this(terrainService, weatherService, new ThermalAlgorithm());
   }
 
+  public Simulation createSimulation(LatLng startPoint) {
+    return createSimulation(startPoint, Simulation.Algorithm.THERMAL);
+  }
+
   public Simulation createSimulation(LatLng startPoint, String algorithm) {
     return new Simulation(
         new Simulation.MarkedGrid(DEFAULT_GRID_SCALE, startPoint),

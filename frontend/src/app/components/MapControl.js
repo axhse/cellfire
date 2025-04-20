@@ -1,3 +1,7 @@
+import { createRoot } from "react-dom/client";
+
+import Instruction from "./InstructionComponent";
+
 import { Indicator, Layer } from "../models/Enumerations";
 import { capitalizeText } from "../models/Presentation";
 
@@ -50,8 +54,7 @@ export function InfoControl() {
   const textBlock = createContainer("", "text-block first");
   control.append(textBlock);
 
-  textBlock.appendChild(createLabel("label-active-algorithm", "first"));
-  textBlock.appendChild(createLabel("label-damaged-area"));
+  textBlock.appendChild(createLabel("label-damaged-area", "first"));
 
   textBlock.appendChild(createLabel("", "", "Cell states:"));
   for (const stateName of ["burning", "igniting", "burned"]) {
@@ -105,14 +108,14 @@ export function SimulationControl(tools) {
     true,
   );
 
-  const algorithmSwitch = createButton(
-    tools.switchAlgorithm,
-    "algorithm-switch",
-    "inline",
+  const instructionOpener = createButton(
+    tools.openInstruction,
     "",
-    "Switch algorithm",
+    "inline first",
+    "ℹ️",
+    "Open instruction",
   );
-  control.append(algorithmSwitch);
+  control.append(instructionOpener);
 
   const lighter = createButton(
     tools.switchLighter,
@@ -148,6 +151,30 @@ export function TimelineControl(tools) {
   textBlock.appendChild(createLabel("label-start-date"));
   textBlock.appendChild(createLabel("label-period"));
   textBlock.appendChild(createLabel("label-simulated-date"));
+
+  return control;
+}
+
+export function InstructionControl() {
+  const control = createContainer("control-container-instruction");
+
+  const container = createContainer("instruction-container");
+  control.appendChild(container);
+  const root = createRoot(container);
+  root.render(Instruction());
+
+  const instructionCloser = createButton(
+    () => {
+      document.getElementById("control-container-instruction").hidden = true;
+    },
+    "instruction-closer",
+    "",
+    "❌",
+    "Close instruction",
+  );
+  control.append(instructionCloser);
+
+  control.hidden = true;
 
   return control;
 }

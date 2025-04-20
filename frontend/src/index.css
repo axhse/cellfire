@@ -24,6 +24,7 @@
 body {
   background-color: var(--page-color);
   font-family: "MainFont";
+  margin: 0;
 }
 
 h2,
@@ -32,8 +33,8 @@ p {
   color: var(--text-color);
 }
 
+h2,
 h3 {
-  margin-top: 30px;
   text-align: center;
 }
 
@@ -51,22 +52,12 @@ a:visited {
 
 button {
   font-family: "MainFont";
+  font-size: 1em;
+  border: none;
 }
 
 .section {
   width: 100%;
-}
-
-.section-header {
-  margin-top: 100px;
-}
-
-.section-header {
-  margin-top: 100px;
-}
-
-.ol-touch .ol-control button {
-  font-size: 1em;
 }
 
 .ol-control {
@@ -89,6 +80,11 @@ button {
 .ol-control button:focus {
   color: var(--map-control-button-text-color);
   outline: none;
+}
+
+.ol-zoom {
+  top: 90px;
+  left: 10px;
 }
 
 .ol-zoom .ol-zoom-in {
@@ -144,6 +140,14 @@ button {
   display: inline;
 }
 
+.control-body button.inline {
+  margin-left: 5px;
+}
+
+.control-body button.inline.first {
+  margin-left: 0;
+}
+
 .control-body .text-block {
   padding: 2px;
   background-color: var(--map-control-text-block-color);
@@ -172,19 +176,13 @@ button {
   margin-left: 0px;
 }
 
-#page-container {
-  margin: 5vh 10vw;
-  justify-items: center;
-}
-
 #map-container {
-  width: 100%;
-  height: 80vh;
+  width: 100vw;
+  height: 100vh;
 }
 
 #map-container > div {
-  border: 4px solid var(--map-border-color);
-  border-radius: 8px;
+  border: none;
 }
 
 #control-container-info {
@@ -207,8 +205,12 @@ button {
 
 #control-container-simulation {
   position: absolute;
-  bottom: 10px;
+  top: 10px;
   left: 10px;
+}
+
+#control-container-simulation button {
+  width: 80px;
 }
 
 #control-container-layer button {
@@ -246,6 +248,33 @@ button {
 
 #control-container-timeline .control-body label {
   text-align: right;
+}
+
+#control-container-instruction {
+  position: absolute;
+  height: inherit;
+  background-color: var(--page-color);
+}
+
+#instruction-container {
+  padding: 5vh 10vw;
+  height: inherit;
+  overflow: scroll;
+}
+
+#instruction-footer {
+  height: 10vh;
+}
+
+#instruction-closer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: var(--map-control-button-color-active-lighter);
+}
+
+#instruction-closer:hover {
+  background-color: var(--map-control-hovered-button-color-active-lighter);
 }
 
 #indicator-panel {

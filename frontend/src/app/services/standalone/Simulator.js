@@ -3,7 +3,7 @@ import { Simulation } from "../../models/Simulation";
 import { Timeline } from "../../models/Timeline";
 
 export class Simulator {
-  async createSimulation(startLonLat, algorithm) {
+  async createSimulation(startLonLat) {
     const stepDurationMs = 30 * 60 * 1000;
     const limitTicks = (7 * 24 * 60 * 60 * 1000) / stepDurationMs;
     const startDate = new Date(
@@ -22,7 +22,6 @@ export class Simulator {
       new Grid(gridScale, startCoordinates),
       new Timeline(startDate, stepDurationMs, limitTicks),
       { ignitionTemperature: 280 },
-      algorithm,
     );
     this.progressSimulation(simulation, 0);
     return simulation;

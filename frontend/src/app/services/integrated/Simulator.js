@@ -3,11 +3,11 @@ import { Simulation } from "../../models/Simulation";
 import { Timeline } from "../../models/Timeline";
 
 export class Simulator {
-  async createSimulation(startLonLat, algorithm) {
+  async createSimulation(startLonLat) {
     const response = await fetch("/simulation/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ startLonLat, algorithm }),
+      body: JSON.stringify({ startLonLat }),
     });
 
     if (!response.ok) {
@@ -31,7 +31,6 @@ export class Simulator {
       grid,
       timeline,
       params.conditions,
-      params.algorithm,
     );
     simulation.appendSteps(params.steps, 0);
     return simulation;

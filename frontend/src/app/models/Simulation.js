@@ -3,12 +3,11 @@ export const SIGNIFICANT_OVERHEAT = 30;
 const EARTH_CIRCUMFERENCE = 40000000;
 
 export class Simulation {
-  constructor(id, grid, timeline, conditions, algorithm) {
+  constructor(id, grid, timeline, conditions) {
     this.id = id;
     this.grid = grid;
     this.timeline = timeline;
     this.conditions = conditions;
-    this.algorithm = algorithm;
     this.steps = [];
   }
 

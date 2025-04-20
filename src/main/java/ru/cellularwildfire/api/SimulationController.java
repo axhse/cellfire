@@ -31,7 +31,7 @@ public final class SimulationController {
     Map<String, Object> response = new HashMap<>();
 
     Simulation simulation =
-        simulator.createSimulation(params.getStartPoint(), params.getAlgorithm());
+        simulator.createSimulation(params.getStartPoint());
 
     if (simulator.tryStartSimulation(simulation)) {
       response.put("success", true);

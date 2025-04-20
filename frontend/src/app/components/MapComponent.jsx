@@ -31,8 +31,8 @@ export default class MapComponent extends Component {
   createTools() {
     return {
       handleMapClick: (event) => this.handleMapClick(event),
+      openInstruction: () => this.openInstruction(),
       switchLayer: (layer) => this.switchLayer(layer),
-      switchAlgorithm: () => this.toolbar.switchAlgorithm(),
       switchLighter: () => this.switchLighter(),
       navigateTimeline: (layer) => this.navigateTimeline(layer),
     };
@@ -42,6 +42,10 @@ export default class MapComponent extends Component {
     const isRegular = this.toolbar.pointerMode === PointerMode.Regular;
     const newMode = isRegular ? PointerMode.Lighter : PointerMode.Regular;
     this.toolbar.setPointerMode(newMode);
+  }
+
+  openInstruction() {
+    document.getElementById("control-container-instruction").hidden = false;
   }
 
   async handleMapClick(event) {
@@ -54,7 +58,6 @@ export default class MapComponent extends Component {
     this.toolbar.setPointerMode(PointerMode.Regular);
     this.simulation = await SIMULATOR.createSimulation(
       toLonLat(event.coordinate),
-      this.toolbar.algorithm,
     );
     if (this.simulation === undefined) {
       this.model.vectorSource.clear();

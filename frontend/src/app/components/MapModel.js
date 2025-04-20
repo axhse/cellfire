@@ -8,6 +8,7 @@ import Control from "ol/control/Control";
 
 import {
   InfoControl,
+  InstructionControl,
   LayerControl,
   SimulationControl,
   TimelineControl,
@@ -32,6 +33,7 @@ export function MapModel(tools) {
   for (const control of [...coreControls, ...runtimeControls]) {
     olMap.addControl(new Control({ element: control.container }));
   }
+  olMap.addControl(new Control({ element: InstructionControl() }));
 
   const center = fromLonLat(INITIAL_MAP_CENTER);
   olMap.setView(new View({ center, zoom: INITIAL_MAP_ZOOM }));

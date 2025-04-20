@@ -5,12 +5,7 @@ import {
   getTickShifterId,
 } from "./MapControl";
 import { INDICATOR_GRADIENTS } from "./MapTheme";
-import {
-  Algorithm,
-  Indicator,
-  Layer,
-  PointerMode,
-} from "../models/Enumerations";
+import { Indicator, Layer, PointerMode } from "../models/Enumerations";
 import {
   capitalizeText,
   describeTimePeriod,
@@ -21,30 +16,20 @@ export class MapToolbar {
   constructor(runtimeControls) {
     this.runtimeControls = runtimeControls;
     this.pointerMode = PointerMode.Regular;
-    this.algorithm = Algorithm.Thermal;
     this.layer = Layer.Fire;
   }
 
   initialize() {
     this.selectLayer(this.layer);
-    this.selectAlgorithm(this.algorithm);
   }
 
   enterSimulation(simulation) {
-    this.configureInfoControl(simulation);
     this.configureTimelineControl(simulation.timeline);
     this.runtimeControls.forEach((control) => control.show());
   }
 
   exitSimulation() {
     this.runtimeControls.forEach((control) => control.hide());
-  }
-
-  configureInfoControl(simulation) {
-    setLabelContent(
-      "label-active-algorithm",
-      `Active algorithm: ${capitalizeText(simulation.algorithm)}`,
-    );
   }
 
   configureTimelineControl(timeline) {
@@ -99,19 +84,6 @@ export class MapToolbar {
     this.pointerMode = pointerMode;
     const isLighter = pointerMode === PointerMode.Lighter;
     switchElementClass("map-container", "lighter-pointer", isLighter);
-  }
-
-  switchAlgorithm() {
-    this.selectAlgorithm(
-      this.algorithm === Algorithm.Thermal
-        ? Algorithm.Probabilistic
-        : Algorithm.Thermal,
-    );
-  }
-
-  selectAlgorithm(selectedAlgorithm) {
-    this.algorithm = selectedAlgorithm;
-    setLabelContent("algorithm-switch", capitalizeText(selectedAlgorithm));
   }
 
   selectLayer(selectedLayer) {

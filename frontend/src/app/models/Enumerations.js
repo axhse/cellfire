@@ -8,5 +8,3 @@ export const Indicator = {
 };
 
 export const Layer = { Fire: "fire", Fuel: "fuel", Elevation: "elevation" };
-
-export const Algorithm = { Thermal: "thermal", Probabilistic: "probabilistic" };
