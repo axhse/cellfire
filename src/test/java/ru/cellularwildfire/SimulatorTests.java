@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ru.cellularwildfire.algorithms.ThermalAlgorithm;
+import ru.cellularwildfire.services.ThermalAlgorithm;
 import ru.cellularwildfire.data.ForestTypeConditions;
 import ru.cellularwildfire.models.Cell;
 import ru.cellularwildfire.models.Coordinates;
@@ -16,11 +16,11 @@ import ru.cellularwildfire.tuner.services.UniformWeatherService;
 
 public final class SimulatorTests {
   private static Simulation createSimulation(Simulator simulator) {
-    return simulator.createSimulation(new LatLng(0, 0), Simulation.Algorithm.THERMAL);
+    return simulator.createSimulation(new LatLng(0, 0));
   }
 
   private static Simulation createSimulation(Simulator simulator, LatLng startPoint) {
-    return simulator.createSimulation(startPoint, Simulation.Algorithm.THERMAL);
+    return simulator.createSimulation(startPoint);
   }
 
   private static Simulation createSimulation(Duration stepDuration, Duration limitDuration) {
@@ -28,8 +28,7 @@ public final class SimulatorTests {
     return new Simulation(
         new Simulation.MarkedGrid(200, new LatLng(0, 0)),
         new Simulation.Timeline(Instant.now(), stepDuration, limitDuration),
-        new Simulation.Conditions(ForestTypeConditions.determineActivationEnergy(forestType)),
-        Simulation.Algorithm.THERMAL);
+        new Simulation.Conditions(ForestTypeConditions.determineActivationEnergy(forestType)));
   }
 
   private static Simulator createSimulator(double fuel) {

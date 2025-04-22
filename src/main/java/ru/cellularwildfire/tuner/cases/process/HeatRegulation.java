@@ -1,12 +1,12 @@
-package ru.cellularwildfire.tuner.cases.accuracy.process;
+package ru.cellularwildfire.tuner.cases.process;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import ru.cellularwildfire.algorithms.ThermalAlgorithm;
 import ru.cellularwildfire.models.Cell;
 import ru.cellularwildfire.models.Coordinates;
 import ru.cellularwildfire.models.Simulation;
 import ru.cellularwildfire.models.Weather;
+import ru.cellularwildfire.services.ThermalAlgorithm;
 import ru.cellularwildfire.tuner.experiment.Assessment;
 import ru.cellularwildfire.tuner.experiment.TuneCase;
 

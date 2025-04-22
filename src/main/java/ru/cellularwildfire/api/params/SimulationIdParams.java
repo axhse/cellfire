@@ -1,5 +1,7 @@
 package ru.cellularwildfire.api.params;
 
+import java.util.Optional;
+
 public class SimulationIdParams {
   private final String simulationId;
 
@@ -7,7 +9,7 @@ public class SimulationIdParams {
     this.simulationId = simulationId;
   }
 
-  public String getSimulationId() {
-    return simulationId;
+  public Optional<String> getSimulationId() {
+    return simulationId == null ? Optional.empty() : Optional.of(simulationId);
   }
 }

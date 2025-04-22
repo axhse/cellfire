@@ -7,9 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.cellularwildfire.algorithms.Algorithm;
-import ru.cellularwildfire.algorithms.ProbabilisticAlgorithm;
-import ru.cellularwildfire.algorithms.ThermalAlgorithm;
 import ru.cellularwildfire.models.*;
 
 @Service
@@ -37,15 +34,10 @@ public final class Simulator {
   }
 
   public Simulation createSimulation(LatLng startPoint) {
-    return createSimulation(startPoint, Simulation.Algorithm.THERMAL);
-  }
-
-  public Simulation createSimulation(LatLng startPoint, String algorithm) {
     return new Simulation(
         new Simulation.MarkedGrid(DEFAULT_GRID_SCALE, startPoint),
         new Simulation.Timeline(Instant.now(), DEFAULT_STEP_DURATION, DEFAULT_LIMIT_DURATION),
-        determineConditions(startPoint),
-        algorithm);
+        determineConditions(startPoint));
   }
 
   public boolean tryStartSimulation(Simulation simulation) {
@@ -75,14 +67,14 @@ public final class Simulator {
           && simulation.getSteps().size() <= limitTicks) {
         try {
           Simulation.Step draftStep = createDraftStep(simulation);
-          selectAlgorithm(simulation).refineDraftStep(draftStep, simulation);
+          algorithm.refineDraftStep(draftStep, simulation);
           for (Cell cell : draftStep.getCells()) {
             if (cell.getState().getFuel() < SIGNIFICANT_FUEL) {
               cell.getState().setFuel(0);
             }
           }
           simulation.getSteps().add(draftStep);
-          if (draftStep.getCells().stream().noneMatch(simulation::isBurning)) {
+          if (draftStep.getCells().stream().noneMatch(Cell::isBurning)) {
             draftStep.markAsFinal();
           }
         } catch (SimulatorException exception) {
@@ -107,9 +99,8 @@ public final class Simulator {
         factors = cell.getFactors();
       }
       Cell.State cellState = cell.getState();
-      boolean isDamaged = cellState.isDamaged() || simulation.isBurning(cell);
-      Cell.State draftCellState =
-          new Cell.State(cellState.getHeat(), cellState.getFuel(), isDamaged);
+      boolean isDamaged = cellState.isDamaged() || cell.isBurning();
+      Cell.State draftCellState = new Cell.State(cellState.getHeat(), cellState.getFuel(), isDamaged);
       Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, factors);
       draftCell.setTwin(cell);
       cell.setTwin(draftCell);
@@ -135,7 +126,7 @@ public final class Simulator {
 
     for (Cell previousCell : lastStep.getCells()) {
       Cell cell = previousCell.getTwin();
-      if (cell.getState().getFuel() == 0 || !simulation.isBurning(cell)) {
+      if (!cell.isBurning()) {
         continue;
       }
       for (int offsetX = -1; offsetX <= 1; offsetX++) {
@@ -176,13 +167,6 @@ public final class Simulator {
     }
 
     return draftStep;
-  }
-
-  private Algorithm selectAlgorithm(Simulation simulation) {
-    if (simulation.getAlgorithm().equals(Simulation.Algorithm.PROBABILISTIC)) {
-      return new ProbabilisticAlgorithm();
-    }
-    return algorithm;
   }
 
   private Simulation.Conditions determineConditions(LatLng startPoint) {

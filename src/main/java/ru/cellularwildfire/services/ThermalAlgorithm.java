@@ -1,4 +1,4 @@
-package ru.cellularwildfire.algorithms;
+package ru.cellularwildfire.services;
 
 import java.util.Arrays;
 import java.util.List;
@@ -79,13 +79,6 @@ public final class ThermalAlgorithm implements Algorithm {
         parameters[7]);
   }
 
-  private static boolean isBurning(Cell cell, Simulation simulation) {
-    return cell.getState().getFuel() > 0
-        && simulation.getConditions().getIgnitionTemperature() <= cell.getState().getHeat()
-        && cell.getFactors().getAirTemperature() > 0
-        && cell.getFactors().getAirHumidity() < 1;
-  }
-
   private static double estimateDistance(Grid grid, Coordinates base, Coordinates neighbor) {
     double localCos = Math.cos(Math.toRadians(grid.pointOf(base).lat));
     // Cells neighboring through the poles are not expected.
@@ -112,8 +105,7 @@ public final class ThermalAlgorithm implements Algorithm {
 
   @Override
   public void refineDraftStep(Simulation.Step draftStep, Simulation simulation) {
-    List<Cell> burningCells =
-        draftStep.getCells().stream().filter(cell -> isBurning(cell, simulation)).toList();
+    List<Cell> burningCells = draftStep.getCells().stream().filter(Cell::isBurning).toList();
     burningCells.forEach((cell) -> burnFuel(cell, simulation));
     burningCells.forEach((cell) -> transferEnergy(cell, simulation));
     draftStep.getCells().forEach((cell) -> regulateHeat(cell, simulation));
@@ -121,11 +113,6 @@ public final class ThermalAlgorithm implements Algorithm {
 
   private void burnFuel(Cell cell, Simulation simulation) {
     double initialFuel = cell.getState().getFuel();
-    if (initialFuel == 0
-        || !simulation.isBurning(cell)
-        || cell.getFactors().getAirTemperature() <= 0) {
-      return;
-    }
     double burnedFraction = calculateBurnedFraction(cell, simulation);
     double energy = calculateCombustionEnergy(cell, burnedFraction);
     double fuel = initialFuel * (1 - burnedFraction);

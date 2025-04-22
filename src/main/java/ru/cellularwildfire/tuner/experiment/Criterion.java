@@ -1,6 +1,6 @@
 package ru.cellularwildfire.tuner.experiment;
 
-import ru.cellularwildfire.algorithms.ThermalAlgorithm;
+import ru.cellularwildfire.services.ThermalAlgorithm;
 
 public final class Criterion {
   private static final double FAILURE_SCORE = -1;

@@ -15,10 +15,6 @@ export class Simulator {
     }
 
     const body = await response.json();
-    if (!body.success) {
-      return undefined;
-    }
-
     const params = body.simulation;
     const grid = new Grid(params.grid.scale, params.grid.startCoordinates);
     const timeline = new Timeline(
@@ -61,11 +57,8 @@ export class Simulator {
     }
 
     const body = await response.json();
-    if (!body.success) {
-      return false;
-    }
-
     simulation.appendSteps(body.steps, startTick);
+
     return true;
   }
 }

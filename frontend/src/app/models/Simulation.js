@@ -18,7 +18,6 @@ export class Simulation {
     ) {
       return;
     }
-    enrichSteps(steps);
     if (startIndex < this.steps.length) {
       this.steps = this.steps.slice(0, startIndex);
     }
@@ -130,14 +129,4 @@ function estimateCellArea(gridScale, coordinates) {
 
 function toLonLat(gridScale, coordinates) {
   return [(coordinates.x + 0.5) / gridScale, (coordinates.y + 0.5) / gridScale];
-}
-
-function enrichSteps(steps) {
-  for (const step of steps) {
-    for (const cell of step.cells) {
-      const windX = cell.factors.windX;
-      const windY = cell.factors.windY;
-      cell.factors.windSpeed = Math.sqrt(windX * windX + windY * windY);
-    }
-  }
 }

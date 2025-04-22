@@ -13,13 +13,11 @@ public final class Simulation {
   private final MarkedGrid grid;
   private final Timeline timeline;
   private final Conditions conditions;
-  private final String algorithm;
 
-  public Simulation(MarkedGrid grid, Timeline timeline, Conditions conditions, String algorithm) {
+  public Simulation(MarkedGrid grid, Timeline timeline, Conditions conditions) {
     this.grid = grid;
     this.timeline = timeline;
     this.conditions = conditions;
-    this.algorithm = algorithm;
   }
 
   public String getId() {
@@ -44,14 +42,6 @@ public final class Simulation {
 
   public Conditions getConditions() {
     return conditions;
-  }
-
-  public String getAlgorithm() {
-    return algorithm;
-  }
-
-  public boolean isBurning(Cell cell) {
-    return conditions.getIgnitionTemperature() <= cell.getState().getHeat();
   }
 
   public static final class MarkedGrid extends Grid {
@@ -139,10 +129,5 @@ public final class Simulation {
     public double getActivationEnergy() {
       return activationEnergy;
     }
-  }
-
-  public static final class Algorithm {
-    public static final String THERMAL = "thermal";
-    public static final String PROBABILISTIC = "probabilistic";
   }
 }

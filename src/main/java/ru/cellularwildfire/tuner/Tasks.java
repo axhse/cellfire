@@ -1,16 +1,13 @@
 package ru.cellularwildfire.tuner;
 
 import java.util.List;
-import ru.cellularwildfire.tuner.cases.accuracy.process.CombustionRate;
-import ru.cellularwildfire.tuner.cases.accuracy.process.HeatRegulation;
-import ru.cellularwildfire.tuner.cases.accuracy.simulation.DiverseGridScale;
-import ru.cellularwildfire.tuner.cases.accuracy.simulation.DiverseStepDuration;
-import ru.cellularwildfire.tuner.cases.accuracy.simulation.DryResilientForest;
-import ru.cellularwildfire.tuner.cases.accuracy.simulation.DryWindlessMixedForest;
-import ru.cellularwildfire.tuner.cases.accuracy.simulation.HumidFlammableForest;
-import ru.cellularwildfire.tuner.cases.accuracy.simulation.MediterraneanLargeFireEvent;
-import ru.cellularwildfire.tuner.cases.accuracy.simulation.SparseMixedForest;
-import ru.cellularwildfire.tuner.cases.efficiency.DraftStepCreation;
+import ru.cellularwildfire.tuner.cases.process.CombustionRate;
+import ru.cellularwildfire.tuner.cases.process.HeatRegulation;
+import ru.cellularwildfire.tuner.cases.simulation.DryResilientForest;
+import ru.cellularwildfire.tuner.cases.simulation.DryWindlessMixedForest;
+import ru.cellularwildfire.tuner.cases.simulation.HumidFlammableForest;
+import ru.cellularwildfire.tuner.cases.simulation.MediterraneanLargeFireEvent;
+import ru.cellularwildfire.tuner.cases.simulation.SparseMixedForest;
 import ru.cellularwildfire.tuner.experiment.Criterion;
 import ru.cellularwildfire.tuner.experiment.ModelParameter;
 import ru.cellularwildfire.tuner.experiment.TuneTask;
@@ -26,26 +23,14 @@ public final class Tasks {
             new Criterion(new DryResilientForest()),
             new Criterion(new SparseMixedForest()),
             new Criterion(new DryWindlessMixedForest()),
-            new Criterion(new MediterraneanLargeFireEvent()),
-            new Criterion(new DiverseGridScale(), false),
-            new Criterion(new DiverseStepDuration(), false)),
-        List.of());
-  }
-
-  public static TuneTask optimizeDraftStepCreation() {
-    return new TuneTask(
-        "Draft step creation",
-        List.of(
-            new Criterion(
-                new DraftStepCreation(
-                    DraftStepCreation.CopyingAlgorithm.RANDOM_POINTER_NEIGHBOR_HASHMAP))),
+            new Criterion(new MediterraneanLargeFireEvent())),
         List.of());
   }
 
   public static TuneTask tuneHeatRegulation() {
     return new TuneTask(
         "Heat regulation",
-        List.of(new Criterion(new HeatRegulation()), new Criterion(new DiverseStepDuration())),
+        List.of(new Criterion(new HeatRegulation())),
         List.of(
             new ModelParameter(
                 ModelParameter.CONVECTION_INTENSITY,
@@ -60,8 +45,7 @@ public final class Tasks {
         "Scale effect",
         List.of(
             new Criterion(new HumidFlammableForest()),
-            new Criterion(new DryResilientForest()),
-            new Criterion(new DiverseGridScale())),
+            new Criterion(new DryResilientForest())),
         List.of(
             new ModelParameter(
                 ModelParameter.ENERGY_EMISSION, ModelParameter.logUnitRange(25000, 0.2, 5, 20)),
@@ -77,9 +61,7 @@ public final class Tasks {
             new Criterion(new HumidFlammableForest()),
             new Criterion(new DryResilientForest()),
             new Criterion(new SparseMixedForest()),
-            new Criterion(new MediterraneanLargeFireEvent()),
-            new Criterion(new DiverseGridScale(), 0.2),
-            new Criterion(new DiverseStepDuration(), 0.1)),
+            new Criterion(new MediterraneanLargeFireEvent())),
         List.of(
             new ModelParameter(
                 ModelParameter.COMBUSTION_INTENSITY, ModelParameter.logRange(150, 150, 30)),

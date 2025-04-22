@@ -1,4 +1,4 @@
-package ru.cellularwildfire.algorithms;
+package ru.cellularwildfire.services;
 
 import ru.cellularwildfire.models.Simulation;
 

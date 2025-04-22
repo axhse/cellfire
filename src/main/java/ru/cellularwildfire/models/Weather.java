@@ -74,4 +74,8 @@ public class Weather {
   public double getWindY() {
     return decompressWindSpeed(windY);
   }
+
+  public double getWindSpeed() {
+    return Math.sqrt(getWindX() * getWindX() + getWindY() * getWindY());
+  }
 }

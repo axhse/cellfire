@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.Objects;
 
 public final class Cell {
+  private static final double IGNITION_TEMPERATURE = 500;
+
   @JsonIgnore private final Cell[] vicinity = new Cell[9];
   private final Coordinates coordinates;
   private final State state;
@@ -26,6 +28,13 @@ public final class Cell {
 
   public Factors getFactors() {
     return factors;
+  }
+
+  public boolean isBurning() {
+    return state.getFuel() > 0
+        && IGNITION_TEMPERATURE <= state.getHeat()
+        && factors.getAirHumidity() < 1
+        && factors.getAirTemperature() > 0;
   }
 
   @JsonIgnore

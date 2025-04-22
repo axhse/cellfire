@@ -2,7 +2,7 @@ package ru.cellularwildfire.tuner.experiment;
 
 import java.util.ArrayList;
 import java.util.List;
-import ru.cellularwildfire.algorithms.ThermalAlgorithm;
+import ru.cellularwildfire.services.ThermalAlgorithm;
 
 public final class Experiment {
   private static final int ITERATION_LIMIT = 1_000_000;

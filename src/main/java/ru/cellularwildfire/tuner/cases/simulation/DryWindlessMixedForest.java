@@ -1,21 +1,21 @@
-package ru.cellularwildfire.tuner.cases.accuracy.simulation;
+package ru.cellularwildfire.tuner.cases.simulation;
 
-import ru.cellularwildfire.algorithms.ThermalAlgorithm;
-import ru.cellularwildfire.data.ForestTypeConditions;
+import ru.cellularwildfire.data.ForestTypeConditions.ForestType;
 import ru.cellularwildfire.models.Simulation;
 import ru.cellularwildfire.services.Simulator;
+import ru.cellularwildfire.services.ThermalAlgorithm;
 import ru.cellularwildfire.tuner.experiment.Assessment;
 import ru.cellularwildfire.tuner.experiment.TuneCase;
 import ru.cellularwildfire.tuner.services.UniformTerrainService;
 import ru.cellularwildfire.tuner.services.UniformWeatherService;
 
-public final class DryResilientForest extends TuneCase {
-  private static final int FOREST_TYPE = ForestTypeConditions.ForestType.DECIDUOUS_BROADLEAF;
-  private static final double FUEL = 0.7;
+public final class DryWindlessMixedForest extends TuneCase {
+  private static final int FOREST_TYPE = ForestType.MIXED;
+  private static final double FUEL = 0.5;
   private static final double AIR_TEMPERATURE = 30;
-  private static final double AIR_HUMIDITY = 0.3;
-  private static final double WIND_X = 3;
-  private static final double WIND_Y = 1;
+  private static final double AIR_HUMIDITY = 0.4;
+  private static final double WIND_X = 0;
+  private static final double WIND_Y = 0;
 
   @Override
   public void assess(ThermalAlgorithm algorithm, Assessment assessment)
@@ -34,6 +34,6 @@ public final class DryResilientForest extends TuneCase {
         return;
       }
     }
-    assessment.failure("Dry resilient forest does not burn.");
+    assessment.failure("Dry windless mixed forest does not burn.");
   }
 }

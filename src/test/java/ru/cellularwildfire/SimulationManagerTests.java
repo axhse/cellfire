@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ru.cellularwildfire.algorithms.ThermalAlgorithm;
+import ru.cellularwildfire.services.ThermalAlgorithm;
 import ru.cellularwildfire.data.ForestTypeConditions;
 import ru.cellularwildfire.models.LatLng;
 import ru.cellularwildfire.models.Simulation;
@@ -23,8 +23,7 @@ public final class SimulationManagerTests {
     return new Simulation(
         new Simulation.MarkedGrid(1, new LatLng(0, 0)),
         new Simulation.Timeline(Instant.now(), stepDuration, limitDuration),
-        new Simulation.Conditions(100000),
-        Simulation.Algorithm.THERMAL);
+        new Simulation.Conditions(100000));
   }
 
   private static Simulation createSimulation() {
@@ -34,7 +33,7 @@ public final class SimulationManagerTests {
             new UniformWeatherService(200, 0, 0, 0),
             new ThermalAlgorithm());
 
-    return simulator.createSimulation(new LatLng(0, 0), Simulation.Algorithm.THERMAL);
+    return simulator.createSimulation(new LatLng(0, 0));
   }
 
   @Test

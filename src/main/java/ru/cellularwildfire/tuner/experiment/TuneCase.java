@@ -2,12 +2,12 @@ package ru.cellularwildfire.tuner.experiment;
 
 import java.time.Duration;
 import java.time.Instant;
-import ru.cellularwildfire.algorithms.ThermalAlgorithm;
 import ru.cellularwildfire.data.ForestTypeConditions;
 import ru.cellularwildfire.data.ForestTypeConditions.ForestType;
 import ru.cellularwildfire.models.LatLng;
 import ru.cellularwildfire.models.Simulation;
 import ru.cellularwildfire.services.Simulator;
+import ru.cellularwildfire.services.ThermalAlgorithm;
 
 public abstract class TuneCase {
   protected static final Duration DEFAULT_STEP_DURATION = Duration.ofMinutes(30);
@@ -31,13 +31,12 @@ public abstract class TuneCase {
     return new Simulation(
         new Simulation.MarkedGrid(gridScale, getDefaultStartPoint()),
         new Simulation.Timeline(Instant.now(), stepDuration, Duration.ofDays(7)),
-        new Simulation.Conditions(ForestTypeConditions.determineActivationEnergy(ForestType.MIXED)),
-        Simulation.Algorithm.THERMAL);
+        new Simulation.Conditions(
+            ForestTypeConditions.determineActivationEnergy(ForestType.MIXED)));
   }
 
   protected static Simulation startDefaultSimulation(Simulator simulator) {
-    Simulation simulation =
-        simulator.createSimulation(getDefaultStartPoint(), Simulation.Algorithm.THERMAL);
+    Simulation simulation = simulator.createSimulation(getDefaultStartPoint());
     simulator.tryStartSimulation(simulation);
     return simulation;
   }

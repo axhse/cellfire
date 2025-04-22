@@ -1,20 +1,22 @@
 package ru.cellularwildfire.api.params;
 
-public final class SimulationProgressParams extends SimulationIdParams {
-  private final int startTick;
-  private final int endTick;
+import java.util.Optional;
 
-  public SimulationProgressParams(String simulationId, int startTick, int endTick) {
+public final class SimulationProgressParams extends SimulationIdParams {
+  private final Integer startTick;
+  private final Integer endTick;
+
+  public SimulationProgressParams(String simulationId, Integer startTick, Integer endTick) {
     super(simulationId);
     this.startTick = startTick;
     this.endTick = endTick;
   }
 
-  public int getStartTick() {
-    return startTick;
+  public Optional<Integer> getStartTick() {
+    return startTick == null ? Optional.empty() : Optional.of(startTick);
   }
 
-  public int getEndTick() {
-    return endTick;
+  public Optional<Integer> getEndTick() {
+    return endTick == null ? Optional.empty() : Optional.of(endTick);
   }
 }
