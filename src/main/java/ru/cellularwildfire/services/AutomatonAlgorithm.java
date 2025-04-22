@@ -2,12 +2,15 @@ package ru.cellularwildfire.services;
 
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.stereotype.Service;
+import ru.cellularwildfire.data.ForestTypeFactors;
 import ru.cellularwildfire.models.Cell;
 import ru.cellularwildfire.models.Coordinates;
 import ru.cellularwildfire.models.Grid;
 import ru.cellularwildfire.models.Simulation;
 
-public final class ThermalAlgorithm implements Algorithm {
+@Service
+public final class AutomatonAlgorithm {
   public static final double DEFAULT_COMBUSTION_INTENSITY = 150;
   public static final double DEFAULT_ENERGY_EMISSION = 16500;
   public static final double DEFAULT_CONVECTION_INTENSITY = 0.00017;
@@ -36,7 +39,7 @@ public final class ThermalAlgorithm implements Algorithm {
   private final double slopeEffect;
   private final double windEffect;
 
-  public ThermalAlgorithm(
+  public AutomatonAlgorithm(
       double combustionIntensity,
       double energyEmission,
       double convectionIntensity,
@@ -55,7 +58,7 @@ public final class ThermalAlgorithm implements Algorithm {
     this.radiationIntensity = radiationIntensity;
   }
 
-  public ThermalAlgorithm() {
+  public AutomatonAlgorithm() {
     this(
         DEFAULT_COMBUSTION_INTENSITY,
         DEFAULT_ENERGY_EMISSION,
@@ -67,7 +70,7 @@ public final class ThermalAlgorithm implements Algorithm {
         DEFAULT_WIND_EFFECT);
   }
 
-  public ThermalAlgorithm(double... parameters) {
+  public AutomatonAlgorithm(double... parameters) {
     this(
         parameters[0],
         parameters[1],
@@ -103,7 +106,6 @@ public final class ThermalAlgorithm implements Algorithm {
     return cell.getTwin().getState().getHeat();
   }
 
-  @Override
   public void refineDraftStep(Simulation.Step draftStep, Simulation simulation) {
     List<Cell> burningCells = draftStep.getCells().stream().filter(Cell::isBurning).toList();
     burningCells.forEach((cell) -> burnFuel(cell, simulation));
@@ -180,15 +182,17 @@ public final class ThermalAlgorithm implements Algorithm {
   }
 
   private double calculateBurnedFraction(Cell cell, Simulation simulation) {
-    double combustionRate = calculateCombustionRate(cell, simulation.getConditions());
+    double combustionRate = calculateCombustionRate(cell);
     double stepDuration = simulation.getTimeline().getStepDuration().toSeconds();
     double scaleFactor = simulation.getGrid().getScale();
     return Math.min(1, combustionRate * stepDuration * scaleFactor);
   }
 
-  private double calculateCombustionRate(Cell cell, Simulation.Conditions conditions) {
+  private double calculateCombustionRate(Cell cell) {
+    double activationEnergy =
+        ForestTypeFactors.determineActivationEnergy(cell.getFactors().getForestType());
     double temperature = toKelvin(cell.getState().getHeat());
-    double firePower = -conditions.getActivationEnergy() / UNIVERSAL_GAS_CONSTANT / temperature;
+    double firePower = -activationEnergy / UNIVERSAL_GAS_CONSTANT / temperature;
     double airHumidityInfluence = Math.exp(-airHumidityEffect * cell.getFactors().getAirHumidity());
     return airHumidityInfluence * combustionIntensity * Math.exp(firePower);
   }

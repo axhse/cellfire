@@ -2,11 +2,13 @@ package ru.cellularwildfire.tuner.cases.process;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import ru.cellularwildfire.data.ForestTypeFactors.ForestType;
 import ru.cellularwildfire.models.Cell;
 import ru.cellularwildfire.models.Coordinates;
 import ru.cellularwildfire.models.Simulation;
 import ru.cellularwildfire.models.Weather;
-import ru.cellularwildfire.services.ThermalAlgorithm;
+import ru.cellularwildfire.services.Simulator;
+import ru.cellularwildfire.services.AutomatonAlgorithm;
 import ru.cellularwildfire.tuner.experiment.Assessment;
 import ru.cellularwildfire.tuner.experiment.TuneCase;
 
@@ -15,19 +17,20 @@ public final class HeatRegulation extends TuneCase {
     return new Cell(
         new Coordinates(0, 0),
         new Cell.State(heat, 0, true),
-        new Cell.Factors(0, new Weather(30, 0, 0, 0)));
+        new Cell.Factors(new Weather(30, 0, 0, 0), 0, ForestType.MIXED));
   }
 
   @Override
-  public void assess(ThermalAlgorithm algorithm, Assessment assessment)
+  public void assess(AutomatonAlgorithm algorithm, Assessment assessment)
       throws TuneCaseFailedException {
     try {
       Method heatRegulator =
-          ThermalAlgorithm.class.getDeclaredMethod("regulateHeat", Cell.class, Simulation.class);
+          AutomatonAlgorithm.class.getDeclaredMethod("regulateHeat", Cell.class, Simulation.class);
       heatRegulator.setAccessible(true);
 
       Simulation simulation = createSimulation();
-      Simulation roughSimulation = createSimulation(DEFAULT_STEP_DURATION.multipliedBy(2));
+      Simulation roughSimulation =
+          createSimulation(Simulator.DEFAULT_STEP_DURATION.multipliedBy(2));
       double heat;
 
       Cell overheatedCell = createCell(5000);

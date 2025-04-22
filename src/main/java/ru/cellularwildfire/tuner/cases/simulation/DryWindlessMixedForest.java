@@ -1,9 +1,9 @@
 package ru.cellularwildfire.tuner.cases.simulation;
 
-import ru.cellularwildfire.data.ForestTypeConditions.ForestType;
+import ru.cellularwildfire.data.ForestTypeFactors.ForestType;
 import ru.cellularwildfire.models.Simulation;
+import ru.cellularwildfire.services.AutomatonAlgorithm;
 import ru.cellularwildfire.services.Simulator;
-import ru.cellularwildfire.services.ThermalAlgorithm;
 import ru.cellularwildfire.tuner.experiment.Assessment;
 import ru.cellularwildfire.tuner.experiment.TuneCase;
 import ru.cellularwildfire.tuner.services.UniformTerrainService;
@@ -18,7 +18,7 @@ public final class DryWindlessMixedForest extends TuneCase {
   private static final double WIND_Y = 0;
 
   @Override
-  public void assess(ThermalAlgorithm algorithm, Assessment assessment)
+  public void assess(AutomatonAlgorithm algorithm, Assessment assessment)
       throws TuneCaseFailedException {
     Simulator simulator =
         new Simulator(

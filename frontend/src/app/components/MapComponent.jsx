@@ -110,13 +110,12 @@ export default class MapComponent extends Component {
   }
 
   getRectangleStyle(cell) {
-    const ignitionTemperature = this.simulation.conditions.ignitionTemperature;
-    const gradients = new LayerGradients(ignitionTemperature);
+    const gradients = new LayerGradients();
     let color;
     if (this.toolbar.layer === Layer.Fire) {
       const heat = cell.state.heat;
       let gradient = gradients.burning;
-      if (heat < ignitionTemperature) {
+      if (!cell.burning) {
         gradient = cell.state.damaged ? gradients.burned : gradients.intact;
       }
       color = gradient.forValue(heat);

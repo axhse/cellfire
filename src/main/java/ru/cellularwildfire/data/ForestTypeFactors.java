@@ -1,6 +1,6 @@
 package ru.cellularwildfire.data;
 
-public final class ForestTypeConditions {
+public final class ForestTypeFactors {
   public static double determineActivationEnergy(int forestType) {
     return switch (forestType) {
       case ForestType.EVERGREEN_NEEDLE_LEAF -> 120_000;
@@ -13,10 +13,10 @@ public final class ForestTypeConditions {
   }
 
   public static final class ForestType {
-    public static final int EVERGREEN_NEEDLE_LEAF = 1;
-    public static final int EVERGREEN_BROADLEAF = 2;
-    public static final int DECIDUOUS_NEEDLE_LEAF = 3;
-    public static final int DECIDUOUS_BROADLEAF = 4;
-    public static final int MIXED = 5;
+    public static final byte EVERGREEN_NEEDLE_LEAF = 1;
+    public static final byte EVERGREEN_BROADLEAF = 2;
+    public static final byte DECIDUOUS_NEEDLE_LEAF = 3;
+    public static final byte DECIDUOUS_BROADLEAF = 4;
+    public static final byte MIXED = 5;
   }
 }

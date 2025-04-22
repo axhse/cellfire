@@ -2,7 +2,7 @@ package ru.cellularwildfire.tuner.experiment;
 
 import java.util.ArrayList;
 import java.util.List;
-import ru.cellularwildfire.services.ThermalAlgorithm;
+import ru.cellularwildfire.services.AutomatonAlgorithm;
 
 public final class Experiment {
   private static final int ITERATION_LIMIT = 1_000_000;
@@ -33,8 +33,9 @@ public final class Experiment {
         parameterValueIndices.add(parameterValueIndex);
         n /= parameter.getVariations().size();
       }
-      ThermalAlgorithm algorithm =
-          new ThermalAlgorithm(parameterValues.stream().mapToDouble(Double::doubleValue).toArray());
+      AutomatonAlgorithm algorithm =
+          new AutomatonAlgorithm(
+              parameterValues.stream().mapToDouble(Double::doubleValue).toArray());
       for (Criterion criterion : tuneTask.getCriteria()) {
         Criterion.ModelScore modelScore = criterion.assess(algorithm);
         caseScores.add(modelScore);

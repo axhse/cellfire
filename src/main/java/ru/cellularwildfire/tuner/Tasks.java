@@ -43,9 +43,7 @@ public final class Tasks {
   public static TuneTask adjustScaleEffect() {
     return new TuneTask(
         "Scale effect",
-        List.of(
-            new Criterion(new HumidFlammableForest()),
-            new Criterion(new DryResilientForest())),
+        List.of(new Criterion(new HumidFlammableForest()), new Criterion(new DryResilientForest())),
         List.of(
             new ModelParameter(
                 ModelParameter.ENERGY_EMISSION, ModelParameter.logUnitRange(25000, 0.2, 5, 20)),

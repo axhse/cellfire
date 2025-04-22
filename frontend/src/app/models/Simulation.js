@@ -3,11 +3,10 @@ export const SIGNIFICANT_OVERHEAT = 30;
 const EARTH_CIRCUMFERENCE = 40000000;
 
 export class Simulation {
-  constructor(id, grid, timeline, conditions) {
+  constructor(id, grid, timeline) {
     this.id = id;
     this.grid = grid;
     this.timeline = timeline;
-    this.conditions = conditions;
     this.steps = [];
   }
 
@@ -45,24 +44,24 @@ export class Simulation {
   }
 
   getBurningCells() {
-    return this.getSimulatedCells().filter((cell) => this.isBurning(cell));
+    return this.getSimulatedCells().filter((cell) => cell.burning);
   }
 
   getBurnedCells() {
     return this.getSimulatedCells().filter(
-      (cell) => cell.state.damaged && !this.isBurning(cell),
+      (cell) => cell.state.damaged && !cell.burning,
     );
   }
 
   getIgnitingCells() {
     return this.getSimulatedCells().filter(
-      (cell) => !cell.state.damaged && !this.isBurning(cell),
+      (cell) => !cell.state.damaged && !cell.burning,
     );
   }
 
   getUnburnedCells() {
     return this.getSimulatedCells().filter(
-      (cell) => !cell.state.damaged || this.isBurning(cell),
+      (cell) => !cell.state.damaged || cell.burning,
     );
   }
 
@@ -109,15 +108,6 @@ export class Simulation {
     return this.getDamagedCells()
       .map((cell) => estimateCellArea(this.grid.scale, cell.coordinates))
       .reduce((a, ai) => a + ai, 0);
-  }
-
-  isBurning(cell) {
-    return (
-      cell.state.fuel > 0 &&
-      this.conditions.ignitionTemperature <= cell.state.heat &&
-      cell.factors.airTemperature > 0 &&
-      cell.factors.airHumidity < 1
-    );
   }
 }
 

@@ -21,7 +21,6 @@ export class Simulator {
       "DEMO-SIMULATION",
       new Grid(gridScale, startCoordinates),
       new Timeline(startDate, stepDurationMs, limitTicks),
-      { ignitionTemperature: 280 },
     );
     this.progressSimulation(simulation, 0);
     return simulation;
@@ -94,7 +93,11 @@ function produceDemoCell(startCoordinates, tick, offsetX, offsetY, final) {
     windX = windSpeed * Math.cos(windAngle);
     windY = windSpeed * Math.sin(windAngle);
   }
+  const windSpeed = Math.sqrt(windX * windX + windY * windY);
   const damaged = (offsetX * 2 + offsetY * 5 + 7) % 20 < 10;
+
+  const burning =
+    fuel > 0 && 500 <= heat && airHumidity < 1 && airTemperature > 0;
 
   return {
     coordinates: {
@@ -102,6 +105,14 @@ function produceDemoCell(startCoordinates, tick, offsetX, offsetY, final) {
       y: startCoordinates.y + offsetY,
     },
     state: { heat, fuel, damaged },
-    factors: { elevation, airTemperature, airHumidity, windX, windY },
+    factors: {
+      elevation,
+      airTemperature,
+      airHumidity,
+      windX,
+      windY,
+      windSpeed,
+    },
+    burning,
   };
 }

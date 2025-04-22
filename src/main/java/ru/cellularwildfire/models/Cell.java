@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Objects;
 
 public final class Cell {
-  private static final double IGNITION_TEMPERATURE = 500;
+  public static final double IGNITION_TEMPERATURE = 500;
 
   @JsonIgnore private final Cell[] vicinity = new Cell[9];
   private final Coordinates coordinates;
@@ -109,14 +109,16 @@ public final class Cell {
 
   public static final class Factors extends Weather {
     private final short elevation;
+    private final byte forestType;
 
-    public Factors(double elevation, Weather weather) {
+    public Factors(Weather weather, double elevation, byte forestType) {
       super(
           weather.getAirTemperature(),
           weather.getAirHumidity(),
           weather.getWindX(),
           weather.getWindY());
       this.elevation = compressElevation(elevation);
+      this.forestType = forestType;
     }
 
     private static short compressElevation(double elevation) {
@@ -133,20 +135,25 @@ public final class Cell {
       if (this == other) return true;
       if (other == null || getClass() != other.getClass()) return false;
       Factors otherFactors = (Factors) other;
-      return (elevation == otherFactors.elevation
-          && airTemperature == otherFactors.airTemperature
+      return (airTemperature == otherFactors.airTemperature
           && airHumidity == otherFactors.airHumidity
           && windX == otherFactors.windX
-          && windY == otherFactors.windY);
+          && windY == otherFactors.windY
+          && elevation == otherFactors.elevation
+          && forestType == otherFactors.forestType);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(elevation, airTemperature, airHumidity, windX, windY);
+      return Objects.hash(airTemperature, airHumidity, windX, windY, elevation, forestType);
     }
 
     public double getElevation() {
       return decompressElevation(elevation);
+    }
+
+    public byte getForestType() {
+      return forestType;
     }
   }
 }

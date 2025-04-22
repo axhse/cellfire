@@ -1,6 +1,6 @@
 package ru.cellularwildfire.tuner.experiment;
 
-import ru.cellularwildfire.services.ThermalAlgorithm;
+import ru.cellularwildfire.services.AutomatonAlgorithm;
 
 public final class Criterion {
   private static final double FAILURE_SCORE = -1;
@@ -30,7 +30,7 @@ public final class Criterion {
     return this.tuneCase.getClass().getSimpleName();
   }
 
-  public ModelScore assess(ThermalAlgorithm algorithm) {
+  public ModelScore assess(AutomatonAlgorithm algorithm) {
     Assessment assessment = new Assessment();
     try {
       tuneCase.assess(algorithm, assessment);

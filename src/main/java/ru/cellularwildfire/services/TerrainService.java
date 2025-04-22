@@ -3,7 +3,7 @@ package ru.cellularwildfire.services;
 import ru.cellularwildfire.models.LatLng;
 
 public interface TerrainService {
-  double getActivationEnergy(LatLng point);
+  byte getForestType(LatLng point);
 
   double getFuel(LatLng point);
 

@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ru.cellularwildfire.services.ThermalAlgorithm;
-import ru.cellularwildfire.data.ForestTypeConditions;
+import ru.cellularwildfire.data.ForestTypeFactors;
 import ru.cellularwildfire.models.LatLng;
 import ru.cellularwildfire.models.Simulation;
+import ru.cellularwildfire.services.AutomatonAlgorithm;
 import ru.cellularwildfire.services.SimulationManager;
 import ru.cellularwildfire.services.Simulator;
 import ru.cellularwildfire.tuner.services.UniformTerrainService;
@@ -22,16 +22,15 @@ public final class SimulationManagerTests {
   private static Simulation createSimulation(Duration stepDuration, Duration limitDuration) {
     return new Simulation(
         new Simulation.MarkedGrid(1, new LatLng(0, 0)),
-        new Simulation.Timeline(Instant.now(), stepDuration, limitDuration),
-        new Simulation.Conditions(100000));
+        new Simulation.Timeline(Instant.now(), stepDuration, limitDuration));
   }
 
   private static Simulation createSimulation() {
     Simulator simulator =
         new Simulator(
-            new UniformTerrainService(ForestTypeConditions.ForestType.MIXED, 0, 0),
+            new UniformTerrainService(ForestTypeFactors.ForestType.MIXED, 0, 0),
             new UniformWeatherService(200, 0, 0, 0),
-            new ThermalAlgorithm());
+            new AutomatonAlgorithm());
 
     return simulator.createSimulation(new LatLng(0, 0));
   }

@@ -1,18 +1,17 @@
 package ru.cellularwildfire.tuner.services;
 
-import ru.cellularwildfire.data.ForestTypeConditions;
 import ru.cellularwildfire.models.LatLng;
 import ru.cellularwildfire.services.TerrainService;
 
 public final class SlopedTerrainService implements TerrainService {
-  private final int forestType;
+  private final byte forestType;
   private final double fuel;
   private final double slope;
   private final double[] slopeVector;
 
   public SlopedTerrainService(
       int forestType, double fuel, double slopeInDegrees, double slopeDirectionInDegrees) {
-    this.forestType = forestType;
+    this.forestType = (byte) forestType;
     this.fuel = fuel;
     this.slope = calculateSlope(slopeInDegrees);
     this.slopeVector = calculateSlopeVector(slopeDirectionInDegrees);
@@ -28,8 +27,8 @@ public final class SlopedTerrainService implements TerrainService {
   }
 
   @Override
-  public double getActivationEnergy(LatLng point) {
-    return ForestTypeConditions.determineActivationEnergy(this.forestType);
+  public byte getForestType(LatLng point) {
+    return this.forestType;
   }
 
   @Override

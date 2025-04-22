@@ -1,16 +1,16 @@
 package ru.cellularwildfire.tuner.cases.simulation;
 
-import ru.cellularwildfire.data.ForestTypeConditions;
+import ru.cellularwildfire.data.ForestTypeFactors;
 import ru.cellularwildfire.models.Simulation;
+import ru.cellularwildfire.services.AutomatonAlgorithm;
 import ru.cellularwildfire.services.Simulator;
-import ru.cellularwildfire.services.ThermalAlgorithm;
 import ru.cellularwildfire.tuner.experiment.Assessment;
 import ru.cellularwildfire.tuner.experiment.TuneCase;
 import ru.cellularwildfire.tuner.services.UniformTerrainService;
 import ru.cellularwildfire.tuner.services.UniformWeatherService;
 
 public final class HumidFlammableForest extends TuneCase {
-  private static final int FOREST_TYPE = ForestTypeConditions.ForestType.EVERGREEN_NEEDLE_LEAF;
+  private static final int FOREST_TYPE = ForestTypeFactors.ForestType.EVERGREEN_NEEDLE_LEAF;
   private static final double FUEL = 0.5;
   private static final double AIR_TEMPERATURE = 20;
   private static final double AIR_HUMIDITY = 0.9;
@@ -18,7 +18,7 @@ public final class HumidFlammableForest extends TuneCase {
   private static final double WIND_Y = 1;
 
   @Override
-  public void assess(ThermalAlgorithm algorithm, Assessment assessment)
+  public void assess(AutomatonAlgorithm algorithm, Assessment assessment)
       throws TuneCaseFailedException {
     Simulator simulator =
         new Simulator(

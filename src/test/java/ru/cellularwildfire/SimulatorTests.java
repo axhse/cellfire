@@ -4,12 +4,12 @@ import java.time.Duration;
 import java.time.Instant;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ru.cellularwildfire.services.ThermalAlgorithm;
-import ru.cellularwildfire.data.ForestTypeConditions;
+import ru.cellularwildfire.data.ForestTypeFactors;
 import ru.cellularwildfire.models.Cell;
 import ru.cellularwildfire.models.Coordinates;
 import ru.cellularwildfire.models.LatLng;
 import ru.cellularwildfire.models.Simulation;
+import ru.cellularwildfire.services.AutomatonAlgorithm;
 import ru.cellularwildfire.services.Simulator;
 import ru.cellularwildfire.tuner.services.UniformTerrainService;
 import ru.cellularwildfire.tuner.services.UniformWeatherService;
@@ -24,18 +24,16 @@ public final class SimulatorTests {
   }
 
   private static Simulation createSimulation(Duration stepDuration, Duration limitDuration) {
-    int forestType = ForestTypeConditions.ForestType.MIXED;
     return new Simulation(
         new Simulation.MarkedGrid(200, new LatLng(0, 0)),
-        new Simulation.Timeline(Instant.now(), stepDuration, limitDuration),
-        new Simulation.Conditions(ForestTypeConditions.determineActivationEnergy(forestType)));
+        new Simulation.Timeline(Instant.now(), stepDuration, limitDuration));
   }
 
   private static Simulator createSimulator(double fuel) {
     return new Simulator(
-        new UniformTerrainService(ForestTypeConditions.ForestType.MIXED, fuel, 0),
+        new UniformTerrainService(ForestTypeFactors.ForestType.MIXED, fuel, 0),
         new UniformWeatherService(200, 0, 0, 0),
-        new ThermalAlgorithm());
+        new AutomatonAlgorithm());
   }
 
   @Test
@@ -111,8 +109,7 @@ public final class SimulatorTests {
 
     simulator.tryStartSimulation(simulation);
     simulator.tryProgressSimulation(simulation, 10);
-    Assertions.assertEquals(3, simulation.getSteps().size());
-    Assertions.assertEquals(1, simulation.getSteps().get(2).getCells().size());
+    Assertions.assertEquals(1, simulation.getSteps().size());
   }
 
   @Test

@@ -22,12 +22,7 @@ export class Simulator {
       params.timeline.stepDurationMs,
       params.timeline.limitTicks,
     );
-    const simulation = new Simulation(
-      params.id,
-      grid,
-      timeline,
-      params.conditions,
-    );
+    const simulation = new Simulation(params.id, grid, timeline);
     simulation.appendSteps(params.steps, 0);
     return simulation;
   }

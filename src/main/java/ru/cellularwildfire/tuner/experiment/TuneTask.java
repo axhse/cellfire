@@ -2,7 +2,7 @@ package ru.cellularwildfire.tuner.experiment;
 
 import java.util.ArrayList;
 import java.util.List;
-import ru.cellularwildfire.services.ThermalAlgorithm;
+import ru.cellularwildfire.services.AutomatonAlgorithm;
 
 public final class TuneTask {
   private final String name;
@@ -31,18 +31,23 @@ public final class TuneTask {
     return new ArrayList<>(
         List.of(
             new ModelParameter(
-                ModelParameter.COMBUSTION_INTENSITY, ThermalAlgorithm.DEFAULT_COMBUSTION_INTENSITY),
+                ModelParameter.COMBUSTION_INTENSITY,
+                AutomatonAlgorithm.DEFAULT_COMBUSTION_INTENSITY),
             new ModelParameter(
-                ModelParameter.ENERGY_EMISSION, ThermalAlgorithm.DEFAULT_ENERGY_EMISSION),
+                ModelParameter.ENERGY_EMISSION, AutomatonAlgorithm.DEFAULT_ENERGY_EMISSION),
             new ModelParameter(
-                ModelParameter.CONVECTION_INTENSITY, ThermalAlgorithm.DEFAULT_CONVECTION_INTENSITY),
+                ModelParameter.CONVECTION_INTENSITY,
+                AutomatonAlgorithm.DEFAULT_CONVECTION_INTENSITY),
             new ModelParameter(
-                ModelParameter.RADIATION_INTENSITY, ThermalAlgorithm.DEFAULT_RADIATION_INTENSITY),
-            new ModelParameter(ModelParameter.SCALE_EFFECT, ThermalAlgorithm.DEFAULT_SCALE_EFFECT),
+                ModelParameter.RADIATION_INTENSITY, AutomatonAlgorithm.DEFAULT_RADIATION_INTENSITY),
             new ModelParameter(
-                ModelParameter.AIR_HUMIDITY_EFFECT, ThermalAlgorithm.DEFAULT_AIR_HUMIDITY_EFFECT),
-            new ModelParameter(ModelParameter.SLOPE_EFFECT, ThermalAlgorithm.DEFAULT_SLOPE_EFFECT),
-            new ModelParameter(ModelParameter.WIND_EFFECT, ThermalAlgorithm.DEFAULT_WIND_EFFECT)));
+                ModelParameter.SCALE_EFFECT, AutomatonAlgorithm.DEFAULT_SCALE_EFFECT),
+            new ModelParameter(
+                ModelParameter.AIR_HUMIDITY_EFFECT, AutomatonAlgorithm.DEFAULT_AIR_HUMIDITY_EFFECT),
+            new ModelParameter(
+                ModelParameter.SLOPE_EFFECT, AutomatonAlgorithm.DEFAULT_SLOPE_EFFECT),
+            new ModelParameter(
+                ModelParameter.WIND_EFFECT, AutomatonAlgorithm.DEFAULT_WIND_EFFECT)));
   }
 
   public String getName() {

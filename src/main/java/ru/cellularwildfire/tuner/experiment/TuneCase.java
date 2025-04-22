@@ -2,37 +2,29 @@ package ru.cellularwildfire.tuner.experiment;
 
 import java.time.Duration;
 import java.time.Instant;
-import ru.cellularwildfire.data.ForestTypeConditions;
-import ru.cellularwildfire.data.ForestTypeConditions.ForestType;
+import ru.cellularwildfire.models.Cell;
 import ru.cellularwildfire.models.LatLng;
 import ru.cellularwildfire.models.Simulation;
+import ru.cellularwildfire.services.AutomatonAlgorithm;
 import ru.cellularwildfire.services.Simulator;
-import ru.cellularwildfire.services.ThermalAlgorithm;
 
 public abstract class TuneCase {
-  protected static final Duration DEFAULT_STEP_DURATION = Duration.ofMinutes(30);
-  protected static final int DEFAULT_GRID_SCALE = 200;
-  protected static final double INITIAL_HEAT = 1000;
-  private static final double IGNITION_TEMPERATURE = 500;
-
   protected static Simulation createSimulation(Duration stepDuration) {
-    return createSimulation(stepDuration, DEFAULT_GRID_SCALE);
+    return createSimulation(stepDuration, Simulator.DEFAULT_GRID_SCALE);
   }
 
   protected static Simulation createSimulation(int gridScale) {
-    return createSimulation(DEFAULT_STEP_DURATION, gridScale);
+    return createSimulation(Simulator.DEFAULT_STEP_DURATION, gridScale);
   }
 
   protected static Simulation createSimulation() {
-    return createSimulation(DEFAULT_STEP_DURATION, DEFAULT_GRID_SCALE);
+    return createSimulation(Simulator.DEFAULT_STEP_DURATION, Simulator.DEFAULT_GRID_SCALE);
   }
 
   private static Simulation createSimulation(Duration stepDuration, int gridScale) {
     return new Simulation(
         new Simulation.MarkedGrid(gridScale, getDefaultStartPoint()),
-        new Simulation.Timeline(Instant.now(), stepDuration, Duration.ofDays(7)),
-        new Simulation.Conditions(
-            ForestTypeConditions.determineActivationEnergy(ForestType.MIXED)));
+        new Simulation.Timeline(Instant.now(), stepDuration, Duration.ofDays(7)));
   }
 
   protected static Simulation startDefaultSimulation(Simulator simulator) {
@@ -65,15 +57,14 @@ public abstract class TuneCase {
   }
 
   protected static boolean hasBurningCells(Simulation simulation) {
-    return simulation.getSteps().getLast().getCells().stream()
-        .anyMatch(cell -> IGNITION_TEMPERATURE <= cell.getState().getHeat());
+    return simulation.getSteps().getLast().getCells().stream().anyMatch(Cell::isBurning);
   }
 
   private static LatLng getDefaultStartPoint() {
     return new LatLng(0.000001, 0.000001);
   }
 
-  public abstract void assess(ThermalAlgorithm algorithm, Assessment assessment)
+  public abstract void assess(AutomatonAlgorithm algorithm, Assessment assessment)
       throws TuneCaseFailedException;
 
   public static final class TuneCaseFailedException extends Exception {

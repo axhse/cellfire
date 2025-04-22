@@ -12,12 +12,10 @@ public final class Simulation {
   private final List<Step> steps = new ArrayList<>();
   private final MarkedGrid grid;
   private final Timeline timeline;
-  private final Conditions conditions;
 
-  public Simulation(MarkedGrid grid, Timeline timeline, Conditions conditions) {
+  public Simulation(MarkedGrid grid, Timeline timeline) {
     this.grid = grid;
     this.timeline = timeline;
-    this.conditions = conditions;
   }
 
   public String getId() {
@@ -38,10 +36,6 @@ public final class Simulation {
 
   public Timeline getTimeline() {
     return timeline;
-  }
-
-  public Conditions getConditions() {
-    return conditions;
   }
 
   public static final class MarkedGrid extends Grid {
@@ -110,24 +104,6 @@ public final class Simulation {
 
     public List<Cell> getCells() {
       return cells;
-    }
-  }
-
-  public static final class Conditions {
-    private static final double IGNITION_TEMPERATURE = 500;
-
-    private final double activationEnergy;
-
-    public Conditions(double activationEnergy) {
-      this.activationEnergy = activationEnergy;
-    }
-
-    public double getIgnitionTemperature() {
-      return IGNITION_TEMPERATURE;
-    }
-
-    public double getActivationEnergy() {
-      return activationEnergy;
     }
   }
 }

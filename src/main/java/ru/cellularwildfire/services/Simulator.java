@@ -11,33 +11,28 @@ import ru.cellularwildfire.models.*;
 
 @Service
 public final class Simulator {
-  private static final int DEFAULT_GRID_SCALE = 200;
-  private static final Duration DEFAULT_STEP_DURATION = Duration.ofMinutes(30);
-  private static final Duration DEFAULT_LIMIT_DURATION = Duration.ofDays(7);
-  private static final double INITIAL_HEAT = 1000;
-  private static final double SIGNIFICANT_FUEL = 0.01F;
+  public static final int DEFAULT_GRID_SCALE = 200;
+  public static final Duration DEFAULT_STEP_DURATION = Duration.ofMinutes(30);
+  public static final Duration DEFAULT_LIMIT_DURATION = Duration.ofDays(7);
+  public static final double INITIAL_HEAT = 1000;
+  public static final double SIGNIFICANT_FUEL = 0.01F;
 
   private final TerrainService terrainService;
   private final WeatherService weatherService;
-  private final ThermalAlgorithm algorithm;
+  private final AutomatonAlgorithm algorithm;
 
+  @Autowired
   public Simulator(
-      TerrainService terrainService, WeatherService weatherService, ThermalAlgorithm algorithm) {
+      TerrainService terrainService, WeatherService weatherService, AutomatonAlgorithm algorithm) {
     this.terrainService = terrainService;
     this.weatherService = weatherService;
     this.algorithm = algorithm;
   }
 
-  @Autowired
-  public Simulator(TerrainService terrainService, WeatherService weatherService) {
-    this(terrainService, weatherService, new ThermalAlgorithm());
-  }
-
   public Simulation createSimulation(LatLng startPoint) {
     return new Simulation(
         new Simulation.MarkedGrid(DEFAULT_GRID_SCALE, startPoint),
-        new Simulation.Timeline(Instant.now(), DEFAULT_STEP_DURATION, DEFAULT_LIMIT_DURATION),
-        determineConditions(startPoint));
+        new Simulation.Timeline(Instant.now(), DEFAULT_STEP_DURATION, DEFAULT_LIMIT_DURATION));
   }
 
   public boolean tryStartSimulation(Simulation simulation) {
@@ -51,6 +46,9 @@ public final class Simulator {
       Cell initialCell = new Cell(startCoordinates, initialState, factors);
 
       Simulation.Step initialStep = new Simulation.Step();
+      if (!initialCell.isBurning()) {
+        initialStep.markAsFinal();
+      }
       initialStep.getCells().add(initialCell);
       simulation.getSteps().add(initialStep);
       return true;
@@ -100,7 +98,8 @@ public final class Simulator {
       }
       Cell.State cellState = cell.getState();
       boolean isDamaged = cellState.isDamaged() || cell.isBurning();
-      Cell.State draftCellState = new Cell.State(cellState.getHeat(), cellState.getFuel(), isDamaged);
+      Cell.State draftCellState =
+          new Cell.State(cellState.getHeat(), cellState.getFuel(), isDamaged);
       Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, factors);
       draftCell.setTwin(cell);
       cell.setTwin(draftCell);
@@ -142,6 +141,9 @@ public final class Simulator {
           }
           LatLng neighborPoint = grid.pointOf(neighborCoordinates);
           double fuel = determineFuel(neighborPoint);
+          if (fuel < SIGNIFICANT_FUEL) {
+            continue;
+          }
           Cell.Factors factors = determineFactors(neighborPoint, date);
           if (factors.equals(cell.getFactors())) {
             factors = cell.getFactors();
@@ -169,16 +171,13 @@ public final class Simulator {
     return draftStep;
   }
 
-  private Simulation.Conditions determineConditions(LatLng startPoint) {
-    return new Simulation.Conditions(terrainService.getActivationEnergy(startPoint));
-  }
-
   private Cell.Factors determineFactors(LatLng point, Instant date) throws SimulatorException {
     Optional<Weather> weather = weatherService.getWeather(point, date);
     if (weather.isEmpty()) {
       throw new SimulatorException();
     }
-    return new Cell.Factors(terrainService.getElevation(point), weather.get());
+    return new Cell.Factors(
+        weather.get(), terrainService.getElevation(point), terrainService.getForestType(point));
   }
 
   private double determineFuel(LatLng point) {

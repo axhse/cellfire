@@ -1,7 +1,7 @@
 package ru.cellularwildfire.services;
 
 import org.springframework.stereotype.Service;
-import ru.cellularwildfire.data.ForestTypeConditions;
+import ru.cellularwildfire.data.ForestTypeFactors;
 import ru.cellularwildfire.data.Mosaic;
 import ru.cellularwildfire.data.ResourceLoader;
 import ru.cellularwildfire.models.LatLng;
@@ -13,8 +13,8 @@ public final class MosaicTerrainService implements TerrainService {
   private final Mosaic forestDensityMap = ResourceLoader.loadForestDensityMap();
 
   @Override
-  public double getActivationEnergy(LatLng point) {
-    return ForestTypeConditions.determineActivationEnergy(forestTypeClusterMap.at(point, 0));
+  public byte getForestType(LatLng point) {
+    return (byte) forestTypeClusterMap.at(point, 0);
   }
 
   @Override

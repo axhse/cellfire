@@ -171,11 +171,12 @@ export const INDICATOR_GRADIENTS = {
   [Indicator.FuelDensity]: new IndicatorGradient(0, 1),
 };
 
+const IGNITION_TEMPERATURE = 500;
 export class LayerGradients {
-  constructor(ignitionTemperature) {
-    this.intact = gradientOf(0, ignitionTemperature, LAYER_COLORS.intact);
-    this.burning = gradientOf(ignitionTemperature, 900, LAYER_COLORS.burning);
-    this.burned = gradientOf(0, ignitionTemperature, LAYER_COLORS.burned);
+  constructor() {
+    this.intact = gradientOf(0, IGNITION_TEMPERATURE, LAYER_COLORS.intact);
+    this.burning = gradientOf(IGNITION_TEMPERATURE, 900, LAYER_COLORS.burning);
+    this.burned = gradientOf(0, IGNITION_TEMPERATURE, LAYER_COLORS.burned);
     this.fuel = gradientOf(0, 1, LAYER_COLORS.fuel);
     this.elevation = new ElevationGradient();
   }
