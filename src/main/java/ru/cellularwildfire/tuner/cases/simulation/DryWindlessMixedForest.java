@@ -1,5 +1,6 @@
 package ru.cellularwildfire.tuner.cases.simulation;
 
+import java.time.Duration;
 import ru.cellularwildfire.data.ForestTypeFactors.ForestType;
 import ru.cellularwildfire.models.Simulation;
 import ru.cellularwildfire.services.AutomatonAlgorithm;
@@ -11,9 +12,9 @@ import ru.cellularwildfire.tuner.services.UniformWeatherService;
 
 public final class DryWindlessMixedForest extends TuneCase {
   private static final int FOREST_TYPE = ForestType.MIXED;
-  private static final double FUEL = 0.5;
+  private static final double FUEL = 0.6;
   private static final double AIR_TEMPERATURE = 30;
-  private static final double AIR_HUMIDITY = 0.4;
+  private static final double AIR_HUMIDITY = 0.3;
   private static final double WIND_X = 0;
   private static final double WIND_Y = 0;
 
@@ -27,9 +28,10 @@ public final class DryWindlessMixedForest extends TuneCase {
             algorithm);
     Simulation simulation = startDefaultSimulation(simulator);
 
-    while (hasBurningCells(simulation)) {
+    long limitTicks = Duration.ofHours(12).dividedBy(Simulator.DEFAULT_STEP_DURATION);
+    while (hasBurningCells(simulation) && simulation.getSteps().size() <= limitTicks) {
       simulator.tryProgressSimulation(simulation, simulation.getSteps().size());
-      if (9 <= countDamagedCells(simulation)) {
+      if (25 < countDamagedCells(simulation)) {
         assessment.victory();
         return;
       }

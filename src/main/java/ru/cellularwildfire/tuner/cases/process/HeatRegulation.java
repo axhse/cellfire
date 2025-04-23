@@ -14,7 +14,7 @@ public final class HeatRegulation extends TuneCase {
   private static Cell createCell(double heat) {
     return new Cell(
         new Coordinates(0, 0),
-        new Cell.State(heat, 0, true),
+        new Cell.State(heat, 1),
         new Cell.Factors(new Weather(30, 0, 0, 0), 0, ForestType.MIXED));
   }
 

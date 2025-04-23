@@ -1,5 +1,6 @@
 package ru.cellularwildfire.tuner.cases.simulation;
 
+import java.time.Duration;
 import ru.cellularwildfire.data.ForestTypeFactors;
 import ru.cellularwildfire.models.Simulation;
 import ru.cellularwildfire.services.AutomatonAlgorithm;
@@ -27,9 +28,10 @@ public final class DryResilientForest extends TuneCase {
             algorithm);
     Simulation simulation = startDefaultSimulation(simulator);
 
-    while (hasBurningCells(simulation)) {
+    long limitTicks = Duration.ofHours(12).dividedBy(Simulator.DEFAULT_STEP_DURATION);
+    while (hasBurningCells(simulation) && simulation.getSteps().size() <= limitTicks) {
       simulator.tryProgressSimulation(simulation, simulation.getSteps().size());
-      if (9 <= countDamagedCells(simulation)) {
+      if (25 < countDamagedCells(simulation)) {
         assessment.victory();
         return;
       }

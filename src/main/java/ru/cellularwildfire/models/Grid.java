@@ -66,7 +66,6 @@ public class Grid {
 
   public double estimateCellArea(Coordinates cellCoordinates) {
     double lat = pointOf(cellCoordinates).lat;
-    var a = cellHeight * cellHeight * Math.cos(Math.toRadians(lat));
     return cellHeight * cellHeight * Math.cos(Math.toRadians(lat));
   }
 }

@@ -15,7 +15,7 @@ public final class CombustionRate extends TuneCase {
   private static Cell createCell(double heat, double airHumidity) {
     return new Cell(
         new Coordinates(0, 0),
-        new Cell.State(heat, 0, true),
+        new Cell.State(heat, 1),
         new Cell.Factors(new Weather(0, airHumidity, 0, 0), 0, ForestType.MIXED));
   }
 

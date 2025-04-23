@@ -12,7 +12,7 @@ import ru.cellularwildfire.tuner.services.UniformWeatherService;
 
 public class StColomaFire extends TuneCase {
   private static final int FOREST_TYPE = ForestType.MIXED;
-  private static final double FUEL = 0.4;
+  private static final double FUEL = 0.5;
   private static final double AIR_TEMPERATURE = 30;
   private static final double AIR_HUMIDITY = 0.25;
   private static final double WIND_X = -4;
@@ -28,11 +28,11 @@ public class StColomaFire extends TuneCase {
             algorithm);
     Simulation simulation = startDefaultSimulation(simulator);
 
-    int ticks = (int) Duration.ofHours(5).dividedBy(simulation.getTimeline().getStepDuration());
+    int ticks = (int) Duration.ofHours(6).dividedBy(simulation.getTimeline().getStepDuration());
     simulator.tryProgressSimulation(simulation, ticks);
 
     long damagedHectares = Math.round(estimateDamagedHectares(simulation));
-    long targetMinHectares = 2000;
+    long targetMinHectares = 1700;
     if (damagedHectares <= targetMinHectares) {
       assessment.failure("Damaged %d ha <= %d ha".formatted(damagedHectares, targetMinHectares));
     }

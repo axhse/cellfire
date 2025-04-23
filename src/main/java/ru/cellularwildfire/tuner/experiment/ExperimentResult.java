@@ -18,18 +18,18 @@ public final class ExperimentResult {
 
   private static String formatValue(double value) {
     if (value < 0.0001 || 10000000 <= value) {
-      return String.format(Locale.US, "%.1e", value);
+      return String.format(Locale.US, "%.2e", value);
     }
-    if (10 <= Math.abs(value)) {
+    if (100 <= Math.abs(value)) {
       int factor = 1;
       long n = Math.abs(Math.round(value));
-      while (100 <= n) {
+      while (1000 <= n) {
         n /= 10;
         factor *= 10;
       }
       return String.valueOf(Math.round(value) / factor * factor);
     }
-    int scale = 1 - (int) Math.floor(Math.log10(value));
+    int scale = 2 - (int) Math.floor(Math.log10(value));
     BigDecimal decimal = new BigDecimal(value).setScale(scale, RoundingMode.HALF_UP);
     return decimal.stripTrailingZeros().toPlainString();
   }

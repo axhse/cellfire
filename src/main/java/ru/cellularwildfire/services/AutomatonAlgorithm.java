@@ -11,18 +11,18 @@ import ru.cellularwildfire.models.Simulation;
 
 @Service
 public final class AutomatonAlgorithm {
-  public static final double DEFAULT_COMBUSTION_INTENSITY = 150 * 200 * 1800;
-  public static final double DEFAULT_ENERGY_EMISSION = 16500;
-  public static final double DEFAULT_PROPAGATION_INTENSITY = 174 / 200.0;
-  public static final double DEFAULT_CONVECTION_INTENSITY = 0.00017 * 1800;
-  public static final double DEFAULT_RADIATION_INTENSITY = 2.2 * Math.pow(10, -14) * 1800;
+  public static final double DEFAULT_COMBUSTION_INTENSITY = 48_000_000;
+  public static final double DEFAULT_ENERGY_EMISSION = 13600;
+  public static final double DEFAULT_PROPAGATION_INTENSITY = 13;
+  public static final double DEFAULT_CONVECTION_INTENSITY = 0.3;
+  public static final double DEFAULT_RADIATION_INTENSITY = 4 * Math.pow(10, -11);
 
-  /** 3.5 in some research. */
-  public static final double DEFAULT_HUMIDITY_EFFECT = 6.1;
+  /** 3.5 in some research model. */
+  public static final double DEFAULT_HUMIDITY_EFFECT = 5.8;
 
   public static final double DEFAULT_SLOPE_EFFECT = 3;
 
-  /** 0.13 in some research. */
+  /** 0.13 in some research model. */
   public static final double DEFAULT_WIND_EFFECT = 0.13;
 
   private static final double UNIVERSAL_GAS_CONSTANT = 8.3;
@@ -100,7 +100,7 @@ public final class AutomatonAlgorithm {
   }
 
   private static void setEmittedEnergy(double energy, Cell cell) {
-    cell.setTwin(new Cell(null, new Cell.State(energy, 0, false), null));
+    cell.setTwin(new Cell(null, new Cell.State(energy, 0), null));
   }
 
   private static double getEmittedEnergy(Cell cell) {

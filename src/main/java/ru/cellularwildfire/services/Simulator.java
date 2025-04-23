@@ -39,7 +39,7 @@ public final class Simulator {
     Coordinates startCoordinates = simulation.getGrid().getStartCoordinates();
     LatLng startPoint = simulation.getGrid().pointOf(startCoordinates);
 
-    Cell.State initialState = new Cell.State(INITIAL_HEAT, determineFuel(startPoint), false);
+    Cell.State initialState = new Cell.State(INITIAL_HEAT, determineFuel(startPoint));
     try {
       Cell.Factors factors = determineFactors(startPoint, simulation.getTimeline().getStartDate());
 
@@ -97,9 +97,8 @@ public final class Simulator {
         factors = cell.getFactors();
       }
       Cell.State cellState = cell.getState();
-      boolean isDamaged = cellState.isDamaged() || cell.isBurning();
       Cell.State draftCellState =
-          new Cell.State(cellState.getHeat(), cellState.getFuel(), isDamaged);
+          new Cell.State(cellState.getHeat(), cellState.getFuel(), cellState.getInitialFuel());
       Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, factors);
       draftCell.setTwin(cell);
       cell.setTwin(draftCell);
@@ -148,7 +147,7 @@ public final class Simulator {
           if (factors.equals(cell.getFactors())) {
             factors = cell.getFactors();
           }
-          Cell.State neighborState = new Cell.State(factors.getAirTemperature(), fuel, false);
+          Cell.State neighborState = new Cell.State(factors.getAirTemperature(), fuel);
           Cell neighbor = new Cell(neighborCoordinates, neighborState, factors);
 
           for (int dX = -1; dX <= 1; dX++) {

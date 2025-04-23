@@ -36,10 +36,10 @@ public final class Tasks {
         List.of(
             new ModelParameter(
                 ModelParameter.CONVECTION_INTENSITY,
-                ModelParameter.logUnitRange(0.0001, 0.01, 100, 100)),
+                ModelParameter.logUnitRange(0.3, 0.1, 10, 100)),
             new ModelParameter(
                 ModelParameter.RADIATION_INTENSITY,
-                ModelParameter.logUnitRange(Math.pow(10, -14), 0.01, 100, 100))));
+                ModelParameter.logUnitRange(4 * Math.pow(10, -11), 0.1, 10, 100))));
   }
 
   public static TuneTask adjustHumidityEffect() {
@@ -50,16 +50,17 @@ public final class Tasks {
             new Criterion(new HumidFlammableForest()),
             new Criterion(new DryResilientForest()),
             new Criterion(new SparseMixedForest()),
+            new Criterion(new DryWindlessMixedForest()),
             new Criterion(new AlgarveFire()),
             new Criterion(new StColomaFire())),
         List.of(
             new ModelParameter(
-                ModelParameter.COMBUSTION_INTENSITY, ModelParameter.logRange(150, 150, 30)),
+                ModelParameter.COMBUSTION_INTENSITY,
+                ModelParameter.logUnitRange(44_000_000, 0.5, 2, 20)),
             new ModelParameter(
-                ModelParameter.ENERGY_EMISSION, ModelParameter.logRange(10000, 50000, 30)),
+                ModelParameter.ENERGY_EMISSION, ModelParameter.logUnitRange(14000, 0.5, 2, 30)),
             new ModelParameter(
-                ModelParameter.PROPAGATION_INTENSITY, ModelParameter.logRange(10, 1000, 30)),
-            new ModelParameter(
-                ModelParameter.HUMIDITY_EFFECT, ModelParameter.logRange(3, 10, 30))));
+                ModelParameter.PROPAGATION_INTENSITY, ModelParameter.logRange(1, 100, 30)),
+            new ModelParameter(ModelParameter.HUMIDITY_EFFECT, ModelParameter.logRange(5, 7, 20))));
   }
 }

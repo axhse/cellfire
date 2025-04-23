@@ -76,18 +76,26 @@ public final class Cell {
   }
 
   public static final class State {
-    private final boolean isDamaged;
+    private final float initialFuel;
     private float fuel;
     private float heat;
 
-    public State(double heat, double fuel, boolean isDamaged) {
-      this.fuel = (float) fuel;
+    public State(double heat, double initialFuel, double fuel) {
       this.heat = (float) heat;
-      this.isDamaged = isDamaged;
+      this.initialFuel = (float) initialFuel;
+      this.fuel = (float) fuel;
+    }
+
+    public State(double heat, double initialFuel) {
+      this(heat, initialFuel, initialFuel);
     }
 
     public boolean isDamaged() {
-      return isDamaged;
+      return fuel < initialFuel;
+    }
+
+    public double getInitialFuel() {
+      return initialFuel;
     }
 
     public double getFuel() {
