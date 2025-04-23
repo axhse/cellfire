@@ -2,15 +2,16 @@ package ru.cellularwildfire.services;
 
 import java.time.Instant;
 import java.util.*;
-import org.springframework.stereotype.Service;
 import ru.cellularwildfire.models.Simulation;
 
-@Service
 public final class SimulationManager {
-  private static final int CAPACITY = 50;
-
+  private final int capacity;
   private final List<Simulation> simulations = new ArrayList<>();
   private final Map<String, Instant> accessDates = new HashMap<>();
+
+  public SimulationManager(int capacity) {
+    this.capacity = capacity;
+  }
 
   public Optional<Simulation> findSimulation(String id) {
     synchronized (simulations) {
@@ -26,7 +27,7 @@ public final class SimulationManager {
 
   public void addSimulation(Simulation simulation) {
     synchronized (simulations) {
-      if (simulations.size() == CAPACITY) {
+      if (capacity <= simulations.size()) {
         simulations.sort(Comparator.comparing(s -> accessDates.get(s.getId())));
         simulations.remove(0);
       }

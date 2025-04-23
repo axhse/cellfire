@@ -1,19 +1,22 @@
 package ru.cellularwildfire.services;
 
-import org.springframework.stereotype.Service;
 import ru.cellularwildfire.data.Mosaic;
-import ru.cellularwildfire.data.ResourceLoader;
 import ru.cellularwildfire.models.LatLng;
 
-@Service
 public final class MosaicTerrainService implements TerrainService {
-  private final Mosaic elevationMap = ResourceLoader.loadElevationMap();
-  private final Mosaic forestTypeClusterMap = ResourceLoader.loadForestTypeClusterMap();
-  private final Mosaic forestDensityMap = ResourceLoader.loadForestDensityMap();
+  private final Mosaic elevationMap;
+  private final Mosaic forestTypeMap;
+  private final Mosaic forestDensityMap;
+
+  public MosaicTerrainService(Mosaic elevationMap, Mosaic forestTypeMap, Mosaic forestDensityMap) {
+    this.elevationMap = elevationMap;
+    this.forestTypeMap = forestTypeMap;
+    this.forestDensityMap = forestDensityMap;
+  }
 
   @Override
   public byte getForestType(LatLng point) {
-    return (byte) forestTypeClusterMap.at(point, 0);
+    return (byte) forestTypeMap.at(point, 0);
   }
 
   @Override
