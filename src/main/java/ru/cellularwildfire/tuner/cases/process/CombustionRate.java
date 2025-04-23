@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import ru.cellularwildfire.data.ForestTypeFactors.ForestType;
 import ru.cellularwildfire.models.Cell;
 import ru.cellularwildfire.models.Coordinates;
-import ru.cellularwildfire.models.Simulation;
 import ru.cellularwildfire.models.Weather;
 import ru.cellularwildfire.services.AutomatonAlgorithm;
 import ru.cellularwildfire.services.Simulator;
@@ -25,34 +24,32 @@ public final class CombustionRate extends TuneCase {
       throws TuneCaseFailedException {
     try {
       Method rateCalculator =
-          AutomatonAlgorithm.class.getDeclaredMethod(
-              "calculateBurnedFraction", Cell.class, Simulation.class);
+          AutomatonAlgorithm.class.getDeclaredMethod("calculateCombustionRate", Cell.class);
       rateCalculator.setAccessible(true);
-
-      Simulation simulation = createSimulation();
+      double rate;
 
       Cell initiallCell = createCell(Simulator.INITIAL_HEAT, 0.5f);
-      double rate = (double) rateCalculator.invoke(algorithm, initiallCell, simulation);
+      rate = (double) rateCalculator.invoke(algorithm, initiallCell);
       assessment.requireMoreThan(rate, 0.3, "Initial rate");
 
       Cell burningCell = createCell(800, 0.2f);
-      rate = (double) rateCalculator.invoke(algorithm, burningCell, simulation);
+      rate = (double) rateCalculator.invoke(algorithm, burningCell);
       assessment.requireLessThan(rate, 0.8, "Intensive rate");
 
       burningCell = createCell(750, 0.4f);
-      rate = (double) rateCalculator.invoke(algorithm, burningCell, simulation);
+      rate = (double) rateCalculator.invoke(algorithm, burningCell);
       assessment.requireInRange(rate, 0.1, 0.5, "Moderate rate");
 
       burningCell = createCell(700, 0.2f);
-      rate = (double) rateCalculator.invoke(algorithm, burningCell, simulation);
+      rate = (double) rateCalculator.invoke(algorithm, burningCell);
       assessment.requireInRange(rate, 0.1, 0.5, "Moderate rate");
 
       Cell smolderingCell = createCell(600, 0.3f);
-      rate = (double) rateCalculator.invoke(algorithm, smolderingCell, simulation);
+      rate = (double) rateCalculator.invoke(algorithm, smolderingCell);
       assessment.requireLessThan(rate, 0.1, "Smoldering rate");
 
       Cell boilingCell = createCell(800, 0.8f);
-      rate = (double) rateCalculator.invoke(algorithm, boilingCell, simulation);
+      rate = (double) rateCalculator.invoke(algorithm, boilingCell);
       assessment.requireLessThan(rate, 0.1, "Boiling rate");
     } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException exception) {
       assessment.failure(exception.getClass().getSimpleName() + ": " + exception.getMessage());

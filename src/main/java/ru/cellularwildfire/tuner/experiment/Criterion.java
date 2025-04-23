@@ -1,5 +1,6 @@
 package ru.cellularwildfire.tuner.experiment;
 
+import java.util.Optional;
 import ru.cellularwildfire.services.AutomatonAlgorithm;
 
 public final class Criterion {
@@ -34,7 +35,12 @@ public final class Criterion {
     Assessment assessment = new Assessment();
     try {
       tuneCase.assess(algorithm, assessment);
-      return new ModelScore(assessment.getScore(), weightScore(assessment.getScore()), null);
+      double score = assessment.getScore();
+      double weightedScore = weightScore(score);
+      Optional<String> message = assessment.getMessage();
+      return message
+          .map(text -> new ModelScore(score, weightedScore, text))
+          .orElseGet(() -> new ModelScore(score, weightedScore));
     } catch (TuneCase.TuneCaseFailedException exception) {
       return new ModelScore(FAILURE_SCORE, weightScore(FAILURE_SCORE), exception.getMessage());
     }
@@ -50,12 +56,18 @@ public final class Criterion {
   public static final class ModelScore {
     private final double score;
     private final double weightedScore;
-    private final String failureDescription;
+    private final Optional<String> message;
 
-    private ModelScore(double score, double weightedScore, String failureDescription) {
+    private ModelScore(double score, double weightedScore, String message) {
       this.score = score;
       this.weightedScore = weightedScore;
-      this.failureDescription = failureDescription;
+      this.message = Optional.of(message);
+    }
+
+    private ModelScore(double score, double weightedScore) {
+      this.score = score;
+      this.weightedScore = weightedScore;
+      this.message = Optional.empty();
     }
 
     public boolean isFailure() {
@@ -74,8 +86,8 @@ public final class Criterion {
       return weightedScore;
     }
 
-    public String getFailureDescription() {
-      return failureDescription;
+    public Optional<String> getMessage() {
+      return message;
     }
   }
 }

@@ -1,6 +1,5 @@
 package ru.cellularwildfire.tuner.services;
 
-import ru.cellularwildfire.data.ForestTypeFactors;
 import ru.cellularwildfire.models.LatLng;
 import ru.cellularwildfire.services.TerrainService;
 

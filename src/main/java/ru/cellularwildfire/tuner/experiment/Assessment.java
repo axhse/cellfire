@@ -1,11 +1,22 @@
 package ru.cellularwildfire.tuner.experiment;
 
+import java.util.Optional;
+
 public final class Assessment {
   private double totalScore = 0;
   private double measureCount = 0;
+  private String message = null;
+
+  public Optional<String> getMessage() {
+    return message == null ? Optional.empty() : Optional.of(message);
+  }
 
   public double getScore() {
     return measureCount == 0 ? 0 : totalScore / measureCount;
+  }
+
+  public void message(String text) {
+    message = text;
   }
 
   public void score(double score) {

@@ -6,10 +6,10 @@ import java.util.List;
 public final class ModelParameter {
   public static final String COMBUSTION_INTENSITY = "combustionIntensity";
   public static final String ENERGY_EMISSION = "energyEmission";
+  public static final String PROPAGATION_INTENSITY = "propagationIntensity";
   public static final String CONVECTION_INTENSITY = "convectionIntensity";
   public static final String RADIATION_INTENSITY = "radiationIntensity";
-  public static final String SCALE_EFFECT = "scaleEffect";
-  public static final String AIR_HUMIDITY_EFFECT = "airHumidityEffect";
+  public static final String HUMIDITY_EFFECT = "humidityEffect";
   public static final String SLOPE_EFFECT = "slopeEffect";
   public static final String WIND_EFFECT = "windEffect";
 

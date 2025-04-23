@@ -10,9 +10,9 @@ import ru.cellularwildfire.tuner.experiment.TuneCase;
 import ru.cellularwildfire.tuner.services.SlopedTerrainService;
 import ru.cellularwildfire.tuner.services.UniformWeatherService;
 
-public class MediterraneanLargeFireEvent extends TuneCase {
+public class AlgarveFire extends TuneCase {
   private static final int FOREST_TYPE = ForestType.MIXED;
-  private static final double FUEL = 0.5;
+  private static final double FUEL = 0.8;
   private static final double AIR_TEMPERATURE = 30;
   private static final double AIR_HUMIDITY = 0.3;
   private static final double WIND_X = -7;
@@ -31,7 +31,12 @@ public class MediterraneanLargeFireEvent extends TuneCase {
     int ticks = (int) Duration.ofHours(7).dividedBy(simulation.getTimeline().getStepDuration());
     simulator.tryProgressSimulation(simulation, ticks);
 
-    double damagedHectares = estimateDamagedHectares(simulation);
-    assessment.scoreLogAccuracy(damagedHectares, 20000, 5, "Damaged area");
+    long damagedHectares = Math.round(estimateDamagedHectares(simulation));
+    long targetMaxHectares = 20000;
+    if (damagedHectares > targetMaxHectares) {
+      assessment.failure("Damaged %d ha > %d ha".formatted(damagedHectares, targetMaxHectares));
+    }
+    assessment.victory();
+    assessment.message("Damaged %d ha <= %d ha".formatted(damagedHectares, targetMaxHectares));
   }
 }

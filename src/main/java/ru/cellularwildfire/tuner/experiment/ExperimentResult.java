@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 public final class ExperimentResult {
   private final Experiment experiment;
@@ -91,11 +92,8 @@ public final class ExperimentResult {
       System.out.print(styledText(formattedScore, TextStyle.BOLD, colorStyle) + "  ");
       String tuneCaseName = criteria.get(tuneCaseIndex).getName();
       System.out.print(styledText(tuneCaseName, TextStyle.CYAN));
-      if (modelScore.isFailure()) {
-        String description =
-            bestIteration.getCaseScores().get(tuneCaseIndex).getFailureDescription();
-        System.out.print("  " + styledText(description, TextStyle.RED));
-      }
+      Optional<String> message = bestIteration.getCaseScores().get(tuneCaseIndex).getMessage();
+      message.ifPresent(text -> System.out.print("  " + styledText(text, colorStyle)));
       System.out.println();
     }
     System.out.println();

@@ -1,7 +1,6 @@
 package ru.cellularwildfire.services;
 
 import org.springframework.stereotype.Service;
-import ru.cellularwildfire.data.ForestTypeFactors;
 import ru.cellularwildfire.data.Mosaic;
 import ru.cellularwildfire.data.ResourceLoader;
 import ru.cellularwildfire.models.LatLng;

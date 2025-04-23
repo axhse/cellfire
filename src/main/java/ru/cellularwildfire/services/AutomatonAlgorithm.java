@@ -11,14 +11,14 @@ import ru.cellularwildfire.models.Simulation;
 
 @Service
 public final class AutomatonAlgorithm {
-  public static final double DEFAULT_COMBUSTION_INTENSITY = 150;
+  public static final double DEFAULT_COMBUSTION_INTENSITY = 150 * 200 * 1800;
   public static final double DEFAULT_ENERGY_EMISSION = 16500;
-  public static final double DEFAULT_CONVECTION_INTENSITY = 0.00017;
-  public static final double DEFAULT_RADIATION_INTENSITY = 2.2 * Math.pow(10, -14);
-  public static final double DEFAULT_SCALE_EFFECT = 174;
+  public static final double DEFAULT_PROPAGATION_INTENSITY = 174 / 200.0;
+  public static final double DEFAULT_CONVECTION_INTENSITY = 0.00017 * 1800;
+  public static final double DEFAULT_RADIATION_INTENSITY = 2.2 * Math.pow(10, -14) * 1800;
 
   /** 3.5 in some research. */
-  public static final double DEFAULT_AIR_HUMIDITY_EFFECT = 6.1;
+  public static final double DEFAULT_HUMIDITY_EFFECT = 6.1;
 
   public static final double DEFAULT_SLOPE_EFFECT = 3;
 
@@ -28,46 +28,35 @@ public final class AutomatonAlgorithm {
   private static final double UNIVERSAL_GAS_CONSTANT = 8.3;
   private static final double CELSIUS_ZERO_TEMPERATURE = 273;
 
+  private static final double HEAT_LIMIT = 2000;
   private static final double HEAT_CHANGE_LIMIT = 0.15;
 
   private final double combustionIntensity;
   private final double energyEmission;
+  private final double propagationIntensity;
   private final double convectionIntensity;
   private final double radiationIntensity;
-  private final double scaleEffect;
-  private final double airHumidityEffect;
+  private final double humidityEffect;
   private final double slopeEffect;
   private final double windEffect;
 
   public AutomatonAlgorithm(
       double combustionIntensity,
       double energyEmission,
+      double propagationIntensity,
       double convectionIntensity,
       double radiationIntensity,
-      double scaleEffect,
-      double airHumidityEffect,
+      double humidityEffect,
       double slopeEffect,
       double windEffect) {
     this.combustionIntensity = combustionIntensity;
     this.energyEmission = energyEmission;
-    this.airHumidityEffect = airHumidityEffect;
+    this.humidityEffect = humidityEffect;
     this.slopeEffect = slopeEffect;
     this.windEffect = windEffect;
-    this.scaleEffect = scaleEffect;
+    this.propagationIntensity = propagationIntensity;
     this.convectionIntensity = convectionIntensity;
     this.radiationIntensity = radiationIntensity;
-  }
-
-  public AutomatonAlgorithm() {
-    this(
-        DEFAULT_COMBUSTION_INTENSITY,
-        DEFAULT_ENERGY_EMISSION,
-        DEFAULT_CONVECTION_INTENSITY,
-        DEFAULT_RADIATION_INTENSITY,
-        DEFAULT_SCALE_EFFECT,
-        DEFAULT_AIR_HUMIDITY_EFFECT,
-        DEFAULT_SLOPE_EFFECT,
-        DEFAULT_WIND_EFFECT);
   }
 
   public AutomatonAlgorithm(double... parameters) {
@@ -80,6 +69,18 @@ public final class AutomatonAlgorithm {
         parameters[5],
         parameters[6],
         parameters[7]);
+  }
+
+  public AutomatonAlgorithm() {
+    this(
+        DEFAULT_COMBUSTION_INTENSITY,
+        DEFAULT_ENERGY_EMISSION,
+        DEFAULT_PROPAGATION_INTENSITY,
+        DEFAULT_CONVECTION_INTENSITY,
+        DEFAULT_RADIATION_INTENSITY,
+        DEFAULT_HUMIDITY_EFFECT,
+        DEFAULT_SLOPE_EFFECT,
+        DEFAULT_WIND_EFFECT);
   }
 
   private static double estimateDistance(Grid grid, Coordinates base, Coordinates neighbor) {
@@ -108,29 +109,28 @@ public final class AutomatonAlgorithm {
 
   public void refineDraftStep(Simulation.Step draftStep, Simulation simulation) {
     List<Cell> burningCells = draftStep.getCells().stream().filter(Cell::isBurning).toList();
-    burningCells.forEach((cell) -> burnFuel(cell, simulation));
-    burningCells.forEach((cell) -> transferEnergy(cell, simulation));
-    draftStep.getCells().forEach((cell) -> regulateHeat(cell, simulation));
+    burningCells.forEach(this::burnFuel);
+    burningCells.forEach((cell) -> transferEnergy(cell, simulation.getGrid()));
+    draftStep.getCells().forEach(this::regulateHeat);
   }
 
-  private void burnFuel(Cell cell, Simulation simulation) {
+  private void burnFuel(Cell cell) {
     double initialFuel = cell.getState().getFuel();
-    double burnedFraction = calculateBurnedFraction(cell, simulation);
+    double burnedFraction = calculateBurnedFraction(cell);
     double energy = calculateCombustionEnergy(cell, burnedFraction);
     double fuel = initialFuel * (1 - burnedFraction);
     setEmittedEnergy(energy, cell);
     cell.getState().setFuel(fuel);
   }
 
-  private void transferEnergy(Cell cell, Simulation simulation) {
-    Grid grid = simulation.getGrid();
+  private void transferEnergy(Cell cell, Grid grid) {
     double[] proximity = new double[9];
-    proximity[8] = scaleEffect / grid.getScale();
+    proximity[8] = 1;
     int neighborIndex = 0;
     for (Cell neighbor : cell.iterateNeighbors()) {
       double distance = estimateDistance(grid, cell.getCoordinates(), neighbor.getCoordinates());
-      double environmentalEffect = calculateEnvironmentalEffect(grid, cell, neighbor);
-      proximity[neighborIndex++] = environmentalEffect / distance;
+      double environmentalEffect = calculateEnvironmentalEffect(cell, neighbor, grid);
+      proximity[neighborIndex++] = propagationIntensity * environmentalEffect / distance;
     }
     double totalProximity = Arrays.stream(proximity).sum();
 
@@ -146,9 +146,8 @@ public final class AutomatonAlgorithm {
     }
   }
 
-  private void regulateHeat(Cell cell, Simulation simulation) {
-    double stepDuration = simulation.getTimeline().getStepDuration().toSeconds();
-    double heat = toKelvin(cell.getState().getHeat());
+  private void regulateHeat(Cell cell) {
+    double heat = toKelvin(Math.min(cell.getState().getHeat(), HEAT_LIMIT));
     double airTemperature = toKelvin(cell.getFactors().getAirTemperature());
     double phase = 0;
     while (phase < 0.999) {
@@ -156,16 +155,16 @@ public final class AutomatonAlgorithm {
       double radiationRate = -radiationIntensity * Math.pow(heat, 4);
       double heatChangeRate = convectionRate + radiationRate;
       double phaseFraction = 1;
-      double iterationDuration = phaseFraction * stepDuration;
+      double iterationDuration = phaseFraction;
       double heatChange = heatChangeRate * iterationDuration;
       if (Math.abs(heatChange) > heat * HEAT_CHANGE_LIMIT) {
         heatChange = heat * HEAT_CHANGE_LIMIT * (heatChange < 0 ? -1 : 1);
         iterationDuration = heatChange / heatChangeRate;
-        phaseFraction = iterationDuration / stepDuration;
+        phaseFraction = iterationDuration;
       }
       if (phase + phaseFraction > 1) {
         phaseFraction = 1 - phase;
-        iterationDuration = phaseFraction * stepDuration;
+        iterationDuration = phaseFraction;
         heatChange = heatChangeRate * iterationDuration;
       }
       phase += phaseFraction;
@@ -181,11 +180,9 @@ public final class AutomatonAlgorithm {
     return energyEmission * burnedFraction * cell.getState().getFuel();
   }
 
-  private double calculateBurnedFraction(Cell cell, Simulation simulation) {
+  private double calculateBurnedFraction(Cell cell) {
     double combustionRate = calculateCombustionRate(cell);
-    double stepDuration = simulation.getTimeline().getStepDuration().toSeconds();
-    double scaleFactor = simulation.getGrid().getScale();
-    return Math.min(1, combustionRate * stepDuration * scaleFactor);
+    return Math.min(1, combustionRate);
   }
 
   private double calculateCombustionRate(Cell cell) {
@@ -193,15 +190,15 @@ public final class AutomatonAlgorithm {
         ForestTypeFactors.determineActivationEnergy(cell.getFactors().getForestType());
     double temperature = toKelvin(cell.getState().getHeat());
     double firePower = -activationEnergy / UNIVERSAL_GAS_CONSTANT / temperature;
-    double airHumidityInfluence = Math.exp(-airHumidityEffect * cell.getFactors().getAirHumidity());
+    double airHumidityInfluence = Math.exp(-humidityEffect * cell.getFactors().getAirHumidity());
     return airHumidityInfluence * combustionIntensity * Math.exp(firePower);
   }
 
-  private double calculateEnvironmentalEffect(Grid grid, Cell cell, Cell otherCell) {
-    return calculateSlopeEffect(grid, cell, otherCell) * calculateWindEffect(cell, otherCell);
+  private double calculateEnvironmentalEffect(Cell cell, Cell otherCell, Grid grid) {
+    return calculateSlopeEffect(cell, otherCell, grid) * calculateWindEffect(cell, otherCell);
   }
 
-  private double calculateSlopeEffect(Grid grid, Cell cell, Cell otherCell) {
+  private double calculateSlopeEffect(Cell cell, Cell otherCell, Grid grid) {
     double elevation = otherCell.getFactors().getElevation() - cell.getFactors().getElevation();
     if (elevation == 0) {
       return 1;

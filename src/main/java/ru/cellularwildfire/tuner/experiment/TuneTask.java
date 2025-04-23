@@ -36,14 +36,15 @@ public final class TuneTask {
             new ModelParameter(
                 ModelParameter.ENERGY_EMISSION, AutomatonAlgorithm.DEFAULT_ENERGY_EMISSION),
             new ModelParameter(
+                ModelParameter.PROPAGATION_INTENSITY,
+                AutomatonAlgorithm.DEFAULT_PROPAGATION_INTENSITY),
+            new ModelParameter(
                 ModelParameter.CONVECTION_INTENSITY,
                 AutomatonAlgorithm.DEFAULT_CONVECTION_INTENSITY),
             new ModelParameter(
                 ModelParameter.RADIATION_INTENSITY, AutomatonAlgorithm.DEFAULT_RADIATION_INTENSITY),
             new ModelParameter(
-                ModelParameter.SCALE_EFFECT, AutomatonAlgorithm.DEFAULT_SCALE_EFFECT),
-            new ModelParameter(
-                ModelParameter.AIR_HUMIDITY_EFFECT, AutomatonAlgorithm.DEFAULT_AIR_HUMIDITY_EFFECT),
+                ModelParameter.HUMIDITY_EFFECT, AutomatonAlgorithm.DEFAULT_HUMIDITY_EFFECT),
             new ModelParameter(
                 ModelParameter.SLOPE_EFFECT, AutomatonAlgorithm.DEFAULT_SLOPE_EFFECT),
             new ModelParameter(
