@@ -14,7 +14,7 @@ public final class DryResilientForest extends TuneCase {
   private static final int FOREST_TYPE = ForestTypeFactors.ForestType.DECIDUOUS_BROADLEAF;
   private static final double FUEL = 0.7;
   private static final double AIR_TEMPERATURE = 30;
-  private static final double AIR_HUMIDITY = 0.3;
+  private static final double AIR_HUMIDITY = 0.25;
   private static final double WIND_X = 3;
   private static final double WIND_Y = 1;
 

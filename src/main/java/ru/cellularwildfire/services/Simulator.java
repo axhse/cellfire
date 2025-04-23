@@ -98,7 +98,7 @@ public final class Simulator {
       }
       Cell.State cellState = cell.getState();
       Cell.State draftCellState =
-          new Cell.State(cellState.getHeat(), cellState.getFuel(), cellState.getInitialFuel());
+          new Cell.State(cellState.getHeat(), cellState.getInitialFuel(), cellState.getFuel());
       Cell draftCell = new Cell(cell.getCoordinates(), draftCellState, factors);
       draftCell.setTwin(cell);
       cell.setTwin(draftCell);

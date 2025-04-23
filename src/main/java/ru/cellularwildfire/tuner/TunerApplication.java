@@ -8,7 +8,7 @@ public final class TunerApplication {
   }
 
   private static void tune() {
-    Experiment experiment = new Experiment(true, Tasks.adjustHumidityEffect());
+    Experiment experiment = new Experiment(true, Tasks.balanceCombustion());
     experiment.run().print();
   }
 

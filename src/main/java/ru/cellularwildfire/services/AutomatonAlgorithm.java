@@ -11,14 +11,14 @@ import ru.cellularwildfire.models.Simulation;
 
 @Service
 public final class AutomatonAlgorithm {
-  public static final double DEFAULT_COMBUSTION_INTENSITY = 48_000_000;
-  public static final double DEFAULT_ENERGY_EMISSION = 13600;
-  public static final double DEFAULT_PROPAGATION_INTENSITY = 13;
+  public static final double DEFAULT_COMBUSTION_INTENSITY = 47_000_000;
+  public static final double DEFAULT_ENERGY_EMISSION = 19500;
+  public static final double DEFAULT_PROPAGATION_INTENSITY = 0.43;
   public static final double DEFAULT_CONVECTION_INTENSITY = 0.3;
   public static final double DEFAULT_RADIATION_INTENSITY = 4 * Math.pow(10, -11);
 
   /** 3.5 in some research model. */
-  public static final double DEFAULT_HUMIDITY_EFFECT = 5.8;
+  public static final double DEFAULT_HUMIDITY_EFFECT = 5.7;
 
   public static final double DEFAULT_SLOPE_EFFECT = 3;
 
@@ -83,6 +83,14 @@ public final class AutomatonAlgorithm {
         DEFAULT_WIND_EFFECT);
   }
 
+  private static double saturate(double linearValue) {
+    return 2 / (1 + Math.exp(-linearValue)) - 1;
+  }
+
+  private static double calculateLinearValue(double saturatedValue) {
+    return -Math.log((1 - saturatedValue) / (saturatedValue + 1));
+  }
+
   private static double estimateDistance(Grid grid, Coordinates base, Coordinates neighbor) {
     double localCos = Math.cos(Math.toRadians(grid.pointOf(base).lat));
     // Cells neighboring through the poles are not expected.
@@ -99,7 +107,7 @@ public final class AutomatonAlgorithm {
     return kelvinTemperature - CELSIUS_ZERO_TEMPERATURE;
   }
 
-  private static void setEmittedEnergy(double energy, Cell cell) {
+  private static void setEmittedEnergy(Cell cell, double energy) {
     cell.setTwin(new Cell(null, new Cell.State(energy, 0), null));
   }
 
@@ -115,12 +123,9 @@ public final class AutomatonAlgorithm {
   }
 
   private void burnFuel(Cell cell) {
-    double initialFuel = cell.getState().getFuel();
-    double burnedFraction = calculateBurnedFraction(cell);
-    double energy = calculateCombustionEnergy(cell, burnedFraction);
-    double fuel = initialFuel * (1 - burnedFraction);
-    setEmittedEnergy(energy, cell);
-    cell.getState().setFuel(fuel);
+    double burnedVolume = calculateBurnedVolume(cell);
+    cell.getState().setFuel(cell.getState().getFuel() - burnedVolume);
+    setEmittedEnergy(cell, energyEmission * burnedVolume);
   }
 
   private void transferEnergy(Cell cell, Grid grid) {
@@ -176,13 +181,12 @@ public final class AutomatonAlgorithm {
     cell.getState().setHeat(toCelsius(heat));
   }
 
-  private double calculateCombustionEnergy(Cell cell, double burnedFraction) {
-    return energyEmission * burnedFraction * cell.getState().getFuel();
-  }
-
-  private double calculateBurnedFraction(Cell cell) {
+  private double calculateBurnedVolume(Cell cell) {
     double combustionRate = calculateCombustionRate(cell);
-    return Math.min(1, combustionRate);
+    double saturatedVolume = 1 - cell.getState().getFuel() / cell.getState().getInitialFuel();
+    double linearVolume = calculateLinearValue(saturatedVolume);
+    double burnedPortion = saturate(linearVolume + combustionRate) - saturate(linearVolume);
+    return burnedPortion * cell.getState().getInitialFuel();
   }
 
   private double calculateCombustionRate(Cell cell) {

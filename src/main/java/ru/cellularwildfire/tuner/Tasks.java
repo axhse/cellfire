@@ -42,9 +42,9 @@ public final class Tasks {
                 ModelParameter.logUnitRange(4 * Math.pow(10, -11), 0.1, 10, 100))));
   }
 
-  public static TuneTask adjustHumidityEffect() {
+  public static TuneTask balanceCombustion() {
     return new TuneTask(
-        "Humidity effect",
+        "Combustion",
         List.of(
             new Criterion(new CombustionRate()),
             new Criterion(new HumidFlammableForest()),
@@ -56,11 +56,12 @@ public final class Tasks {
         List.of(
             new ModelParameter(
                 ModelParameter.COMBUSTION_INTENSITY,
-                ModelParameter.logUnitRange(44_000_000, 0.5, 2, 20)),
+                ModelParameter.logUnitRange(47_000_000, 0.5, 2, 30)),
             new ModelParameter(
-                ModelParameter.ENERGY_EMISSION, ModelParameter.logUnitRange(14000, 0.5, 2, 30)),
+                ModelParameter.ENERGY_EMISSION, ModelParameter.logUnitRange(19500, 0.5, 2, 30)),
             new ModelParameter(
-                ModelParameter.PROPAGATION_INTENSITY, ModelParameter.logRange(1, 100, 30)),
-            new ModelParameter(ModelParameter.HUMIDITY_EFFECT, ModelParameter.logRange(5, 7, 20))));
+                ModelParameter.PROPAGATION_INTENSITY,
+                ModelParameter.logUnitRange(0.43, 0.1, 10, 30)),
+            new ModelParameter(ModelParameter.HUMIDITY_EFFECT, ModelParameter.logRange(4, 8, 20))));
   }
 }
