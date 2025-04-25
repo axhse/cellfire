@@ -11,18 +11,10 @@ public final class MapLoader {
     return new MapFragment(data, scale, x, y, width, height);
   }
 
-  public static MapFragment loadMapFragment(String name, int scale, int x, int y, int size) {
-    return loadMapFragment(name, scale, x, y, size, size);
-  }
-
   public static MapFragment loadMapSmoothFragment(
       String name, int scale, int x, int y, int width, int height) {
     byte[][] data = loadFragmentData(name, scale, x, y, width, height);
     return new SmoothMapFragment(data, scale, x, y, width, height);
-  }
-
-  public static MapFragment loadMapSmoothFragment(String name, int scale, int x, int y, int size) {
-    return loadMapSmoothFragment(name, scale, x, y, size, size);
   }
 
   public static MapFragment loadFullMap(String name, int scale) {

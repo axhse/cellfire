@@ -113,14 +113,6 @@ def produce_forest_density_fragment(
     )
 
 
-def produce_forest_density_region(
-    resource_manager: ResourceManager, region: Region, scale, transitional_scale
-) -> MapFragment:
-    return produce_forest_density_fragment(
-        resource_manager, region, scale, transitional_scale, (0, 0), region.size
-    )
-
-
 def load_forest_density_fragment(
     resource_manager: ResourceManager, scale, x, y, width, height, compressed=False
 ):

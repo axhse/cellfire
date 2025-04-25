@@ -39,7 +39,7 @@ public final class Tasks {
                 ModelParameter.logUnitRange(0.3, 0.1, 10, 100)),
             new ModelParameter(
                 ModelParameter.RADIATION_INTENSITY,
-                ModelParameter.logUnitRange(4 * Math.pow(10, -11), 0.1, 10, 100))));
+                ModelParameter.logUnitRange(4 * Math.pow(10, -11), 0.05, 10, 10))));
   }
 
   public static TuneTask balanceCombustion() {

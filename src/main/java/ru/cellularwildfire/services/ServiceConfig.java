@@ -23,7 +23,7 @@ public class ServiceConfig {
   @Bean
   public static TerrainService terrainService() {
     List<MapFragment> elevationFragments = new ArrayList<>();
-    elevationFragments.add(MapLoader.loadMapSmoothFragment("Elevation", 30, -180, -56, 360, 126));
+    elevationFragments.add(MapLoader.loadMapSmoothFragment("Elevation", 120, -180, -56, 360, 128));
     Mosaic elevationMap = new Mosaic(elevationFragments);
 
     List<MapFragment> forestTypeFragments = new ArrayList<>();
@@ -31,8 +31,14 @@ public class ServiceConfig {
     Mosaic forestTypeMap = new Mosaic(forestTypeFragments);
 
     List<MapFragment> forestDensityFragments = new ArrayList<>();
-    forestDensityFragments.add(MapLoader.loadMapFragment("ForestDensity", 200, -26, 10, 89, 42));
-    forestDensityFragments.add(MapLoader.loadMapFragment("ForestDensity", 200, -15, -35, 66, 45));
+    forestDensityFragments.add(MapLoader.loadMapSmoothFragment("ForestDensity", 200, -180, 51, 360, 21));
+    forestDensityFragments.add(MapLoader.loadMapSmoothFragment("ForestDensity", 200, -161, 13, 109, 39));
+    forestDensityFragments.add(MapLoader.loadMapSmoothFragment("ForestDensity", 200, -88, -56, 54, 69));
+    forestDensityFragments.add(MapLoader.loadMapSmoothFragment("ForestDensity", 200, -26, 10, 89, 42));
+    forestDensityFragments.add(MapLoader.loadMapSmoothFragment("ForestDensity", 200, -15, -35, 66, 45));
+    forestDensityFragments.add(MapLoader.loadMapSmoothFragment("ForestDensity", 200, 63, 25, 96, 27));
+    forestDensityFragments.add(MapLoader.loadMapSmoothFragment("ForestDensity", 200, 66, -11, 102, 36));
+    forestDensityFragments.add(MapLoader.loadMapSmoothFragment("ForestDensity", 200, 112, -48, 68, 37));
     Mosaic forestDensityMap = new Mosaic(forestDensityFragments);
 
     return new MosaicTerrainService(elevationMap, forestTypeMap, forestDensityMap);
