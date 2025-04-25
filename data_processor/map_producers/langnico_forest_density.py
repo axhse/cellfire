@@ -22,7 +22,7 @@ def download_forest_density_input_file(resource_manager: ResourceManager, x, y) 
     if response.status_code == 404:
         return False
     response.raise_for_status()
-    file_path = path.join( CANOPY_HEIGHT_INPUT_FOLDER_NAME,  file_name)
+    file_path = path.join(CANOPY_HEIGHT_INPUT_FOLDER_NAME, file_name)
     resource_manager.save_tiff(file_path, response.content)
     return True
 
@@ -38,7 +38,9 @@ def produce_forest_density_tile(
 
     x, y = coordinates
 
-    input_file_path = path.join( CANOPY_HEIGHT_INPUT_FOLDER_NAME,  build_tile_file_name(x, y))
+    input_file_path = path.join(
+        CANOPY_HEIGHT_INPUT_FOLDER_NAME, build_tile_file_name(x, y)
+    )
     data = resource_manager.load_tiff(input_file_path)
     data = downscale_data(data, CANOPY_HEIGHT_TILE_SCALE // transitional_scale)
 

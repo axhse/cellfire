@@ -34,9 +34,9 @@ mvn spring-boot:run
 ```
 
 Start the production build with real weather data, specifying the WEATHER_API_KEY environment
-variable with an actual API key:
+variable with an actual API key with sufficient heap space:
 
 ```sh
-WEATHER_API_KEY=0123456789abcdef0123456789abcde mvn spring-boot:run
+WEATHER_API_KEY=0123456789abcdef0123456789abcde mvn spring-boot:run -Dspring-boot.run.jvmArguments="-Xmx3g -Xms2g"
 ```
 

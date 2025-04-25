@@ -25,7 +25,7 @@ class ResourceManager:
         return image_to_rgb_array(image)
 
     def save_tiff(self, file_path, content):
-        with open(self.__get_full_input_path(file_path), 'wb') as src:
+        with open(self.__get_full_input_path(file_path), "wb") as src:
             src.write(content)
 
     def load_tiff(self, file_path):

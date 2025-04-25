@@ -99,7 +99,9 @@ def load_and_draw_forest_type_map(resource_manager: ResourceManager):
     draw_forest_type(load_forest_type_map(resource_manager))
 
 
-def produce_and_save_forest_density_tiles(resource_manager: ResourceManager, coordinates, size):
+def produce_and_save_forest_density_tiles(
+    resource_manager: ResourceManager, coordinates, size
+):
     x_range = range(coordinates[0], coordinates[0] + size[0], 3)
     y_range = range(coordinates[1], coordinates[1] + size[1], 3)
     file_quantity = len(x_range) * len(y_range)
@@ -111,15 +113,17 @@ def produce_and_save_forest_density_tiles(resource_manager: ResourceManager, coo
                 f"{datetime.now().strftime('%H:%M:%S')}    In progress:  {(x, y)}  {file_index}/{file_quantity}"
             )
             try:
-                fragment = produce_forest_density_tile(resource_manager, 200, 1000, (x, y))
+                fragment = produce_forest_density_tile(
+                    resource_manager, 200, 1000, (x, y)
+                )
                 resource_manager.save_map_fragment(fragment)
             except Exception as exception:
-                print(
-                    f"Failed:  {(x, y)}  {exception}"
-                )
+                print(f"Failed:  {(x, y)}  {exception}")
 
 
-def download_forest_density_input_files(resource_manager: ResourceManager, coordinates, size):
+def download_forest_density_input_files(
+    resource_manager: ResourceManager, coordinates, size
+):
     x_range = range(coordinates[0], coordinates[0] + size[0], 3)
     y_range = range(coordinates[1], coordinates[1] + size[1], 3)
     file_quantity = len(x_range) * len(y_range)
@@ -131,12 +135,12 @@ def download_forest_density_input_files(resource_manager: ResourceManager, coord
                 f"{datetime.now().strftime('%H:%M:%S')}    In progress:  {(x, y)}  {file_index}/{file_quantity}"
             )
             if not download_forest_density_input_file(resource_manager, x, y):
-                print(
-                    f"Not found:  {(x, y)}"
-                )
+                print(f"Not found:  {(x, y)}")
 
 
-def produce_and_save_zero_forest_density_tiles(resource_manager: ResourceManager, coordinates, size):
+def produce_and_save_zero_forest_density_tiles(
+    resource_manager: ResourceManager, coordinates, size
+):
     x_range = range(coordinates[0], coordinates[0] + size[0], 3)
     y_range = range(coordinates[1], coordinates[1] + size[1], 3)
     for y in y_range:
@@ -149,7 +153,9 @@ def produce_and_save_zero_forest_density_tiles(resource_manager: ResourceManager
                 resource_manager.save_map_fragment(fragment)
 
 
-def combine_and_save_forest_density_tiles(resource_manager: ResourceManager, coordinates, size):
+def combine_and_save_forest_density_tiles(
+    resource_manager: ResourceManager, coordinates, size
+):
     x_range = range(coordinates[0], coordinates[0] + size[0], 3)
     y_range = range(coordinates[1], coordinates[1] + size[1], 3)
     tiles = list()
@@ -167,12 +173,5 @@ def combine_and_save_forest_density_tiles(resource_manager: ResourceManager, coo
 
 if __name__ == "__main__":
     manager = ResourceManager("input", "output")
-    # produce_and_save_forest_density_region_tiles(manager, Region.SOUTH_AMERICA, (4, 4))
-    # map_fragment = combine_and_save_forest_density_region_tiles(manager, Region.SOUTH_AMERICA)
-    # download_forest_density_input_files(manager, (-180, 69), (360, 3))
-    # produce_and_save_forest_density_tiles(manager, (-180, 69), (360, 3))
-    # produce_and_save_zero_forest_density_tiles(manager, (-180, 51), (360, 72 - 51))
-    # combine_and_save_forest_density_tiles(manager, (-180, 51), (360, 72 - 51))
-    manager.save_map_fragment(produce_elevation_map(manager).cut(-180, -56, 360, 72 + 56))
-    draw_elevation(produce_elevation_map(manager).cut(-180, -56, 360, 72 + 56))
-    # draw_forest_type(produce_and_save_forest_type_map(manager))
+    elevation_map = produce_elevation_map(manager)
+    draw_elevation(elevation_map)
