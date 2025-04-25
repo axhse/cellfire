@@ -101,9 +101,8 @@ function AboutContent() {
         the effect <InlineMath math={"e^{\\beta_a a}"} />.
       </p>
       <p>
-        A fraction <InlineMath math={"f = \\min(1, k e^{\\beta_a a} \\tau)"} />{" "}
-        of the fuel is consumed, where <InlineMath math={"\\tau"} /> is the step
-        duration.
+        A fraction <InlineMath math={"f = \\min(1, k e^{\\beta_a a})"} /> of the
+        fuel is consumed.
       </p>
       <p>
         The reaction emits energy amount proportional to the volume of consumed
@@ -113,16 +112,14 @@ function AboutContent() {
         Then, the emitted energy is distributed between the burning cell itself
         and its neighbors, proportional to the proximity measure.
       </p>
-      <p>
-        For the cell itself, the proximity is defined as the scale effect
-        divided by the grid scale: <InlineMath math={"\\frac{\\beta_s}{S}"} />.
-      </p>
+      <p>For the cell itself, the proximity is equal to 1.</p>
       <p>
         For neighboring cells, proximity is calculated as the inverse of the
-        distance <InlineMath math={"d"} /> between the cells, multiplied by the
+        distance <InlineMath math={"d"} /> between the cells, multiplied by
+        propagation intensity parameter <InlineMath math={"\\beta_p"} /> and the
         effects of wind speed projection and slope angle:{" "}
         <InlineMath
-          math={"\\frac{1}{d} e^{\\beta_w w} e^{\\beta_\\phi \\phi}"}
+          math={"\\frac{\\beta_p}{d} e^{\\beta_w w} e^{\\beta_\\phi \\phi}"}
         />
       </p>
       <p>
