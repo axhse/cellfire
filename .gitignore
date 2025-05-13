@@ -1,0 +1,20 @@
+### IDE ###
+.idea
+
+### Build ###
+/target
+
+### Frontend ###
+/frontend/build
+/frontend/node_modules
+/frontend/package-lock.json
+
+### Data processor ###
+__pycache__
+/data_processor/venv
+
+### Large data ###
+*.tif
+*.bin
+*.bin.z
+!src/main/resources/maps/ForestType/x10.bin.z
